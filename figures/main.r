@@ -1,4 +1,5 @@
-setwd('~/Documents/GitHub/bc/frontiers2017/figures')
+#make sure you run main.r from the figures directory for saving to work
+#setwd('~/Documents/GitHub/bc/frontiers2017/figures')
 source('data_description.r')
 source('time_series_functions.r')
 source('functions_specific_to_frontiers2017_dataset.r')
