@@ -103,7 +103,6 @@ create_vaf_posture_plots <- function(A_matrices_results){
   
 }
 
-library(rgl)
 compute_vaf_for_fxyz <- function(A_matrix_result) {
   plot3d(A_matrix_result$AMatrix)
 }
