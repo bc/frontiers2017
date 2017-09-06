@@ -1,19 +1,12 @@
-settling_time_analysis <- function(data_location){
-  force_posture_timestamps <- get_timestamps_for_all_forces(data_location) #returns list(c(rownumber_start, rownumber_finish), ...)
-  settling_time_df <- compute_settling_times_across_all_force_trials(data_location, force_posture_timestamps)
-  plot(settling_time_df$delta_tension, settling_time_df$settling_time, xlab="Change in tension requested (N)", ylab="Settling Time (ms)")
+require(testthat)
+stabilized <- function(vector, desired_val, max_allowable_error){
+	residuals <- desired_val - vector
+#if there are no points that are outside the allowable error
+	return(!sum(residuals > max_allowable_error)>0)
 }
 
-
-compute_settling_times_across_all_force_trials <- function(data_location, force_posture_timestamps){
-  lapply(force_posture_timestamps, function(row_range){
-    force_timeseries <- read.csv(data_location, nrows=row_range[2] - row_range[1], skip=row_range[1])
-    
+sample_vec <- c(1,1,1,1,1,1,4,8,9,4,5,3,2,3,2,3,2,3,3,3,3,3,3,3) 
+test_that("All indices to the right are within error bounds", {
+	expect_that( stabilized(sample_vec, 3, 1), is_false())
+	expect_that( stabilized(sample_vec[12:length(sample_vec)], 3, 1), is_true())
   })
-  settling_time_df$delta_tension <- settling_time_df$final_tension - settling_time_df$initial_tension
-  return(settling_time_df)
-}
-
-get_timestamps_for_all_forces <- function(data_location){
-  browser()
-}

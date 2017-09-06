@@ -24,5 +24,4 @@ save_snapshot_for_first_posture(raw_data_timeseries_df=first_data_chunk)
 pdf("../output/data_description_analysis.pdf", width=14.2, height=10)
   data_description_analysis(first_data_chunk, minimum_tendon_force, maximum_tendon_force, indices_of_interest=2:5)
 dev.off()
-
 #settling_time_analysis(data_location)
