@@ -55,5 +55,5 @@ test_that("performance of stabilized_index is acceptable", {
   pdf("../../../output/settling_time_analysis_performance.pdf", width = 10, height = 10)
   boxplot(mbm, cex = 0.25, main=paste(replicates, "replicates"))
   dev.off()
-  expect_equal(1, 1)
+  expect_equal(1, 1) #this is here invoke the block & ensure no errors happen in the above code.
 })
