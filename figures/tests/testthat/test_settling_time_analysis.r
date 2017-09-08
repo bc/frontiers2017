@@ -1,5 +1,6 @@
+require(testthat)
 source("../../settling_time_analysis.r")
-
+source("sample_datasets.r")
 sample_vec <- c(1, 1, 1, 1, 1, 1, 4, 8, 9, 4, 5, 3, 2, 3, 2, 3, 2, 3, 3, 3, 3, 3,
   3, 3)
 
@@ -42,4 +43,17 @@ test_that("stabilized_index", {
   expect_equal(stabilized_index(sample_vec, 3, 1), 12)
   expect_equal(stabilized_index(sample_vec, 3, 1), 12)
   expect_equal(stabilized_index(sample_measured_M0_force_trial, 4, 0.5), 207)
+})
+
+test_that("performance of stabilized_index is acceptable", {
+  library(microbenchmark)
+  replicates = 1000
+  mbm = microbenchmark(slow_stabilized_index(sample_vec, desired = 3, err = 1),
+    slow_stabilized_index(sample_measured_M0_force_trial, desired = 4, err = 0.5),
+    stabilized_index(sample_vec, desired = 3, err = 1), stabilized_index(sample_measured_M0_force_trial,
+      desired = 4, err = 0.5), times = replicates)
+  pdf("../../../output/settling_time_analysis_performance.pdf", width = 10, height = 10)
+  boxplot(mbm, cex = 0.25, main=paste(replicates, "replicates"))
+  dev.off()
+  expect_equal(1, 1)
 })

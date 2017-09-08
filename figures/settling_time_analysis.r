@@ -1,8 +1,3 @@
-require(testthat)
-source("sample_datasets.r")
-
-
-
 ##' @param vector vector of numeric values, that change by a constant interval of time.
 ##' @param desired numeric the desired stabilized value for the vector, if the vector is 'stabilized'
 ##' @param err numeric the maximum allowable residual for a given value from the desired value.
@@ -105,11 +100,19 @@ stabilized_index <- function(ts, desired, err) {
   }
 }
 
-
-
-indices_to_check <- 1:length(sample_measured_M0_force_trial)
-stabilized_vec <- lapply(indices_to_check, function(x) {
-  snip_to_check <- sample_measured_M0_force_trial[-x:0]
-  return(stabilized(snip_to_check, 4, 0.5))
-})
-stabilized_vec <- do.call("c", stabilized_vec)
+##' @param ts timeseries of numeric values
+##' @param desired numeric the desired stabilized value for the vector, if the vector is 'stabilized'
+##' @param err numeric the maximum allowable residual for a given value from the desired value.
+##' @description
+##' if length of a vector V is n, and some q exists s.t. v[q:n] is stable,
+##' Then any value 1 < x < Q, where x is stable, implies x:N is also stable.
+##' bounds = known stability bounds
+slow_stabilized_index <- function(ts, desired, err) {
+  indices_to_check <- 1:length(ts)
+  stabilized_vec <- lapply(indices_to_check, function(x) {
+    snip_to_check <- ts[x:length(ts)]
+    return(stabilized(snip_to_check, desired, err))
+  })
+  stabilized_vec <- do.call("c", stabilized_vec)
+  return(min(which(stabilized_vec == TRUE)))
+}
