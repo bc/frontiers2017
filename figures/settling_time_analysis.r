@@ -72,33 +72,53 @@ no_bounds <- function(idx_bounds) idx_bounds[1] == idx_bounds[2]
 ##' @description
 ##' if length of a vector V is n, and some q exists s.t. v[q:n] is stable,
 ##' Then any value 1 < x < Q, where x is stable, implies x:N is also stable.
+##; bounds = known stability bounds
 index_when_timeseries_stabilized <- function(ts, desired, err) {
-  lowest_stable_index_so_far <- tail(ts, 1)
-  known_stability_bounds <- c(1, length(ts))
-  message(paste("\n Starting Bounds:", known_stability_bounds[1], "< idx <", known_stability_bounds[2]))
-  while (inter_range_distance(known_stability_bounds) != 0) {
-    midpoint_idx <- floor_of_midpoint(known_stability_bounds[1], known_stability_bounds[2])
-    # Test whether midpoint_idx is stable
-    midpoint_is_stable <- stabilized(ts[midpoint_idx:known_stability_bounds[2]],
+  bounds <- c(1, length(ts))
+  message(paste("\n Starting Bounds:", bounds[1], "< idx <", bounds[2]))
+  while (inter_range_distance(bounds) != 0) {
+    midpoint <- floor_of_midpoint(bounds[1], bounds[2])
+    # Test whether midpoint is stable
+    midpoint_is_stable <- stabilized(ts[midpoint:bounds[2]],
       desired, err)
-    if (inter_range_distance(known_stability_bounds) == 1) {
-      left <- stabilized(ts[known_stability_bounds[1]:known_stability_bounds[2]],
+    if (inter_range_distance(bounds) == 1) {
+      left <- stabilized(ts[bounds[1]:bounds[2]],
         desired, err)
-      right <- stabilized(ts[known_stability_bounds[2]:known_stability_bounds[2]],
+      right <- stabilized(ts[bounds[2]:bounds[2]],
         desired, err)
-      return(first_true_value_idx(left, right, known_stability_bounds))
+      return(first_true_value_idx(left, right, bounds))
     }
     if (midpoint_is_stable) {
-      message(paste("index", midpoint_idx, "is stable"))
+      message(paste("index", midpoint, "is stable"))
       # If it's stable, move bounds to left to look for more ambitious indices
-      lowest_stable_index_so_far <- known_stability_bounds[1]
-      known_stability_bounds[2] <- midpoint_idx  # move right side in a bit
+      bounds[2] <- midpoint  # move right side in a bit
     } else {
-      message(paste("index", midpoint_idx, "is unstable"))
+      message(paste("index", midpoint, "is unstable"))
       # If it's unstable, move bounds to right to look for more conservative indices
-      lowest_stable_index_so_far <- known_stability_bounds[1]
-      known_stability_bounds[1] <- midpoint_idx  # move left side in a bit
+      bounds[1] <- midpoint  # move left side in a bit
     }
-    message(paste("\n ", known_stability_bounds[1], "< idx <", known_stability_bounds[2]))
+    message(paste("\n ", bounds[1], "< idx <", bounds[2]))
+  }
+  if (no_bounds(bounds)) {
+      return(ifelse(stabilized(ts,desired,err), 1, stop("not stable")))
   }
 }
+
+test_that("A stable timeseries will return its convergence index", {
+  expect_equal(index_when_timeseries_stabilized(c(1,1,5,1,1,1,1,3,3), 3, 1), 8)
+  expect_equal(index_when_timeseries_stabilized(c(1,1,5,1,1,1,1,-3,-3), -3, 1), 8)
+  expect_equal(index_when_timeseries_stabilized(c(-3), -3, 1), 1)
+  expect_equal(index_when_timeseries_stabilized(c(-2.888), -3, 1), 1)
+  expect_that(index_when_timeseries_stabilized(c(1,1), -3, 1), throws_error())
+  expect_that(index_when_timeseries_stabilized(c(-1,-1), -3, 1), throws_error())
+  expect_equal(index_when_timeseries_stabilized(sample_vec, 3, 1), 12)
+  expect_equal(index_when_timeseries_stabilized(sample_vec, 3, 1), 12)
+  expect_equal(index_when_timeseries_stabilized(sample_measured_M0_force_trial, 4, 0.5), 207)
+})
+
+indices_to_check <- 1:length(sample_measured_M0_force_trial)
+stabilized_vec <- lapply(indices_to_check, function(x) {
+  snip_to_check <- sample_measured_M0_force_trial[-x:0]
+  return(stabilized(snip_to_check, 4, 0.5))
+})
+stabilized_vec <- do.call('c',stabilized_vec)
