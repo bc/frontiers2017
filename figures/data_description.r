@@ -263,9 +263,6 @@ data_description_analysis <- function(first_data_chunk, minimum_tendon_force, ma
   posture_1_viable_forces <- force_extended_list[indices_of_correctly_lengthed_forces]
   plot_porcupine_of_endpoint_wrenches(posture_1_viable_forces)
   
-  #plot multiple postures
-  plot_porcupine_of_endpoint_wrenches(force_extended_list)
-  
   # How long do trials take?
   elapsed_trial_times <- plot_force_trial_elapsed_time_distribution(forces[indices_of_correctly_lengthed_forces])
 }
