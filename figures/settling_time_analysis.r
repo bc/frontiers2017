@@ -24,16 +24,19 @@ stabilized <- function(vector, desired, err) {
 
 
 
-test_that("floor of midpoint gets correct index", {
-  expect_equal(floor_of_midpoint(-10, 100), 45)
-  expect_equal(floor_of_midpoint(-10, 10), 0)
-  expect_equal(floor_of_midpoint(0, 10), 5)
-  expect_equal(floor_of_midpoint(-10.241, 1.7521), -5)
-  expect_equal(floor_of_midpoint(-12.241, 1.7521), -6)
-})
-floor_of_midpoint <- function(lower, upper) {
+floor_of_midpoint <- function(tuple_of_lower_and_upper) {
+  lower <- tuple_of_lower_and_upper[1]
+  upper <- tuple_of_lower_and_upper[2]
   return(floor((lower + upper)/2))
 }
+test_that("floor of midpoint gets correct index", {
+  expect_equal(floor_of_midpoint(c(-10, 100)), 45)
+  expect_equal(floor_of_midpoint(c(-10, 10)), 0)
+  expect_equal(floor_of_midpoint(c(0, 10)), 5)
+  expect_equal(floor_of_midpoint(c(-10.241, 1.7521)), -5)
+  expect_equal(floor_of_midpoint(c(-12.241, 1.7521)), -6)
+})
+
 
 
 
@@ -67,6 +70,25 @@ first_true_value_idx <- function(left, right, idx_for_l_and_r) {
 # series of $value and $index
 no_bounds <- function(idx_bounds) idx_bounds[1] == idx_bounds[2]
 
+assign_new_bounds <- function(midpoint, midpoint_is_stable, bounds){
+  bounds_copy <- bounds
+  if (midpoint_is_stable) {
+    bounds_copy[2] <- midpoint  # move right side in a bit
+  } else {
+    bounds_copy[1] <- midpoint  # move left side in a bit
+  }
+  return(bounds_copy)
+}
+
+
+index_of_first_stabilized_val <- function(ts, bounds, desired, err){
+  left <- stabilized(ts[bounds[1]:bounds[2]],
+    desired, err)
+  right <- stabilized(ts[bounds[2]:bounds[2]],
+    desired, err)
+  return(first_true_value_idx(left, right, bounds))
+}
+
 ##' err is maximum allowable error
 ##' desired is the desired steady state value.
 ##' @description
@@ -75,29 +97,14 @@ no_bounds <- function(idx_bounds) idx_bounds[1] == idx_bounds[2]
 ##; bounds = known stability bounds
 index_when_timeseries_stabilized <- function(ts, desired, err) {
   bounds <- c(1, length(ts))
-  message(paste("\n Starting Bounds:", bounds[1], "< idx <", bounds[2]))
   while (inter_range_distance(bounds) != 0) {
-    midpoint <- floor_of_midpoint(bounds[1], bounds[2])
-    # Test whether midpoint is stable
+    midpoint <- floor_of_midpoint(bounds)
     midpoint_is_stable <- stabilized(ts[midpoint:bounds[2]],
       desired, err)
     if (inter_range_distance(bounds) == 1) {
-      left <- stabilized(ts[bounds[1]:bounds[2]],
-        desired, err)
-      right <- stabilized(ts[bounds[2]:bounds[2]],
-        desired, err)
-      return(first_true_value_idx(left, right, bounds))
+      return(index_of_first_stabilized_val(ts, bounds, desired, err))
     }
-    if (midpoint_is_stable) {
-      message(paste("index", midpoint, "is stable"))
-      # If it's stable, move bounds to left to look for more ambitious indices
-      bounds[2] <- midpoint  # move right side in a bit
-    } else {
-      message(paste("index", midpoint, "is unstable"))
-      # If it's unstable, move bounds to right to look for more conservative indices
-      bounds[1] <- midpoint  # move left side in a bit
-    }
-    message(paste("\n ", bounds[1], "< idx <", bounds[2]))
+    bounds <- assign_new_bounds(midpoint, midpoint_is_stable, bounds)
   }
   if (no_bounds(bounds)) {
       return(ifelse(stabilized(ts,desired,err), 1, stop("not stable")))
