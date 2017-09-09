@@ -44,13 +44,16 @@ sample_settling <- data.frame(settling = runif(100, -20, 20), initial_tension = 
   3, 20), final_tension = runif(100, 3, 20))
 
 ##' @param settling data frame with columns: settling, initial_tension, final_tension
-##' @return 0 just makes plot of settling~delta_activation
+##' @return 0 just makes plot of settling~delta_tension
 ##' if length of a vector V is n, and some q exists s.t. v[q:n] is stable,
 ##' Then any value 1 < x < Q, where x is stable, implies x:N is also stable.
 ##' bounds = known stability bounds
 ##' @export
-tension_settling_scatter <- function(settling = sample_settling) {
-  plot(delta_tension(settling), settling$settling, pch=19, xlab = "delta tension from one pattern to the next (N)", ylab="Settling time")
+##' @importFrom WVPlots ScatterHistC
+tension_settling_scatter <- function(settling_df = sample_settling) {
+  settling_df$delta_tension <- delta_tension(settling_df)
+  WVPlots::ScatterHist(settling_df, "delta_tension", "settling", smoothmethod="lm",
+                     title="settling~delta_tension", annot_size = 1)
 }
 
 ##' @param settling data frame with columns: settling, initial_tension, final_tension
