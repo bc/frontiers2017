@@ -1,4 +1,4 @@
-options(error = recover)
+options(error = NULL)
 main <- function() {
 
   # make sure you run main.r from the figures directory for saving to work
@@ -34,23 +34,25 @@ main <- function() {
   # last row of NA values
   message("Identifying unique postures")
   unique_postures <- head(unique(full_df[c("adept_x", "adept_y")]), -1)
-  lines <- postures_grouped_by_line(unique_postures, x_fixed_val = -525.0000, y_fixed_val = 68.0000)
+  lines <- postures_grouped_by_line(unique_postures, x_fixed_val = -525, y_fixed_val = 68)
+  line_posture_start_indices <- lapply(lines, function(line) as.numeric(rownames(line)))
+  lapply(line_posture_start_indices, discrete_diff)
+  final <- c(line_posture_start_indices[[1]][-1]-1, 0)
+  initial <- c(line_posture_start_indices[[1]])
   browser()
-  line_settling_dfs <- lapply(lines, get_settling_time_df)
+  apply_function_to_posture <- function(full_df, f, start_idx, end_idx){
+    return(f(full_df[start_idx:(end_idx),]))
+  }
+
+
+  forces_for_posture_1 <- split_by_reference_force(
+    full_df[initial[1]:(final[1]-1),])
+
   message("Splitting by force trials")
   list_of_postures <- split(full_df, list(full_df$adept_x, full_df$adept_y), drop = TRUE)
+
+message("Plotting Settling Time Analysis")
+  sample_settling <- data.frame(settling = runif(100, -20, 20), initial_tension = runif(100,
+    3, 20), final_tension = runif(100, 3, 20))
+  tension_settling_scatter(sample_settling)
 }
-
-
-message("Computing Settling Time Analysis")
-sample_settling <- data.frame(settling = runif(100, -20, 20), initial_tension = runif(100,
-  3, 20), final_tension = runif(100, 3, 20))
-
-tension_settling_scatter(sample_settling)
-
-
-# get_settling_time_df <- function(list_of_unique_postures, full_df){
-#   mclapply(list_of_unique_postures)
-# }
-
-main()

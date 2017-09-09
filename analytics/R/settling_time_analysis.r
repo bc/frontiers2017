@@ -127,7 +127,14 @@ postures_grouped_by_line <- function(unique_postures, x_fixed_value, y_fixed_val
   postures_y_fixed <- unique_postures[unique_postures$adept_y == y_fixed_value,]
   return(list(postures_x_fixed, postures_y_fixed))
 }
-
+##' @param vector numeric vector of values'
+##' @return differentiated vector of values, with a displacement of 1 index. length 1 less than input.
+discrete_diff <- function(vector){
+  final <- c(vector[-1], 0)
+  initial <- vector
+  diff_vec <- final-initial
+  return(head(diff_vec,length(vector)-1))
+}
 
 ########functions for figure plotting
 

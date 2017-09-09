@@ -54,8 +54,8 @@ test_that("performance of stabilized_index is acceptable", {
       desired = 4, err = 0.5), times = replicates)
   pdf("../../../output/settling_time_analysis_performance.pdf", width = 10, height = 10)
   if (require("ggplot2")) {
-      autoplot(res) + title(paste(replicates, "replicates"))
-    }
+    autoplot(res) + title(paste(replicates, "replicates"))
+  }
   dev.off()
   expect_equal(1, 1)  #this is here invoke the block & ensure no errors happen in the above code.
 })
@@ -75,4 +75,11 @@ test_that("postures_grouped_by_line", {
   line_list <- postures_grouped_by_line(unique_postures, x_fixed_value, y_fixed_value)
   expect_equal(line_list[[1]], unique_postures[4:11, ])
   expect_equal(line_list[[2]], unique_postures[1:3, ])
+})
+
+
+test_that("discrete_diff", {
+  expect_equal(discrete_diff(c(1,2,3)),c(1,1))
+  expect_equal(discrete_diff(c(10,10,10,10)),c(0,0))
+  expect_equal(discrete_diff(c(10,-10,10,-10)),c(-20,20,-20))
 })
