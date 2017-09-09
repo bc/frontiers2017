@@ -32,9 +32,14 @@ main <- function() {
   unique_postures <- head(unique(full_df[c("adept_x", "adept_y")]), -1)
   lines <- postures_grouped_by_line(unique_postures, x_fixed_val = -525, y_fixed_val = 68)
   line_posture_start_indices <- lapply(lines, function(line) as.numeric(rownames(line)))
-  lapply(line_posture_start_indices, discrete_diff)
-  final <- c(line_posture_start_indices[[1]][-1]-1, 0)
-  initial <- c(line_posture_start_indices[[1]])
+  browser()
+  posture_indices_df <- function(line_posture_start_indices){
+    final <- c(line_posture_start_indices[-1]-1, 0)
+    initial <- c(line_posture_start_indices)
+    return(data.frame(initial = initial,final = final))
+  }
+
+lapply(line_posture_start_indices, posture_indices_df)
 
 
   browser()
