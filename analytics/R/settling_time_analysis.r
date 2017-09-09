@@ -116,3 +116,36 @@ slow_stabilized_index <- function(ts, desired, err) {
   stabilized_vec <- do.call("c", stabilized_vec)
   return(min(which(stabilized_vec == TRUE)))
 }
+
+##' This is highly specific to the experimental paradigm of realTimeData2017_08_16_13_23_42.rds.
+##' @param unique_postures dataframe of $adept_x and @adept_y numeric values (typically with 2 to 3 decimal points, units in millimeters)
+##' @param x_fixed_value value of X when Y was being traversed
+##' @param y_fixed_value value of Y when X was being traversed
+##' @return postures_grouped_by_line list of two dataframes, containing df (postures_x_fixed, and a df of postures_y_fixed), each with columns $adept_x and adept_y with millimeter numeric values.
+postures_grouped_by_line <- function(unique_postures, x_fixed_value, y_fixed_value){
+  postures_x_fixed <- unique_postures[unique_postures$adept_x == x_fixed_value,]
+  postures_y_fixed <- unique_postures[unique_postures$adept_y == y_fixed_value,]
+  return(list(postures_x_fixed, postures_y_fixed))
+}
+
+
+########functions for figure plotting
+
+##' @param settling data frame with columns: settling, initial_tension, final_tension
+##' @return 0 just makes plot of settling~delta_tension
+##' if length of a vector V is n, and some q exists s.t. v[q:n] is stable,
+##' Then any value 1 < x < Q, where x is stable, implies x:N is also stable.
+##' bounds = known stability bounds
+##' @export
+##' @importFrom WVPlots ScatterHistC
+tension_settling_scatter <- function(settling_df) {
+  settling_df$delta_tension <- delta_tension(settling_df)
+  WVPlots::ScatterHist(settling_df, "delta_tension", "settling", smoothmethod="lm",
+                     title="settling~delta_tension", annot_size = 1)
+}
+
+##' @param settling data frame with columns: settling, initial_tension, final_tension
+##' @return numric vector of signed differences between prior and initial tensions
+delta_tension <- function(settling) {
+  return(settling$final_tension - settling$initial_tension)
+}

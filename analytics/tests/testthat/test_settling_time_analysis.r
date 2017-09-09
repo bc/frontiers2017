@@ -1,5 +1,5 @@
 require(testthat)
-source("../../settling_time_analysis.r")
+source("../../R/settling_time_analysis.r")
 source("sample_datasets.r")
 sample_vec <- c(1, 1, 1, 1, 1, 1, 4, 8, 9, 4, 5, 3, 2, 3, 2, 3, 2, 3, 3, 3, 3, 3,
   3, 3)
@@ -53,7 +53,26 @@ test_that("performance of stabilized_index is acceptable", {
     stabilized_index(sample_vec, desired = 3, err = 1), stabilized_index(sample_measured_M0_force_trial,
       desired = 4, err = 0.5), times = replicates)
   pdf("../../../output/settling_time_analysis_performance.pdf", width = 10, height = 10)
-  boxplot(mbm, cex = 0.25, main=paste(replicates, "replicates"))
+  if (require("ggplot2")) {
+      autoplot(res) + title(paste(replicates, "replicates"))
+    }
   dev.off()
-  expect_equal(1, 1) #this is here invoke the block & ensure no errors happen in the above code.
+  expect_equal(1, 1)  #this is here invoke the block & ensure no errors happen in the above code.
+})
+
+
+test_that("postures_grouped_by_line", {
+  unique_postures <- data.frame(adept_x = c(-516.314298, -531.478918, -525.80549,
+    -525, -525, -525, -525, -525, -525, -525, -525), adept_y = c(68, 68, 68,
+    63.360715, 63.522459, 61.802527, 72.122261, 65.948095, 72.264025, 62.633837,
+    68.007593), row.names = c(81125159, 81206563, 81288007, 81369528, 81450638,
+    81531857, 81613207, 81694520, 81775837, 81857174, 81938463))
+  x_fixed_value <- -525
+  y_fixed_value <- 68
+
+
+
+  line_list <- postures_grouped_by_line(unique_postures, x_fixed_value, y_fixed_value)
+  expect_equal(line_list[[1]], unique_postures[4:11, ])
+  expect_equal(line_list[[2]], unique_postures[1:3, ])
 })
