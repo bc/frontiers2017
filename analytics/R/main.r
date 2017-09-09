@@ -23,15 +23,11 @@ main <- function() {
     indices_of_interest = 2:5)
   dev.off()
 
-  # settling_time_analysis(data_location)
   message("Pulling full dataset. Expect completion in 2'")
   require(microbenchmark)
   data_load_mbm <- microbenchmark(full_df <- readRDS("~/Resilio Sync/data/realTimeData2017_08_16_13_23_42.rds"),
     times = 1)
   print(data_load_mbm)
-
-  # unique() pulls the row names from the first occurrences of the unique rows. RM
-  # last row of NA values
   message("Identifying unique postures")
   unique_postures <- head(unique(full_df[c("adept_x", "adept_y")]), -1)
   lines <- postures_grouped_by_line(unique_postures, x_fixed_val = -525, y_fixed_val = 68)
@@ -39,7 +35,11 @@ main <- function() {
   lapply(line_posture_start_indices, discrete_diff)
   final <- c(line_posture_start_indices[[1]][-1]-1, 0)
   initial <- c(line_posture_start_indices[[1]])
+
+
   browser()
+
+
   apply_function_to_posture <- function(full_df, f, start_idx, end_idx){
     return(f(full_df[start_idx:(end_idx),]))
   }
