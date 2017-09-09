@@ -1,3 +1,4 @@
+options(error = recover)
 main <- function(){
 
 # make sure you run main.r from the figures directory for saving to work
