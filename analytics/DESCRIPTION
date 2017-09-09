@@ -1,0 +1,9 @@
+Package: analytics
+Title: Prepares and analyzes all data for frontiers2017 paper.
+Version: 0.0.1
+Authors@R: person("Brian", "Cohn", email = "brian.cohn@usc.edu", role = c("aut", "cre"))
+Description: Analyzes muscle tension to endpoint force relationships
+Depends: R (>= 3.4.1)
+License: USC
+Encoding: UTF-8
+LazyData: true
