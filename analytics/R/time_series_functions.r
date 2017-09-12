@@ -14,6 +14,18 @@ plot_force_smoothed_curves <- function(time_series_of_forces, force_dimensions =
   })
 }
 
+##' @param full_df dataframe including the column reference_M0 and row.names
+##' @param indices where the posture starts and stops. 2 element vector of integers
+##' @param column_to_separate_forces string, by default 'reference_M0'.
+##' @return forces a list of time_series objects which contain ~800 observations, representing each force trial.
+  get_forces_list <- function(full_df, indices, column_to_separate_forces = 'reference_M0'){
+    posture_indices <- indices[1]:indices[2]
+    # [-1] = remove the nullification force before we
+    # changed to a new posture, and the intra-transition data
+    forces <- split(full_df[posture_indices,], full_df[posture_indices,column_to_separate_forces])[-1]
+    return(forces)
+  }
+
 plot_tendon_rise_time_curves <- function(time_series_of_forces, tendon_of_interest_string_list,
   ...) {
   lapply(tendon_of_interest_string_list, function(x) {
