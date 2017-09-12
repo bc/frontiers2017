@@ -30,25 +30,29 @@ main <- function() {
   print(data_load_mbm)
   message("Identifying unique postures")
   unique_postures <- head(unique(full_df[c("adept_x", "adept_y")]), -1)
+  message("...")
   lines <- postures_grouped_by_line(unique_postures, x_fixed_val = -525, y_fixed_val = 68)
+  message('line_posture_start_indices')
   line_posture_start_indices <- lapply(lines, function(line) as.numeric(rownames(line)))
-  browser()
-  posture_indices_df <- function(line_posture_start_indices){
-    final <- c(line_posture_start_indices[-1]-1, 0)
-    initial <- c(line_posture_start_indices)
-    return(data.frame(initial = initial,final = final))
+  message('...')
+  idxs <- fix_last_posture_of_index_dfs(add_adept_xy_to_indices(lapply(line_posture_start_indices, posture_indices_df), unique_postures))
+forces <- get_forces_list(full_df, indices = idxs[[1]][1,1:2])
+
+forces_per_posture <- lapply(df_to_list_of_rows(idxs[[1]]), function(row){
+  get_forces_list(full_df, indices = c(row[['initial']], row[['final']]))
+}
+
+##' @param full_df dataframe including the column reference_M0 and row.names
+##' @param indices where the posture starts and stops. 2 element vector of integers
+##' @param column_to_separate_forces string, by default 'reference_M0'.
+##' @return forces a list of time_series objects which contain ~800 observations, representing each force trial.
+  get_forces_list <- function(full_df, indices, column_to_separate_forces = 'reference_M0'){
+    posture_indices <- indices[1]:indices[2]
+    # [-1] = remove the nullification force before we
+    # changed to a new posture, and the intra-transition data
+    forces <- split(full_df[posture_indices,], full_df[posture_indices,column_to_separate_forces])[-1]
+    return(forces)
   }
-
-lapply(line_posture_start_indices, posture_indices_df)
-
-
-  browser()
-
-
-  apply_function_to_posture <- function(full_df, f, start_idx, end_idx){
-    return(f(full_df[start_idx:(end_idx),]))
-  }
-
 
   forces_for_posture_1 <- split_by_reference_force(
     full_df[initial[1]:(final[1]-1),])
