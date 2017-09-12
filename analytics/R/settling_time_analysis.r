@@ -78,7 +78,7 @@ index_of_first_stabilized_val <- function(ts, bounds, desired, err) {
 }
 
 
-##' @param ts timeseries of numeric values
+##' @param ts timeseries vector of numeric values
 ##' @param desired numeric the desired stabilized value for the vector, if the vector is 'stabilized'
 ##' @param err numeric the maximum allowable residual for a given value from the desired value.
 ##' @description
@@ -100,7 +100,7 @@ stabilized_index <- function(ts, desired, err) {
   }
 }
 
-##' @param ts timeseries of numeric values
+##' @param ts timeseries vector of numeric values
 ##' @param desired numeric the desired stabilized value for the vector, if the vector is 'stabilized'
 ##' @param err numeric the maximum allowable residual for a given value from the desired value.
 ##' @description

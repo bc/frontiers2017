@@ -37,19 +37,17 @@ main <- function() {
   message('...')
   idxs <- fix_last_posture_of_index_dfs(add_adept_xy_to_indices(lapply(line_posture_start_indices, posture_indices_df), unique_postures))
 
-# 0.36252s/posture with lapply; 0.25935ms/posture with mclapply
-data_load_mbm <- microbenchmark(forces_per_posture <- mclapply(df_to_list_of_rows(idxs[[1]]), function(row){
-  get_forces_list(full_df, indices = c(row[['initial']], row[['final']]))
-}),
-  times = 1)
-print(data_load_mbm)
-plot(data_load_mbm)
+list_of_forces_for_each_posture(idxs[[1]], full_df])
+<- list_of_forces_for_each_posture(idxs[[2]], full_df])
 
-  forces_for_posture_1 <- split_by_reference_force(
-    full_df[initial[1]:(final[1]-1),])
+list_of_forces_for_each_posture <- function(idxs, full_df){
+  # 0.36252s/posture with lapply
+  forces_per_posture <- lapply(df_to_list_of_rows(idxs), function(row){
+    get_forces_list(full_df, indices = c(row[['initial']], row[['final']]))
+  })
+  return(forces_per_posture)
+}
 
-  message("Splitting by force trials")
-  list_of_postures <- split(full_df, list(full_df$adept_x, full_df$adept_y), drop = TRUE)
 
 message("Plotting Settling Time Analysis")
   sample_settling <- data.frame(settling = runif(100, -20, 20), initial_tension = runif(100,
