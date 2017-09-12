@@ -183,13 +183,22 @@ split_by_position <- function(vector_of_positions, time_series_dataframe) {
   return(data_split[2:length(data_split)])
 }
 
+
+##' @description derived from https://stackoverflow.com/questions/3492379/data-frame-rows-to-a-list
+##' @param df Data frame
+##' @df_list a list of elements, each of which is a representative row from the original df
+df_to_list_of_rows <- function(df){
+  df_list <- setNames(split(df, seq(nrow(df))), rownames(df))
+  return(df_list)
+}
+
 # not in function pulled via
 # https://stackoverflow.com/questions/5831794/opposite-of-in
 `%not in%` <- function(x, table) is.na(match(x, table, nomatch = NA_integer_))
 
 # make sure col is named reference_M0 robotflag int 0 means initialized, 1 means
 # moving, 2 means ready motorflag int 0 means initialized, 1 means
-# it<e2><80><99>s applying the force,2 means ready.
+# it is applying the force,2 means ready.
 
 split_by_reference_force <- function(time_series_dataframe) {
   forces <- unique(time_series_dataframe$reference_M0)
@@ -307,4 +316,3 @@ discrete_diff <- function(vector){
   diff_vec <- final-initial
   return(head(diff_vec,length(vector)-1))
 }
-
