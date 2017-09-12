@@ -300,3 +300,11 @@ wrench_to_phi <- function(vector_3d) {
   phi <- atan(sqrt(x^2 + y^2)/z)
   return(list(rho = rho, theta = theta, phi = phi))
 }
+
+discrete_diff <- function(vector){
+  final <- c(vector[-1], 0)
+  initial <- vector
+  diff_vec <- final-initial
+  return(head(diff_vec,length(vector)-1))
+}
+
