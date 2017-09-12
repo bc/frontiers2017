@@ -6,7 +6,9 @@
 via https://www.rstudio.com/products/rstudio/download-server/
 ```
 git config --global core.editor "vim"
-sudo apt-get -y install gdebi-core
+sudo apt-get update
+sudo apt-get -y install r-base libssl-dev libcurl4-openssl-dev
+sudo apt-get install r-base libapparmor1 gdebi-core
 wget https://download2.rstudio.org/rstudio-server-1.0.153-amd64.deb
 yes | sudo gdebi rstudio-server-1.0.153-amd64.deb
 sudo rstudio-server verify-installation
@@ -23,12 +25,13 @@ cd Resilio\ Sync && mkdir data && cd ..
 ```
 # Import the data to local AWS disk
 ```
-scp -i ~/.ssh/cohn_frontiers2017.pem ~/Resilio\ Sync/data/realTimeData2017_08_16_13_23_42.txt  ubuntu@ec2-54-241-165-222.us-west-1.compute.amazonaws.com:/home/ubuntu
+AWS_PATH="ec2-52-53-151-121.us-west-1.compute.amazonaws.com"
+scp -i ~/.ssh/cohn_frontiers2017.pem ~/Resilio\ Sync/data/realTimeData2017_08_16_13_23_42.txt  ubuntu@$AWS_PATH:/home/ubuntu
 ```
 on aws CPU
 ```
 sudo mv realTimeData2017_08_16_13_23_42.txt /home/brian/Resilio\ Sync/data/realTimeData2017_08_16_13_23_42.txt
-git clone git@github.com:bc/frontiers2017 && cd frontiers2017/figures/
+git clone git@github.com:bc/frontiers2017.git && cd frontiers2017/analytics
 rscript main.r
 ```
 
