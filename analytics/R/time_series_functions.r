@@ -26,6 +26,7 @@ plot_force_smoothed_curves <- function(time_series_of_forces, force_dimensions =
     return(forces)
   }
 
+
 plot_tendon_rise_time_curves <- function(time_series_of_forces, tendon_of_interest_string_list,
   ...) {
   lapply(tendon_of_interest_string_list, function(x) {
@@ -50,6 +51,7 @@ command <- function(muscle_string) {
 
 ##' We remove all observations where robot_flag==1
 ##' @param time_series A dataframe that has a column called robot_flag, where 0 is initialized, 1 is moving, and 2 is ready.
+##' @param ts_trimmed time_series without any incidences of robot_flag as 0 or 2.
 rm_points_where_adept_robot_is_moving <- function(time_series) {
   no_2 <- time_series[time_series$robot_flag != 2, ]
   no_0_2 <- no_2[time_series$robot_flag != 0, ]
@@ -327,4 +329,16 @@ discrete_diff <- function(vector){
   initial <- vector
   diff_vec <- final-initial
   return(head(diff_vec,length(vector)-1))
+}
+
+
+##' @param idxs a dataframe with cols initial, final, adept_x, and adept_y
+##' @param full_df data timeframe with columns of interest
+##' @return list of time series dataframes, for each of the postures provided in idxs.
+forces_per_posture <- function(idxs, full_df){
+    # 0.36252s/posture with lapply
+    forces <- lapply(df_to_list_of_rows(idxs), function(row){
+      get_forces_list(full_df, indices = c(row[['initial']], row[['final']]))
+    })
+    return(forces)
 }

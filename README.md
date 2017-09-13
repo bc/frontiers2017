@@ -13,6 +13,7 @@ wget https://download2.rstudio.org/rstudio-server-1.0.153-amd64.deb
 yes | sudo gdebi rstudio-server-1.0.153-amd64.deb
 sudo rstudio-server verify-installation
 sudo rstudio-server license-manager status
+sudo apt-get -y awscli
 ```
 
 # Enter information for a new user with a simple password
@@ -20,17 +21,15 @@ sudo rstudio-server license-manager status
 sudo adduser brian
 #then log in as the user after setting a password
 sudo su - brian
-mkdir Resilio\ Sync
-cd Resilio\ Sync && mkdir data && cd ..
+sudo mkdir -p /home/brian/Resilio\ Sync/data
+sudo aws s3 cp s3://bc-frontiers-2017/realTimeData2017_08_16_13_23_42.txt realTimeData2017_08_16_13_23_42.txt
 ```
 # Import the data to local AWS disk
 ```
-AWS_PATH="ec2-52-53-151-121.us-west-1.compute.amazonaws.com"
-scp -i ~/.ssh/cohn_frontiers2017.pem ~/Resilio\ Sync/data/realTimeData2017_08_16_13_23_42.txt  ubuntu@$AWS_PATH:/home/ubuntu
+aws s3 cp ~/Resilio Sync/data/realTimeData2017_08_16_13_23_42.rds s3://bc-frontiers-2017/
 ```
 on aws CPU
 ```
-sudo mv realTimeData2017_08_16_13_23_42.txt /home/brian/Resilio\ Sync/data/realTimeData2017_08_16_13_23_42.txt
 git clone git@github.com:bc/frontiers2017.git && cd frontiers2017/analytics
 rscript main.r
 ```

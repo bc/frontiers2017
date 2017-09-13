@@ -32,13 +32,13 @@ posture_indices_df <- function(line_posture_start_indices) {
 }
 
 ##' 81520 is the length of the last posture where y was fixed, via manual id by cohn
-##' @param idxs dataframe, that contain the coordinates of the points, and adept_x and adept_y columns
+##' @param idxs dataframe, that contain the coordinates of the points, and adept_x and adept_y columns, for (fixX, fixY)
 ##' @return fixed_posture_indices now with rm posture 208, and added final point for last 1000th fixed-y posture.
-fix_last_posture_of_index_dfs <- function(idx_df) {
-  fix_x_postures <- head(idxs[[1]], -1)  #the last one was cut off
+fix_last_posture_of_index_dfs <- function(list_of_idx_df) {
+  fix_x_postures <- head(list_of_idx_df[[1]], -1)  #the last one was cut off
   last_idx_where_y_fixed <- 81288007 + 81520
-  idxs[[2]][1000, "final"] <- last_idx_where_y_fixed
-  fix_y_postures <- idxs[[2]]
+  list_of_idx_df[[2]][1000, "final"] <- last_idx_where_y_fixed
+  fix_y_postures <- list_of_idx_df[[2]]
   fixed_posture_indices <- list(fix_x_postures, fix_y_postures)
   return(fixed_posture_indices)
 }

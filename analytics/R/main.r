@@ -36,18 +36,10 @@ main <- function() {
   line_posture_start_indices <- lapply(lines, function(line) as.numeric(rownames(line)))
   message('...')
   idxs <- fix_last_posture_of_index_dfs(add_adept_xy_to_indices(lapply(line_posture_start_indices, posture_indices_df), unique_postures))
-
-list_of_forces_for_each_posture(idxs[[1]], full_df])
-<- list_of_forces_for_each_posture(idxs[[2]], full_df])
-
-list_of_forces_for_each_posture <- function(idxs, full_df){
-  # 0.36252s/posture with lapply
-  forces_per_posture <- lapply(df_to_list_of_rows(idxs), function(row){
-    get_forces_list(full_df, indices = c(row[['initial']], row[['final']]))
-  })
-  return(forces_per_posture)
-}
-
+  forces_per_posture_fixed_y <- forces_per_posture(idxs[[2]], full_df)
+  force_trials_per_posture <- lapply(forces_per_posture_fixed_y, rm_points_where_adept_robot_is_moving)
+  force_trials_per_posture[-1] #remove starting posture at adept_x = 0, adept_y = 0
+  browser()
 
 message("Plotting Settling Time Analysis")
   sample_settling <- data.frame(settling = runif(100, -20, 20), initial_tension = runif(100,
