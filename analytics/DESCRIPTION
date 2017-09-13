@@ -4,7 +4,7 @@ Version: 0.0.1
 Authors@R: person("Brian", "Cohn", email = "brian.cohn@usc.edu", role = c("aut", "cre"))
 Description: Analyzes muscle tension to endpoint force relationships
 Depends:
-  R (>= 3.4.1),
+  R (>= 3.2.3),
   testthat,
   devtools
 License: USC

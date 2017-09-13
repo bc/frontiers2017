@@ -7,8 +7,7 @@ via https://www.rstudio.com/products/rstudio/download-server/
 ```
 git config --global core.editor "vim"
 sudo apt-get update
-sudo apt-get -y install r-base libssl-dev libcurl4-openssl-dev
-sudo apt-get install r-base libapparmor1 gdebi-core
+sudo apt-get -y install r-base libssl-dev libcurl4-openssl-dev libxml2-dev libapparmor1 gdebi-core
 wget https://download2.rstudio.org/rstudio-server-1.0.153-amd64.deb
 yes | sudo gdebi rstudio-server-1.0.153-amd64.deb
 sudo rstudio-server verify-installation
@@ -22,7 +21,7 @@ sudo adduser brian
 #then log in as the user after setting a password
 sudo su - brian
 sudo mkdir -p /home/brian/Resilio\ Sync/data
-sudo aws s3 cp s3://bc-frontiers-2017/realTimeData2017_08_16_13_23_42.txt realTimeData2017_08_16_13_23_42.txt
+sudo aws s3 cp s3://bc-frontiers-2017/realTimeData2017_08_16_13_23_42.rds /home/brian/Resilio\ Sync/data/realTimeData2017_08_16_13_23_42.rds
 ```
 # Import the data to local AWS disk
 ```
@@ -34,6 +33,7 @@ git clone git@github.com:bc/frontiers2017.git && cd frontiers2017/analytics
 rscript main.r
 ```
 
+EC2 output --> MBP
 ```
 scp -r ubuntu@ec2-54-215-246-21.us-west-1.compute.amazonaws.com:/home/ubuntu/output ~/Downloads
 ```
