@@ -32,17 +32,23 @@ main <- function() {
   unique_postures <- head(unique(full_df[c("adept_x", "adept_y")]), -1)
   message("...")
   lines <- postures_grouped_by_line(unique_postures, x_fixed_val = -525, y_fixed_val = 68)
-  message('line_posture_start_indices')
-  line_posture_start_indices <- lapply(lines, function(line) as.numeric(rownames(line)))
-  message('...')
-  idxs <- fix_last_posture_of_index_dfs(add_adept_xy_to_indices(lapply(line_posture_start_indices, posture_indices_df), unique_postures))
+  message("line_posture_start_indices")
+  line_posture_start_indices <- mclapply(lines, function(line) as.numeric(rownames(line)))
+  message("...")
+  idxs <- fix_last_posture_of_index_dfs(add_adept_xy_to_indices(mclapply(line_posture_start_indices,
+    posture_indices_df), unique_postures))
   forces_per_posture_fixed_y <- forces_per_posture(idxs[[2]], full_df)
+  forces_per_posture_fixed_y[[1]][[1]] <- NULL
+
+  forces_per_posture_fixed_x <- forces_per_posture(idxs[[1]],full_df)
+
+
   browser("2")
   force_trials_per_posture <- lapply(forces_per_posture_fixed_y, rm_points_where_adept_robot_is_moving)
-  force_trials_per_posture[-1] #remove starting posture at adept_x = 0, adept_y = 0
+  force_trials_per_posture[-1]  #remove starting posture at adept_x = 0, adept_y = 0
   browser("1")
 
-message("Plotting Settling Time Analysis")
+  message("Plotting Settling Time Analysis")
   sample_settling <- data.frame(settling = runif(100, -20, 20), initial_tension = runif(100,
     3, 20), final_tension = runif(100, 3, 20))
   tension_settling_scatter(sample_settling)
