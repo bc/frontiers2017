@@ -37,9 +37,10 @@ main <- function() {
   message('...')
   idxs <- fix_last_posture_of_index_dfs(add_adept_xy_to_indices(lapply(line_posture_start_indices, posture_indices_df), unique_postures))
   forces_per_posture_fixed_y <- forces_per_posture(idxs[[2]], full_df)
+  browser("2")
   force_trials_per_posture <- lapply(forces_per_posture_fixed_y, rm_points_where_adept_robot_is_moving)
   force_trials_per_posture[-1] #remove starting posture at adept_x = 0, adept_y = 0
-  browser()
+  browser("1")
 
 message("Plotting Settling Time Analysis")
   sample_settling <- data.frame(settling = runif(100, -20, 20), initial_tension = runif(100,
