@@ -72,8 +72,9 @@ get_reference_force_from_index <- function(full_df_path, idx, muscle_of_interest
 ##' @importFrom data.table fread
 get_x_from_index <- function(full_df_path, function_for_colname, idx, muscle_of_interest) {
   message("get_x_from_index")
+  my_fn <- match.fun(function_for_colname)
   col_names <- colnames(fread(full_df_path, nrows = 1))
-  col_of_interest <- which(col_names == function_for_colname(muscle_of_interest))
+  col_of_interest <- which(col_names == my_fn(muscle_of_interest))
   message("get_x_from_index ...")
   value_for_x <- as.numeric(fread(full_df_path, skip = idx, nrows = 1)[[col_of_interest]])
   return(value_for_x)
