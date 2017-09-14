@@ -11,6 +11,12 @@ maximum_tendon_force <- 20
 minimum_tendon_force <- 3
 data_location <- "~/Resilio Sync/data/realTimeData2017_08_16_13_23_42.txt"
 
+# These functions are useful because they prepend measured, reference, or command
+# in front of an input tendon of interest (e.g. M0, M1)
+measured <- function(muscle_string) paste0("measured_", muscle_string)
+reference <- function(muscle_string) paste0("reference_", muscle_string)
+command <- function(muscle_string) paste0("command_", muscle_string)
+
 ##' @description
 ##' this function takes in the indices. the last final index is a 0, because it hasn't been included yet.
 ##' This function fills that index with the correct value for each of the lines sampled.
@@ -41,4 +47,34 @@ fix_last_posture_of_index_dfs <- function(list_of_idx_df) {
   fix_y_postures <- list_of_idx_df[[2]]
   fixed_posture_indices <- list(fix_x_postures, fix_y_postures)
   return(fixed_posture_indices)
+}
+
+
+##' @title get_reference_force_from_index
+##' @description Skip with this dataset will yield the Nth datarow (excluding header)
+##' @param full_df_path path to realTimeData2017_08_16_13_23_42.txt
+##' @param idx index to extract (excluding header). i.e. first observation would be idx = 1
+##' @param muscle_of_interest string. by default 'M0', but can be up to 'M7'
+##' @return reference_force numeric value for muscle of interest
+get_reference_force_from_index <- function(full_df_path, idx, muscle_of_interest = "M0") {
+  reference_force <- get_x_from_index(full_df_path, function_for_colname = reference,
+    idx, muscle_of_interest)
+  return(reference_force)
+}
+
+##' @title get_x_from_index
+##' @description Skip with this dataset will yield the Nth datarow (excluding header)
+##' @param full_df_path path to realTimeData2017_08_16_13_23_42.txt
+##' @param idx index to extract (excluding header). i.e. first observation would be idx = 1
+##' @param muscle_of_interest string. by default 'M0', but can be up to 'M7'
+##' @param function_for_colname a function that takes in the muscle string e.g. 'M0', and returns the column name string of interest
+##' @return value_for_x numeric value for muscle of interest, for colname of interest
+##' @importFrom data.table fread
+get_x_from_index <- function(full_df_path, function_for_colname, idx, muscle_of_interest) {
+  message("get_x_from_index")
+  col_names <- colnames(fread(full_df_path, nrows = 1))
+  col_of_interest <- which(col_names == function_for_colname(muscle_of_interest))
+  message("get_x_from_index ...")
+  value_for_x <- as.numeric(fread(full_df_path, skip = idx, nrows = 1)[[col_of_interest]])
+  return(value_for_x)
 }
