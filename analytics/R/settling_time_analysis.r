@@ -56,13 +56,33 @@ fill_initials_into_stabilization_df <- function(df, full_df, muscle_of_interest)
   return(df)
 }
 
-
+##' Get reference value from specific row of dataframe
 ##' @param index_target int; the index from which we will extract the muscle of interest's reference force
 ##' @inheritFrom get_reference_force_from_index force_trials_per_posture
 # dt_approach <- get_reference_force_from_index(data_location, idx=index_target, muscle_of_interest = "M0")
 ##' @TODO test
 get_reference_value <- function(index_target, full_df, muscle_of_interest){
   return(as.numeric(full_df[index_target,reference(muscle_of_interest)]))
+}
+
+##' @param forces_list list of force trial dataframes
+##' @param full_df_path path to original realTimeData2017_08_16_13_23_42.txt
+##' @param err acceptable Newton threshold for settling for tendon force.
+##' @return stabilized_df dataframe representing how the list of forces stabilized.
+list_of_forces_to_stabilized_df<- function(forces_list, full_df_path, err, full_df, muscle_of_interest){
+  list_of_stable_dfs <- lapply(forces_list, force_trial_to_stable_index_df, full_df_path, err)
+  stabilized_df <- sort_by_initial_index(rbind_dfs(list_of_stable_dfs))
+  filled_df <- fill_initials_into_stabilization_df(stabilized_df, full_df, muscle_of_interest)
+  stabilized_and_filled_df <- fill_force_velocity_metrics(filled_df)
+  return(stabilized_and_filled_df)
+}
+##' @title list_of_postures_of_forces_to_stabilized_df
+##' @param postures list of postures, each containing a list of force trial dataframes
+##' @param full_df_path path to realTimeData2017_08_16_13_23_42.txt
+##' @param err acceptable residual from reference_M0 for settling time
+##' @return list_of_stabilized_dfs list of stabilized dataframes.
+list_of_postures_of_forces_to_stabilized_df <- function(postures, full_df_path, err, full_df, muscle_of_interest){
+  lapply(postures, list_of_forces_to_stabilized_df, full_df_path, err, full_df, muscle_of_interest)
 }
 
 ##' @title fill_force_velocity_metrics
@@ -75,7 +95,7 @@ fill_force_velocity_metrics <- function(df){
   return(df)
 }
 
-
+##' First true value index
 ##' @param left Logical; whether the left index is stabilized
 ##' @param right Logical; whether the right index is stabilized
 ##' @param idx_for_l_and_r the index lower and upper bounds (list of 2 integers)
@@ -88,12 +108,13 @@ first_true_value_idx <- function(left, right, idx_for_l_and_r) {
   return(idx_for_l_and_r[min(which(truth_table == TRUE))])
 }
 
-
+##' Are there no bounds?
 # @description True when the bounds have converged to a single index.  @param
 # idx_bounds must be a tuple vector of lower and upper bounds @param ts_df time
 # series of $value and $index
 no_bounds <- function(idx_bounds) idx_bounds[1] == idx_bounds[2]
 
+##' Assign new bounds
 ##' @param midpoint a index value (integer)
 ##' @param midpoint_is_stable Logical
 ##' @param bounds a tuple of lower and upper bound indices (integers)
@@ -109,6 +130,7 @@ assign_new_bounds <- function(midpoint, midpoint_is_stable, bounds) {
   return(bounds_copy)
 }
 
+##' Index of first stabilized value
 ##' @param ts numeric vector of values over time
 ##' @param bounds a tuple of lower and upper bound indices (integers)
 ##' @param desired numeric the desired stabilized value for the vector, if the vector is 'stabilized'
@@ -120,7 +142,7 @@ index_of_first_stabilized_val <- function(ts, bounds, desired, err) {
   return(first_true_value_idx(left, right, bounds))
 }
 
-
+##' stabilized index
 ##' @param ts timeseries vector of numeric values
 ##' @param desired numeric the desired stabilized value for the vector, if the vector is 'stabilized'
 ##' @param err numeric the maximum allowable residual for a given value from the desired value.
@@ -143,6 +165,7 @@ stabilized_index <- function(ts, desired, err) {
   }
 }
 
+##' slow stabilized index
 ##' @param ts timeseries vector of numeric values
 ##' @param desired numeric the desired stabilized value for the vector, if the vector is 'stabilized'
 ##' @param err numeric the maximum allowable residual for a given value from the desired value.
@@ -159,7 +182,7 @@ slow_stabilized_index <- function(ts, desired, err) {
   stabilized_vec <- do.call("c", stabilized_vec)
   return(min(which(stabilized_vec == TRUE)))
 }
-
+##' postures grouped by line
 ##' This is highly specific to the experimental paradigm of realTimeData2017_08_16_13_23_42.rds.
 ##' @param unique_postures dataframe of $adept_x and @adept_y numeric values (typically with 2 to 3 decimal points, units in millimeters)
 ##' @param x_fixed_value value of X when Y was being traversed
@@ -170,6 +193,7 @@ postures_grouped_by_line <- function(unique_postures, x_fixed_value, y_fixed_val
   postures_y_fixed <- unique_postures[unique_postures$adept_y == y_fixed_value,]
   return(list(postures_x_fixed, postures_y_fixed))
 }
+##' discrete_diff
 ##' @param vector numeric vector of values'
 ##' @return differentiated vector of values, with a displacement of 1 index. length 1 less than input.
 discrete_diff <- function(vector){
@@ -208,6 +232,7 @@ rbind_dfs <- function(list_of_dfs) do.call('rbind', list_of_dfs)
 
 ########functions for figure plotting
 
+##' tension_settling_scatter
 ##' @param settling data frame with columns: settling, initial_tension, final_tension
 ##' @return 0 just makes plot of settling~delta_tension
 ##' if length of a vector V is n, and some q exists s.t. v[q:n] is stable,
@@ -219,7 +244,7 @@ tension_settling_scatter <- function(settling_df) {
   WVPlots::ScatterHist(settling_df, "delta_force", "settling_time", smoothmethod="lm",
                      title="settling_time~delta_force", annot_size = 1)
 }
-
+##' delta_tension
 ##' @param settling data frame with columns: settling, initial_tension, final_tension
 ##' @return numric vector of signed differences between prior and initial tensions
 delta_tension <- function(settling) {

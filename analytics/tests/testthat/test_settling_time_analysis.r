@@ -84,33 +84,14 @@ test_that("can_eval_stabilize_idx_to_2_postures", {
   print("Loading full_df. Expect 2'")
   full_df <- readRDS("~/Resilio Sync/data/realTimeData2017_08_16_13_23_42.rds")
   print("Loading precomputed posture samples")
-
   posture_samples_n_100_fix_x <- rds_from_package_extdata("posture_samples_n_100_fix_x.rds")
   mini_posture_sample <- posture_samples_n_100_fix_x[1:2]
-##' @param forces_list list of force trial dataframes
-##' @param full_df_path path to original realTimeData2017_08_16_13_23_42.txt
-##' @param err acceptable Newton threshold for settling for tendon force.
-##' @return stabilized_df dataframe representing how the list of forces stabilized.
-list_of_forces_to_stabilized_df<- function(forces_list, full_df_path, err, full_df, muscle_of_interest){
-  list_of_stable_dfs <- lapply(forces_list, force_trial_to_stable_index_df, full_df_path, err)
-  stabilized_df <- sort_by_initial_index(rbind_dfs(list_of_stable_dfs))
-  filled_df <- fill_initials_into_stabilization_df(stabilized_df, full_df, muscle_of_interest)
-  stabilized_and_filled_df <- fill_force_velocity_metrics(filled_df)
-  return(stabilized_and_filled_df)
-}
-##' @title list_of_postures_of_forces_to_stabilized_df
-##' @param postures list of postures, each containing a list of force trial dataframes
-##' @param full_df_path path to realTimeData2017_08_16_13_23_42.txt
-##' @param err acceptable residual from reference_M0 for settling time
-##' @return list_of_stabilized_dfs list of stabilized dataframes.
-list_of_postures_of_forces_to_stabilized_df <- function(postures, full_df_path, err, full_df, muscle_of_interest){
-  lapply(postures, list_of_forces_to_stabilized_df, full_df_path, err, full_df, muscle_of_interest)
-}
 
 v <- list_of_postures_of_forces_to_stabilized_df(mini_posture_sample, full_df_path = data_location, err = 0.5,full_df, muscle_of_interest="M0")
 
 settling_time_histogram_for_posture(v[[1]])
 settling_time_histogram_for_posture(v[[2]])
+tension_settling_scatter(v[[1]])
+tension_settling_scatter(v[[2]])
 browser()
-
 })
