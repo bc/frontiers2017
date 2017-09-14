@@ -89,6 +89,24 @@ test_that("can_eval_stabilize_idx_to_2_postures", {
 
   posture_samples_n_100_fix_x <- rds_from_package_extdata("posture_samples_n_100_fix_x.rds")
   mini_posture_sample <- posture_samples_n_100_fix_x[1:2]
+##' @param forces_list list of force trial dataframes
+##' @param full_df_path path to original realTimeData2017_08_16_13_23_42.txt
+##' @param err acceptable Newton threshold for settling for tendon force.
+list_of_forces_to_stabilized_df<- function(forces_list, full_df_path, err){
+  list_of_stable_dfs <- lapply(forces_list, force_trial_to_stable_index_df, full_df_path, err)
+  return(sort_by_initial_index(rbind_dfs(list_of_stable_dfs)))
+}
+##' @title list_of_postures_of_forces_to_stabilized_df
+##' @param postures list of postures, each containing a list of force trial dataframes
+##' @param full_df_path path to realTimeData2017_08_16_13_23_42.txt
+##' @param err acceptable residual from reference_M0 for settling time
+##' @return list_of_stabilized_dfs list of stabilized dataframes.
+list_of_postures_of_forces_to_stabilized_df <- function(postures, full_df_path, err){
+  lapply(postures, list_of_forces_to_stabilized_df, full_df_path, err)
+}
+v <- list_of_postures_of_forces_to_stabilized_df(mini_posture_sample, full_df_path = data_location, err = 0.5)
+browser()
+
   unfilled_stabilization_dataframes_per_posture <- lapply(mini_posture_sample,
     list_of_postures_of_forces_to_stabilized_df, full_df_path = data_location,
     err = 0.5)
@@ -97,5 +115,4 @@ test_that("can_eval_stabilize_idx_to_2_postures", {
     full_df = full_df, muscle_of_interest = "M0")
 
   stabilization_df <- lapply(per_posture_no_velocity_stabilization_df, fill_force_velocity_metrics)
-  browser()
 })
