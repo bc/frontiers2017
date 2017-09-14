@@ -43,6 +43,9 @@ add_initial_and_final_reference_values <- function(stabilization_dataframe, full
 }
 ##' @title fill_initials_into_stabilization_df
 ##' @param df a stabilization data frame that contains initial_index as a column.
+##' @param full_df object for full_df from .rds file
+##' @param muscle_of_interest . muscle name string, i.e. "M0"
+##' @return df_filled stabilization dataframe with initial reference values added.
 fill_initials_into_stabilization_df <- function(df, full_df, muscle_of_interest) {
   print("Filling initials into new DF")
   target_prior_indices <- df$initial_index - 1
