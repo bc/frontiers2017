@@ -30,8 +30,12 @@ integer_midpoint <- function(tuple_of_lower_and_upper) {
 bound_width <- function(tuple) {
   abs(max(tuple) - min(tuple))
 }
-
-
+##' plot settling time histogram
+##' @param stabilized_df stabilized dataframe with column settling_time as vector of integers
+settling_time_histogram_for_posture <- function(stabilized_df)
+{
+  hist(stabilized_df$settling_time, breaks=20, freq=TRUE, xlab='settling time ms', ylab="Number of force trials", main="Settling times for one posture", col="black")
+}
 ##' @description get the a_i and a_f for each of 100 forces within each of K postures
 add_initial_and_final_reference_values <- function(stabilization_dataframe, full_df, muscle_of_interest){
   final_reference_force <- tail(force_trial_df$reference_M0,1)

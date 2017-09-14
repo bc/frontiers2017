@@ -105,6 +105,8 @@ list_of_postures_of_forces_to_stabilized_df <- function(postures, full_df_path, 
   lapply(postures, list_of_forces_to_stabilized_df, full_df_path, err)
 }
 v <- list_of_postures_of_forces_to_stabilized_df(mini_posture_sample, full_df_path = data_location, err = 0.5)
+settling_time_histogram_for_posture(v[[1]])
+settling_time_histogram_for_posture(v[[2]])
 browser()
 
   unfilled_stabilization_dataframes_per_posture <- lapply(mini_posture_sample,
