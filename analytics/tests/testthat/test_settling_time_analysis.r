@@ -48,14 +48,12 @@ test_that("stabilized_index", {
 test_that("performance of stabilized_index is acceptable", {
   library(microbenchmark)
   replicates = 1000
-  mbm = microbenchmark(slow_stabilized_index(sample_vec, desired = 3, err = 1),
+  res = microbenchmark(slow_stabilized_index(sample_vec, desired = 3, err = 1),
     slow_stabilized_index(sample_measured_M0_force_trial, desired = 4, err = 0.5),
     stabilized_index(sample_vec, desired = 3, err = 1), stabilized_index(sample_measured_M0_force_trial,
       desired = 4, err = 0.5), times = replicates)
   pdf("../../../output/settling_time_analysis_performance.pdf", width = 10, height = 10)
-  if (require("ggplot2")) {
-    autoplot(res) + title(paste(replicates, "replicates"))
-  }
+  plot(res)
   dev.off()
   expect_equal(1, 1)  #this is here invoke the block & ensure no errors happen in the above code.
 })
@@ -77,7 +75,7 @@ test_that("postures_grouped_by_line", {
 
 test_that("discrete_diff", {
   expect_equal(discrete_diff(c(1, 2, 3)), c(1, 1))
-  expect_equal(discrete_diff(c(10, 10, 10, 10)), c(0, 0))
+  expect_equal(discrete_diff(c(10, 10, 10, 10)), c(0, 0, 0))
   expect_equal(discrete_diff(c(10, -10, 10, -10)), c(-20, 20, -20))
 })
 
@@ -92,12 +90,13 @@ test_that("can_eval_stabilize_idx_to_2_postures", {
 ##' @param forces_list list of force trial dataframes
 ##' @param full_df_path path to original realTimeData2017_08_16_13_23_42.txt
 ##' @param err acceptable Newton threshold for settling for tendon force.
+##' @return stabilized_df dataframe representing how the list of forces stabilized.
 list_of_forces_to_stabilized_df<- function(forces_list, full_df_path, err, full_df, muscle_of_interest){
   list_of_stable_dfs <- lapply(forces_list, force_trial_to_stable_index_df, full_df_path, err)
   stabilized_df <- sort_by_initial_index(rbind_dfs(list_of_stable_dfs))
-  df <- fill_initials_into_stabilization_df(stabilized_df, full_df, muscle_of_interest)
-  df_out <- fill_force_velocity_metrics(df)
-  return(filled_stabilized_df)
+  filled_df <- fill_initials_into_stabilization_df(stabilized_df, full_df, muscle_of_interest)
+  stabilized_and_filled_df <- fill_force_velocity_metrics(filled_df)
+  return(stabilized_and_filled_df)
 }
 ##' @title list_of_postures_of_forces_to_stabilized_df
 ##' @param postures list of postures, each containing a list of force trial dataframes
