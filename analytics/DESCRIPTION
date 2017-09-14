@@ -8,6 +8,7 @@ Depends:
   testthat,
   devtools,
   ggplot2,
+  parallel,
   roxygen2,
   xml2,
   caTools,
@@ -15,7 +16,8 @@ Depends:
   GGally,
   plotrix,
   scatterplot3d,
-  microbenchmark
+  microbenchmark,
+  data.table
 License: USC
 Encoding: UTF-8
 LazyData: true
