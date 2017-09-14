@@ -69,9 +69,6 @@ test_that("postures_grouped_by_line", {
     81531857, 81613207, 81694520, 81775837, 81857174, 81938463))
   x_fixed_value <- -525
   y_fixed_value <- 68
-
-
-
   line_list <- postures_grouped_by_line(unique_postures, x_fixed_value, y_fixed_value)
   expect_equal(line_list[[1]], unique_postures[4:11, ])
   expect_equal(line_list[[2]], unique_postures[1:3, ])
@@ -79,7 +76,26 @@ test_that("postures_grouped_by_line", {
 
 
 test_that("discrete_diff", {
-  expect_equal(discrete_diff(c(1,2,3)),c(1,1))
-  expect_equal(discrete_diff(c(10,10,10,10)),c(0,0))
-  expect_equal(discrete_diff(c(10,-10,10,-10)),c(-20,20,-20))
+  expect_equal(discrete_diff(c(1, 2, 3)), c(1, 1))
+  expect_equal(discrete_diff(c(10, 10, 10, 10)), c(0, 0))
+  expect_equal(discrete_diff(c(10, -10, 10, -10)), c(-20, 20, -20))
+})
+
+test_that("can_eval_stabilize_idx_to_2_postures", {
+  # load a list of postures fixed in X, each a list of force trials DFs.
+  print("Loading full_df. Expect 2'")
+  full_df <- readRDS("~/Resilio Sync/data/realTimeData2017_08_16_13_23_42.rds")
+  print("Loading precomputed posture samples")
+
+  posture_samples_n_100_fix_x <- rds_from_package_extdata("posture_samples_n_100_fix_x.rds")
+  mini_posture_sample <- posture_samples_n_100_fix_x[1:2]
+  unfilled_stabilization_dataframes_per_posture <- lapply(mini_posture_sample,
+    list_of_postures_of_forces_to_stabilized_df, full_df_path = data_location,
+    err = 0.5)
+
+  per_posture_no_velocity_stabilization_df <- lapply(unfilled_stabilization_dataframes_per_posture, fill_initials_into_stabilization_df,
+    full_df = full_df, muscle_of_interest = "M0")
+
+  stabilization_df <- lapply(per_posture_no_velocity_stabilization_df, fill_force_velocity_metrics)
+  browser()
 })

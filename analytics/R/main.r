@@ -9,6 +9,7 @@ main <- function() {
   source("R/time_series_functions.r")
   source("R/functions_specific_to_frontiers2017_dataset.r")
   source("R/settling_time_analysis.r")
+  source("R/generic_tools.r")
 
   # Fig DataDescription Only take first part of data to create data description
   # figure. (60e3 = first 60 seconds)
@@ -25,6 +26,7 @@ main <- function() {
 
   message("Pulling full dataset. Expect completion in 2'")
   require(microbenchmark)
+  # n = postures: = 206,1000, 100 force trials per posture
   data_load_mbm <- microbenchmark(full_df <- readRDS("~/Resilio Sync/data/realTimeData2017_08_16_13_23_42.rds"),
     times = 1)
   print(data_load_mbm)
@@ -33,20 +35,38 @@ main <- function() {
   message("...")
   lines <- postures_grouped_by_line(unique_postures, x_fixed_val = -525, y_fixed_val = 68)
   message("line_posture_start_indices")
-  line_posture_start_indices <- mclapply(lines, function(line) as.numeric(rownames(line)))
+  require(parallel)
+  line_posture_start_indices <- lapply(lines, function(line) as.numeric(rownames(line)))
   message("...")
-  idxs <- fix_last_posture_of_index_dfs(add_adept_xy_to_indices(mclapply(line_posture_start_indices,
-    posture_indices_df), unique_postures))
-  forces_per_posture_fixed_y <- forces_per_posture(idxs[[2]], full_df)
-  forces_per_posture_fixed_y[[1]][[1]] <- NULL
+  composed_idx_dfs <- lapply(line_posture_start_indices, posture_indices_df)
+  composed_idx_dfs_with_adept <- add_adept_xy_to_indices(composed_idx_dfs, unique_postures)
+  idxs <- fix_last_posture_of_index_dfs(composed_idx_dfs_with_adept)
 
-  forces_per_posture_fixed_x <- forces_per_posture(idxs[[1]],full_df)
+  ##' @param idxs a dataframe with cols initial, final, adept_x, and adept_y
+  ##' @param full_df data timeframe with columns of interest
+  ##' @return list of time series dataframes, for each of the postures provided in idxs.
+  force_trials_per_posture <- function(idxs, full_df, err) {
+    # for each force trial within the idxs, get the settling time
+    forces <- lapply(df_to_list_of_rows(idxs), function(posture) {
+      l_of_forces <- get_forces_list(full_df, indices = c(posture[["initial"]],
+        posture[["final"]]))
+      # todo get stabilized index for each of the l of forces
+    })
+    return(forces)
+  }
+  browser()
+
+  data_load_mbm <- microbenchmark(force_trials_for_first_ten_postures <- force_trials_per_posture(idxs[[1]][1:100,
+    ], full_df, err = 0.5), times = 1)
+  print(data_load_mbm)
 
 
-  browser("2")
-  force_trials_per_posture <- lapply(forces_per_posture_fixed_y, rm_points_where_adept_robot_is_moving)
-  force_trials_per_posture[-1]  #remove starting posture at adept_x = 0, adept_y = 0
-  browser("1")
+
+  # TODO remove the first force trial from the first posture from fixedY TODO make
+  # sure we dont need this:lapply(forces_per_posture_fixed_y,
+  # rm_points_where_adept_robot_is_moving) TODO or this
+  # force_trials_per_posture[-1] #remove starting posture at adept_x = 0, adept_y =
+  # 0
 
   message("Plotting Settling Time Analysis")
   sample_settling <- data.frame(settling = runif(100, -20, 20), initial_tension = runif(100,

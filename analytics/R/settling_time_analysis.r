@@ -32,6 +32,42 @@ bound_width <- function(tuple) {
 }
 
 
+##' @description get the a_i and a_f for each of 100 forces within each of K postures
+add_initial_and_final_reference_values <- function(stabilization_dataframe, full_df, muscle_of_interest){
+  final_reference_force <- tail(force_trial_df$reference_M0,1)
+  initial_reference_force <- get_reference_force_from_index(full_df_path, initial_index - 1, muscle_of_interest = "M0")
+}
+##' @title fill_initials_into_stabilization_df
+##' @param df a stabilization data frame that contains initial_index as a column.
+fill_initials_into_stabilization_df <- function(df, full_df, muscle_of_interest) {
+  print("Filling initials into new DF")
+  target_prior_indices <- df$initial_index - 1
+  reference_values <- as.numeric(lapply(target_prior_indices, get_reference_value,
+    full_df, muscle_of_interest))
+  df$initial_reference_force <- reference_values
+  gc()
+  return(df)
+}
+
+
+##' @param index_target int; the index from which we will extract the muscle of interest's reference force
+##' @inheritFrom get_reference_force_from_index force_trials_per_posture
+# dt_approach <- get_reference_force_from_index(data_location, idx=index_target, muscle_of_interest = "M0")
+##' @TODO test
+get_reference_value <- function(index_target, full_df, muscle_of_interest){
+  return(as.numeric(full_df[index_target,reference(muscle_of_interest)]))
+}
+
+##' @title fill_force_velocity_metrics
+##' compute how the forces change over time, and whether they are fast or slow changes.
+##' @param df stabilization data frame with columns initial_reference_force, final_reference_force, settling_time
+##' @return df stabilization data frame with new columns delta_force = (final-initial), and amortized_velocity_of_force = (delta_force/settling_time)
+fill_force_velocity_metrics <- function(df){
+  df$delta_force <- df$final_reference_force - df$initial_reference_force
+  df$amortized_velocity_of_force <- df$delta_force / df$settling_time
+  return(df)
+}
+
 
 ##' @param left Logical; whether the left index is stabilized
 ##' @param right Logical; whether the right index is stabilized
@@ -134,6 +170,28 @@ discrete_diff <- function(vector){
   initial <- vector
   diff_vec <- final-initial
   return(head(diff_vec,length(vector)-1))
+}
+
+
+##' sort_by_initial_index
+##' @param df data.frame that contains a column initial_index
+##' @param df_sorted sorted data.frame by values in initial_index. ascending order.
+sort_by_initial_index <- function(df) df[order(df$initial_index),]
+
+
+
+##' force_trial_to_stable_index_df
+##' @param force_trial_df dataframe of the force observations at 1Khz.
+##' @inheritParams stabilized_index
+##' @return stabilized_index_dataframe cols = idx_i, idx_f, settling_time
+force_trial_to_stable_index_df <- function(force_trial_df, full_df_path, err) {
+  desired <- tail(force_trial_df$reference_M0,1)
+  stable_idx <- stabilized_index(force_trial_df$measured_M0, desired, err)
+  initial_index <- as.integer(first_rowname(force_trial_df))
+  df <- data.frame(initial_index = initial_index, final_index = last_rowname(force_trial_df), final_reference_force = as.numeric(desired),
+    settling_time = stable_idx)
+  gc()
+  return(df)
 }
 
 ########functions for figure plotting
