@@ -194,6 +194,11 @@ force_trial_to_stable_index_df <- function(force_trial_df, full_df_path, err) {
   return(df)
 }
 
+##' Rbind multiple dataframes in list
+##' @param list_of_dfs data.frame that contains a column initial_index
+##' @return df combined large dataframe
+rbind_dfs <- function(list_of_dfs) do.call('rbind', list_of_dfs)
+
 ########functions for figure plotting
 
 ##' @param settling data frame with columns: settling, initial_tension, final_tension
