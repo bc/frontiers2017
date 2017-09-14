@@ -213,9 +213,8 @@ rbind_dfs <- function(list_of_dfs) do.call('rbind', list_of_dfs)
 ##' @export
 ##' @importFrom WVPlots ScatterHistC
 tension_settling_scatter <- function(settling_df) {
-  settling_df$delta_tension <- delta_tension(settling_df)
-  WVPlots::ScatterHist(settling_df, "delta_tension", "settling", smoothmethod="lm",
-                     title="settling~delta_tension", annot_size = 1)
+  WVPlots::ScatterHist(settling_df, "delta_force", "settling_time", smoothmethod="lm",
+                     title="settling_time~delta_force", annot_size = 1)
 }
 
 ##' @param settling data frame with columns: settling, initial_tension, final_tension

@@ -69,7 +69,7 @@ main <- function() {
   # 0
 
   message("Plotting Settling Time Analysis")
-  sample_settling <- data.frame(settling = runif(100, -20, 20), initial_tension = runif(100,
-    3, 20), final_tension = runif(100, 3, 20))
+  sample_settling <- data.frame(settling_time = runif(100, -20, 20), initial_reference_force = runif(100,
+    3, 20), final_reference_force = runif(100, 3, 20))
   tension_settling_scatter(sample_settling)
 }
