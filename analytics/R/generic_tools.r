@@ -8,11 +8,11 @@ rds_from_package_extdata <- function(filename){
 ##' @title first_rowname
 ##' @param df data frame with rownames
 ##' @param name string for the first rowname
-##' @TODO write tests
+##' TODO write tests
 first_rowname <- function(df) head(rownames(df), 1)
 
 ##' @title last_rowname
 ##' @param df data frame with rownames
 ##' @param name string for the last rowname
-##' @TODO write tests
+##' TODO write tests
 last_rowname <- function(df) tail(rownames(df), 1)
