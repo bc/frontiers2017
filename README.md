@@ -15,25 +15,34 @@ sudo rstudio-server license-manager status
 sudo apt-get install -y awscli
 ```
 
-# Enter information for a new user with a simple password
+# Enter information for a new user with a simple password; #see keys on desktop for aws configure keys
 ```
+aws configure
 sudo adduser brian
 #then log in as the user after setting a password
-sudo su - brian
 sudo mkdir -p /home/brian/Resilio\ Sync/data
 sudo aws s3 cp s3://bc-frontiers-2017/realTimeData2017_08_16_13_23_42.rds /home/brian/Resilio\ Sync/data/realTimeData2017_08_16_13_23_42.rds
+sudo aws s3 cp s3://bc-frontiers-2017/realTimeData2017_08_16_13_23_42.txt /home/brian/Resilio\ Sync/data/realTimeData2017_08_16_13_23_42.txt
+sudo su - brian
+git clone git@github.com:bc/frontiers2017.git && cd frontiers2017/analytics
 ```
-# Import the data to local AWS disk
+
+Now in $R
+```
+install.packages('devtools')
+library(devtools)
+install()
+test()
+```
+
+# MBP->S3 disk
 ```
 aws s3 cp ~/Resilio Sync/data/realTimeData2017_08_16_13_23_42.rds s3://bc-frontiers-2017/
 ```
-on aws CPU
-```
-git clone git@github.com:bc/frontiers2017.git && cd frontiers2017/analytics
-rscript main.r
-```
 
-EC2 output --> MBP
+
+
+EC2 output-->MBP
 ```
 scp -r ubuntu@ec2-54-215-246-21.us-west-1.compute.amazonaws.com:/home/ubuntu/output ~/Downloads
 ```
