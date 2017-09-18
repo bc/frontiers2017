@@ -228,7 +228,7 @@ force_trial_to_stable_index_df <- function(force_trial_df, full_df_path, err) {
   desired <- tail(force_trial_df$reference_M0,1)
   stable_idx <- stabilized_index(force_trial_df$measured_M0, desired, err)
   initial_index <- as.integer(first_rowname(force_trial_df))
-  df <- data.frame(initial_index = initial_index, final_index = last_rowname(force_trial_df), final_reference_force = as.numeric(desired),
+  df <- data.frame(initial_index = initial_index, final_index = as.integer(last_rowname(force_trial_df)), final_reference_force = as.numeric(desired),
     settling_time = stable_idx)
   gc()
   return(df)
