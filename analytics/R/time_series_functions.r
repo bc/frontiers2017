@@ -14,14 +14,15 @@ plot_force_smoothed_curves <- function(time_series_of_forces, force_dimensions =
   })
 }
 
+##' Get forces list
+##' @description # [-1] was added to remove the nullification force before we
+##' changed to a new posture, and the intra-transition data
 ##' @param full_df dataframe including the column reference_M0 and row.names
 ##' @param indices where the posture starts and stops. 2 element vector of integers
 ##' @param column_to_separate_forces string, by default 'reference_M0'.
 ##' @return forces a list of time_series objects which contain ~800 observations, representing each force trial.
   get_forces_list <- function(full_df, indices, column_to_separate_forces = 'reference_M0'){
     posture_indices <- indices[1]:indices[2]
-    # [-1] = remove the nullification force before we
-    # changed to a new posture, and the intra-transition data
     forces <- split(full_df[posture_indices,], full_df[posture_indices,column_to_separate_forces])[-1]
     return(forces)
   }
@@ -64,23 +65,6 @@ split_time_series_by_piecewise_commands <- function(time_series) {
   get_indices_of_new_plateaus(time_series)
   # split by those indices
   return(data.frame())
-}
-
-extract_portion_where_signal_is_stabilized <- function(time_series) {
-  # increase indentation on the dataset until all signals have converged to their
-  # natural long-term time_series_without_transient_recordings
-  return(time_series)
-
-}
-
-# this evaluates the entire time_series entered. Does not clip other parts.
-##' @return dataframe_of_steady_state, 2 columsn = (value, variance), values = encovder values, force values, motor commands etc.
-extract_steady_state_estimation <- function(time_series) {
-  return(dataframe_of_steady_state)
-}
-
-concatenate_steady_state_values <- function(list_of_steady_state_dataframes) {
-  return(steady_state_dataframe)
 }
 
 create_vaf_posture_plots <- function(A_matrices_results) {
@@ -197,10 +181,10 @@ split_by_position <- function(vector_of_positions, time_series_dataframe) {
   return(data_split[2:length(data_split)])
 }
 
-
+##' Dataframe to list of rows
 ##' @description derived from https://stackoverflow.com/questions/3492379/data-frame-rows-to-a-list
 ##' @param df Data frame
-##' @df_list a list of elements, each of which is a representative row from the original df
+##' @return df_list a list of elements, each of which is a representative row from the original df
 df_to_list_of_rows <- function(df){
   df_list <- setNames(split(df, seq(nrow(df))), rownames(df))
   return(df_list)
@@ -331,7 +315,7 @@ discrete_diff <- function(vector){
   return(head(diff_vec,length(vector)-1))
 }
 
-
+##' Extract the forces from each posture.
 ##' @param idxs a dataframe with cols initial, final, adept_x, and adept_y
 ##' @param full_df data timeframe with columns of interest
 ##' @return list of time series dataframes, for each of the postures provided in idxs.
