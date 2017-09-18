@@ -1,4 +1,6 @@
 options(error = NULL)
+
+##' Main simulation function
 main <- function() {
 
   # make sure you run main.r from the figures directory for saving to work
@@ -42,9 +44,11 @@ main <- function() {
   composed_idx_dfs_with_adept <- add_adept_xy_to_indices(composed_idx_dfs, unique_postures)
   idxs <- fix_last_posture_of_index_dfs(composed_idx_dfs_with_adept)
 
+  ##' @title force_trials_per_posture
   ##' @param idxs a dataframe with cols initial, final, adept_x, and adept_y
   ##' @param full_df data timeframe with columns of interest
-  ##' @return list of time series dataframes, for each of the postures provided in idxs.
+  ##' @param err highest acceptable error (in Newtons)
+  ##' @return forces list of time series dataframes, for each of the postures provided in idxs.
   force_trials_per_posture <- function(idxs, full_df, err) {
     # for each force trial within the idxs, get the settling time
     forces <- lapply(df_to_list_of_rows(idxs), function(posture) {

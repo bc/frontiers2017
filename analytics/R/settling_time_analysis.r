@@ -1,3 +1,4 @@
+##' stabilized
 ##' @param vector vector of numeric values, that change by a constant interval of time.
 ##' @param desired numeric the desired stabilized value for the vector, if the vector is 'stabilized'
 ##' @param err numeric the maximum allowable residual for a given value from the desired value.
@@ -12,7 +13,7 @@ stabilized <- function(vector, desired, err) {
   return(!sum(abs(residuals) > err) > 0)
 }
 
-
+##' integer midpoint
 ##' @param tuple_of_lower_and_upper a tuple of two integers, denoting the lower and upper bound
 ##' @return midpoint an integer that is between the lower and upper bound.
 ##' @description
@@ -25,6 +26,7 @@ integer_midpoint <- function(tuple_of_lower_and_upper) {
 }
 
 
+##' Get the width of the bounds
 ##' @param tuple of two integer values
 ##' @return the integer distance between the values
 bound_width <- function(tuple) {
@@ -36,7 +38,12 @@ settling_time_histogram_for_posture <- function(stabilized_df)
 {
   hist(stabilized_df$settling_time, breaks=20, freq=TRUE, xlab='settling time ms', ylab="Number of force trials", main="Settling times for one posture", col="black")
 }
+##' Add inital and final reference values
 ##' @description get the a_i and a_f for each of 100 forces within each of K postures
+##' @param stabilization_dataframe datafrme of the initial final stabilization indices, etc.
+##' @param full_df full dataframe of all observations, via .rds file
+##' @param muscle_of_interest string for muscle of interest
+
 add_initial_and_final_reference_values <- function(stabilization_dataframe, full_df, muscle_of_interest){
   final_reference_force <- tail(force_trial_df$reference_M0,1)
   initial_reference_force <- get_reference_force_from_index(full_df_path, initial_index - 1, muscle_of_interest = "M0")
@@ -57,14 +64,15 @@ fill_initials_into_stabilization_df <- function(df, full_df, muscle_of_interest)
 }
 
 ##' Get reference value from specific row of dataframe
+##' TODO test
 ##' @param index_target int; the index from which we will extract the muscle of interest's reference force
-##' @inheritFrom get_reference_force_from_index force_trials_per_posture
-# dt_approach <- get_reference_force_from_index(data_location, idx=index_target, muscle_of_interest = "M0")
-##' @TODO test
+##' @param full_df full dataset from the .rds
+##' @param muscle_of_interest string, e.g. "M0"
 get_reference_value <- function(index_target, full_df, muscle_of_interest){
   return(as.numeric(full_df[index_target,reference(muscle_of_interest)]))
 }
 
+##' @title list_of_forces_to_stabilized_df
 ##' @param forces_list list of force trial dataframes
 ##' @param full_df_path path to original realTimeData2017_08_16_13_23_42.txt
 ##' @param err acceptable Newton threshold for settling for tendon force.
@@ -81,8 +89,9 @@ list_of_forces_to_stabilized_df<- function(forces_list, full_df_path, err, full_
 ##' @param full_df_path path to realTimeData2017_08_16_13_23_42.txt
 ##' @param err acceptable residual from reference_M0 for settling time
 ##' @return list_of_stabilized_dfs list of stabilized dataframes.
+##' @importFrom parallel mclapply
 list_of_postures_of_forces_to_stabilized_df <- function(postures, full_df_path, err, full_df, muscle_of_interest){
-  lapply(postures, list_of_forces_to_stabilized_df, full_df_path, err, full_df, muscle_of_interest)
+  mclapply(postures, list_of_forces_to_stabilized_df, full_df_path, err, full_df, muscle_of_interest, mc.cores = 4)
 }
 
 ##' @title fill_force_velocity_metrics
