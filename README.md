@@ -12,7 +12,7 @@ wget https://download2.rstudio.org/rstudio-server-1.0.153-amd64.deb
 yes | sudo gdebi rstudio-server-1.0.153-amd64.deb
 sudo rstudio-server verify-installation
 sudo rstudio-server license-manager status
-sudo apt-get -y awscli
+sudo apt-get install -y awscli
 ```
 
 # Enter information for a new user with a simple password

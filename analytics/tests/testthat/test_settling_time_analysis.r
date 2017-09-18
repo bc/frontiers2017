@@ -26,7 +26,6 @@ test_that("bound_width", {
   expect_equal(bound_width(c(1, 5)), 4)
 })
 
-
 test_that("first_true_value_idx", {
   expect_equal(first_true_value_idx(FALSE, TRUE, c(6, 7)), 7)
   expect_equal(first_true_value_idx(TRUE, TRUE, c(6, 7)), 6)
@@ -85,13 +84,65 @@ test_that("can_eval_stabilize_idx_to_2_postures", {
   full_df <- readRDS("~/Resilio Sync/data/realTimeData2017_08_16_13_23_42.rds")
   print("Loading precomputed posture samples")
   posture_samples_n_100_fix_x <- rds_from_package_extdata("posture_samples_n_100_fix_x.rds")
-  mini_posture_sample <- posture_samples_n_100_fix_x[1:2]
+  v <- list_of_postures_of_forces_to_stabilized_df(posture_samples_n_100_fix_x[70:100], full_df_path = data_location,
+    err = 0.5, full_df, muscle_of_interest = "M0")
 
-v <- list_of_postures_of_forces_to_stabilized_df(mini_posture_sample, full_df_path = data_location, err = 0.5,full_df, muscle_of_interest="M0")
+  ##' get_reference_to_variance_relationship_df
+  ##' @param force_list list of force time trials
+  ##' @param last_n_milliseconds the number of tail milliseconds from which we should calculate the settled standard deviation.
+  ##' @param muscle the muscle of interest in a string e.g. 'M0'
+  ##' @return reference_standard_deviation df with reference (desired) muscle tension, variance, maximum residual
+  ##' @importFrom base rbind
+  get_reference_to_variance_relationship_df <- function(force_list, last_n_milliseconds,
+    muscle) {
+    ref_sd_df <- do.call("rbind", lapply(forces, function(x) {
+      ref <- tail(x, 1)[, reference(muscle)]
+      measured_tail <- tail(x, last_n_milliseconds)[, measured(muscle)]
+      c(ref, sd(measured_tail), max(abs(range(measured_tail) - ref)))
+    }))
+    colnames(ref_sd_df) <- c("reference", "sd_of_tail", "max_residual")
+    rownames(ref_sd_df) <- NULL
+    return(ref_sd_df)
+  }
+  # get_reference_to_variance_relationship_df(x, 30, 'M0')}) a <- do.call('rbind',)
+  # plot(tsd, xlab='M0 reference force (N)', ylab = 'SD(last 100 ms of force
+  # trial)', pch=19)
 
-settling_time_histogram_for_posture(v[[1]])
-settling_time_histogram_for_posture(v[[2]])
-tension_settling_scatter(v[[1]])
-tension_settling_scatter(v[[2]])
-browser()
+  stability_df <- do.call("rbind", list_of_postures_of_forces_to_stabilized_df(posture_samples_n_100_fix_x[1:20][-13][-14],
+    full_df_path = data_location, err = 0.5, full_df, muscle_of_interest = "M0"))
+
+  ##' force_trial_to_stable_metrics
+  ##' @param force_trial force trial time series
+  ##' @param last_n_milliseconds the number of tail milliseconds from which we should calculate the settled standard deviation.
+  ##' @param muscle the muscle of interest in a string e.g. 'M0'
+  ##' @return vec_row dataframe row with reference, and max residual
+  force_trial_to_stable_metrics <- function(force_trial, last_n_milliseconds, muscle) {
+    ref <- tail(force_trial, 1)[, reference(muscle)]
+    measured_tail <- tail(force_trial, last_n_milliseconds)[, measured(muscle)]
+    max_residual <- max(abs(range(measured_tail) - ref))
+    vec_row = data.frame(reference = ref, sd = sd(measured_tail), max_residual = max_residual)
+    return(vec_row)
+  }
+  ##' posture_list_to_stability_metrics_df_rows
+  ##' @param list_of_force_trials each a force_trial time series
+  ##' @param last_n_milliseconds the number of tail milliseconds from which we should calculate the settled standard deviation.
+  ##' @param muscle the muscle of interest in a string e.g. 'M0'
+  ##' @return stability_df_rows df with reference (desired) muscle tension, variance, maximum residual
+  posture_list_to_stability_metrics_df_rows <- function(list_of_force_trials, last_n_milliseconds,
+    muscle) {
+    reference_df_rows <- lapply(list_of_force_trials, force_trial_to_stable_metrics,
+      last_n_milliseconds, muscle)
+    return(do.call("rbind", reference_df_rows))
+  }
+
+  stability_metrics_df <- do.call("rbind", lapply(posture_samples_n_100_fix_x, posture_list_to_stability_metrics_df_rows, last_n_milliseconds = 100, muscle = "M0"))
+  hist(stability_metrics_df[,3], breaks=50, col='black', xlim=c(0, 2), xlab="Maximum residual from desired force in last 100ms", main = "Sample of 100 postures (fixed-x), n=100 forces per posture.")
+  plot(stability_metrics_df$reference, stability_metrics_df$max_residual, col = alpha('black', 0.15), pch=20, xlab="Reference force for M0", main = "Sample of 100 postures (fixed-x), n=100 forces per posture.", ylab="Max Residual from reference in last 100ms")
+  # settling_time_histogram_for_posture(v[[1]])
+  # settling_time_histogram_for_posture(v[[2]])
+  tension_settling_scatter(stability_df)
+
+
+
+  browser()
 })
