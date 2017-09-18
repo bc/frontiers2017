@@ -2,3 +2,5 @@
 
 export(tension_settling_scatter)
 importFrom(WVPlots,ScatterHistC)
+importFrom(data.table,fread)
+importFrom(parallel,mclapply)

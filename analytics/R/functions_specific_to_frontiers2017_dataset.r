@@ -17,6 +17,7 @@ measured <- function(muscle_string) paste0("measured_", muscle_string)
 reference <- function(muscle_string) paste0("reference_", muscle_string)
 command <- function(muscle_string) paste0("command_", muscle_string)
 
+##' add_adept_xy_to_indices
 ##' @description
 ##' this function takes in the indices. the last final index is a 0, because it hasn't been included yet.
 ##' This function fills that index with the correct value for each of the lines sampled.
@@ -64,12 +65,10 @@ get_reference_force_from_index <- function(full_df_path, idx, muscle_of_interest
 
 ##' @title get_x_from_index
 ##' @description Skip with this dataset will yield the Nth datarow (excluding header)
-##' @param full_df_path path to realTimeData2017_08_16_13_23_42.txt
-##' @param idx index to extract (excluding header). i.e. first observation would be idx = 1
-##' @param muscle_of_interest string. by default 'M0', but can be up to 'M7'
 ##' @param function_for_colname a function that takes in the muscle string e.g. 'M0', and returns the column name string of interest
 ##' @return value_for_x numeric value for muscle of interest, for colname of interest
 ##' @importFrom data.table fread
+##' @inheritParams get_reference_force_from_index
 get_x_from_index <- function(full_df_path, function_for_colname, idx, muscle_of_interest) {
   message("get_x_from_index")
   my_fn <- match.fun(function_for_colname)

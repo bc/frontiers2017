@@ -2,7 +2,8 @@
 % Please edit documentation in R/settling_time_analysis.r
 \name{postures_grouped_by_line}
 \alias{postures_grouped_by_line}
-\title{This is highly specific to the experimental paradigm of realTimeData2017_08_16_13_23_42.rds.}
+\title{postures grouped by line
+This is highly specific to the experimental paradigm of realTimeData2017_08_16_13_23_42.rds.}
 \usage{
 postures_grouped_by_line(unique_postures, x_fixed_value, y_fixed_value)
 }
@@ -17,5 +18,6 @@ postures_grouped_by_line(unique_postures, x_fixed_value, y_fixed_value)
 postures_grouped_by_line list of two dataframes, containing df (postures_x_fixed, and a df of postures_y_fixed), each with columns $adept_x and adept_y with millimeter numeric values.
 }
 \description{
+postures grouped by line
 This is highly specific to the experimental paradigm of realTimeData2017_08_16_13_23_42.rds.
 }
