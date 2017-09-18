@@ -108,7 +108,7 @@ test_that("can_eval_stabilize_idx_to_2_postures", {
   # plot(tsd, xlab='M0 reference force (N)', ylab = 'SD(last 100 ms of force
   # trial)', pch=19)
 
-  stability_df <- do.call("rbind", list_of_postures_of_forces_to_stabilized_df(posture_samples_n_100_fix_x[1:20][-13][-14],
+  stability_df <- do.call("rbind", list_of_postures_of_forces_to_stabilized_df(posture_samples_n_100_fix_x[1:2][-13][-14],
     full_df_path = data_location, err = 0.5, full_df, muscle_of_interest = "M0"))
 
   ##' force_trial_to_stable_metrics
@@ -135,14 +135,12 @@ test_that("can_eval_stabilize_idx_to_2_postures", {
     return(do.call("rbind", reference_df_rows))
   }
 
-  stability_metrics_df <- do.call("rbind", lapply(posture_samples_n_100_fix_x, posture_list_to_stability_metrics_df_rows, last_n_milliseconds = 100, muscle = "M0"))
+  stability_metrics_df <- do.call("rbind", lapply(posture_samples_n_100_fix_x[1:2], posture_list_to_stability_metrics_df_rows, last_n_milliseconds = 100, muscle = "M0"))
   hist(stability_metrics_df[,3], breaks=50, col='black', xlim=c(0, 2), xlab="Maximum residual from desired force in last 100ms", main = "Sample of 100 postures (fixed-x), n=100 forces per posture.")
   plot(stability_metrics_df$reference, stability_metrics_df$max_residual, col = alpha('black', 0.15), pch=20, xlab="Reference force for M0", main = "Sample of 100 postures (fixed-x), n=100 forces per posture.", ylab="Max Residual from reference in last 100ms")
   # settling_time_histogram_for_posture(v[[1]])
   # settling_time_histogram_for_posture(v[[2]])
   tension_settling_scatter(stability_df)
-
-
 
   browser()
 })

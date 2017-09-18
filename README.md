@@ -2,12 +2,12 @@
 
 # Installation
 
-# Put dataset on the EC2 Server:
+### Put dataset on the EC2 Server:
 via https://www.rstudio.com/products/rstudio/download-server/
 ```
 git config --global core.editor "vim"
 sudo apt-get update
-sudo apt-get -y install r-base libssl-dev libcurl4-openssl-dev libxml2-dev libapparmor1 gdebi-core
+sudo apt-get -y install r-base libssl-dev libcurl4-openssl-dev libxml2-dev libapparmor1 gdebi-core mosh
 wget https://download2.rstudio.org/rstudio-server-1.0.153-amd64.deb
 yes | sudo gdebi rstudio-server-1.0.153-amd64.deb
 sudo rstudio-server verify-installation
@@ -15,7 +15,7 @@ sudo rstudio-server license-manager status
 sudo apt-get install -y awscli
 ```
 
-# Enter information for a new user with a simple password; #see keys on desktop for aws configure keys
+### Data Acquisition
 ```
 aws configure
 sudo adduser brian
@@ -27,7 +27,7 @@ sudo su - brian
 git clone git@github.com:bc/frontiers2017.git && cd frontiers2017/analytics
 ```
 
-Now in $R
+### Now in $R
 ```
 install.packages('devtools')
 library(devtools)
@@ -42,11 +42,11 @@ aws s3 cp ~/Resilio Sync/data/realTimeData2017_08_16_13_23_42.rds s3://bc-fronti
 
 
 
-EC2 output-->MBP
+### EC2 output-->MBP
 ```
 scp -r ubuntu@ec2-54-215-246-21.us-west-1.compute.amazonaws.com:/home/ubuntu/output ~/Downloads
 ```
-# TODO
+### TODO
 pick suggested reviewers
 
 12k words including citations, but excluding abstract, igure captions, and funding statements, and acknowledgement and references. abstract 350 words, must have running title <= 5 words
