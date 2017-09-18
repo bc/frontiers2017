@@ -26,6 +26,17 @@ integer_midpoint <- function(tuple_of_lower_and_upper) {
 }
 
 
+##' @param force_trial_df data.frame of numeric values, that includes the reference and measured columns
+##' @param desired numeric the desired stabilized value for the vector, if the vector is 'stabilized'
+##' @param err numeric the maximum allowable residual for a given value from the desired value.
+##' @param muscle muscle of interest string, e.g. "M0"
+force_trial_does_stabilize <- function(force_trial_df, muscle, err){
+  desired <- force_trial_df[1,reference(muscle)]
+  last_value <- tail(force_trial_df[,measured(muscle)],1)
+  last_value_is_in_range <- abs(desired - last_value) < err
+  return(last_value_is_in_range)
+}
+
 ##' Get the width of the bounds
 ##' @param tuple of two integer values
 ##' @return the integer distance between the values

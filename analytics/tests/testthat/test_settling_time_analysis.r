@@ -78,14 +78,37 @@ test_that("discrete_diff", {
   expect_equal(discrete_diff(c(10, -10, 10, -10)), c(-20, 20, -20))
 })
 
+test_that("one can remove nonstabilized force trials", {
+  print('attempting to remove nonstabilized force trials')
+  posture_samples_n_100_fix_x <- rds_from_package_extdata("posture_samples_n_100_fix_x.rds")
+  test_example_force_trial <- posture_samples_n_100_fix_x[[1]][[1]]
+  first_posture_stablizes <- force_trial_does_stabilize(test_example_force_trial, muscle="M0", err=0.5)
+  too_stringent_yields_false <- force_trial_does_stabilize(test_example_force_trial, muscle="M0", err=0.01)
+  expect_true(first_posture_stablizes)
+  expect_false(too_stringent_yields_false)
+  #try it for many postures
+  all_force_trials <- unlist(posture_samples_n_100_fix_x, recursive=FALSE)
+
+  mask_for_posture <- function(list_of_force_trials, muscle, err){
+    as.logical(lapply(list_of_force_trials, force_trial_does_stabilize, muscle, err))
+  }
+  indices_of_nonstabilized_force_trials <- which(!mask_for_posture)
+  num_force_trials_that_did_not_stabilize <- length(indices_of_nonstabilized_force_trials)
+  print(paste("num_force_trials_that_did_not_stabilize=",num_force_trials_that_did_not_stabilize))
+  browser()
+})
+
 test_that("can_eval_stabilize_idx_to_2_postures", {
   # load a list of postures fixed in X, each a list of force trials DFs.
   print("Loading full_df. Expect 2'")
   full_df <- readRDS("~/Resilio Sync/data/realTimeData2017_08_16_13_23_42.rds")
   print("Loading precomputed posture samples")
   posture_samples_n_100_fix_x <- rds_from_package_extdata("posture_samples_n_100_fix_x.rds")
+
   v <- list_of_postures_of_forces_to_stabilized_df(posture_samples_n_100_fix_x[70:100], full_df_path = data_location,
     err = 0.5, full_df, muscle_of_interest = "M0")
+
+
 
   ##' get_reference_to_variance_relationship_df
   ##' @param force_list list of force time trials
@@ -135,7 +158,7 @@ test_that("can_eval_stabilize_idx_to_2_postures", {
     return(do.call("rbind", reference_df_rows))
   }
 
-  stability_metrics_df <- do.call("rbind", lapply(posture_samples_n_100_fix_x[1:2], posture_list_to_stability_metrics_df_rows, last_n_milliseconds = 100, muscle = "M0"))
+  stability_metrics_df <- do.call("rbind", lapply(posture_samples_n_100_fix_x[1:100], posture_list_to_stability_metrics_df_rows, last_n_milliseconds = 100, muscle = "M0"))
   hist(stability_metrics_df[,3], breaks=50, col='black', xlim=c(0, 2), xlab="Maximum residual from desired force in last 100ms", main = "Sample of 100 postures (fixed-x), n=100 forces per posture.")
   plot(stability_metrics_df$reference, stability_metrics_df$max_residual, col = alpha('black', 0.15), pch=20, xlab="Reference force for M0", main = "Sample of 100 postures (fixed-x), n=100 forces per posture.", ylab="Max Residual from reference in last 100ms")
   # settling_time_histogram_for_posture(v[[1]])
