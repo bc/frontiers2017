@@ -245,7 +245,6 @@ find_A_matrix <- function(data) {
   colnames(endpointForcePrediction) <- force_col_names
   colnames(AMatrix) <- force_col_names
   rownames(AMatrix) <- muscle_col_names
-  browser()
   return(list(AMatrix = AMatrix, endpointForceObservation = endpointForceObservation,
     endpointForcePrediction = endpointForcePrediction))
 }
