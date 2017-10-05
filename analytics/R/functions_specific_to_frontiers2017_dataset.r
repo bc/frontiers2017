@@ -1,3 +1,4 @@
+source('R/time_series_functions.r')
 # hardcoded specifically for
 # realTimeData2017_08_16_13_23_42_subset_of_first_posture.csv
 save_snapshot_for_first_posture <- function(raw_data_timeseries_df, output_filepath) {
@@ -43,3 +44,18 @@ posture_indices_df <- function(line_posture_start_indices){
     idxs[[2]][1000,2] <- 81369527
   return(idxs)
 }
+
+##' These are the encoder values, which aren't used for Frontiers2017
+frontiers2017_columns_to_ignore <- c(
+  "angle_0",
+  "angle_1",
+  "angle_2",
+  "angle_3",
+  "angle_4",
+  "angle_5",
+  "angle_6"
+)
+
+
+##' These are the posture values, which are repeated across every data observation.
+columns_to_extract_into_attributes <- c(unlist(lapply(muscle_names, reference)), "adept_x", "adept_y")

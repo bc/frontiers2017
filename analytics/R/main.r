@@ -22,10 +22,15 @@ main <- function() {
   idxs_clean <- clean_up_posture_indices(idxs)
   message("Identifying forces within each posture")
   require(pbmcapply)
-  list_of_rows <- df_to_list_of_rows(idxs_clean[[1]])
-  a <- pbmclapply(list_of_rows, function(x) {
-    split_by_reference_force(full_df[x[['initial']]:x[['final']],])
+  line_1_rows_list <- df_to_list_of_rows(idxs_clean[[1]])
+  browser()
+  column_to_separate_forces <- reference("M0")
+  a <- lapply(line_1_rows_list, function(index_row) {
+    indices_tuple <- c(index_row[['initial']],index_row[['final']])
+    browser()
+    return(get_forces_list(full_df, indices_tuple, column_to_separate_forces))
   })
+
 
   apply_function_to_posture <- function(full_df, f, start_idx, end_idx){
     return(f(full_df[start_idx:(end_idx),]))
