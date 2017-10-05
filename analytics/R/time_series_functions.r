@@ -59,14 +59,6 @@ rm_points_where_adept_robot_is_moving <- function(time_series) {
   return(no_0_2)  #a dataframe with rows as observations.
 }
 
-##' It finds all plateaus and creates a new section for each plateau
-##' @param time_series A dataframe that has a column called command_M0.
-split_time_series_by_piecewise_commands <- function(time_series) {
-  get_indices_of_new_plateaus(time_series)
-  # split by those indices
-  return(data.frame())
-}
-
 create_vaf_posture_plots <- function(A_matrices_results) {
   vaf_set <- lapply(A_matrices_results, function(x) {
     compute_vaf_for_fxyz(x)

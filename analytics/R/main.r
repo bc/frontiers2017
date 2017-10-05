@@ -16,11 +16,16 @@ main <- function() {
   message("Grouping postures by line")
   lines <- postures_grouped_by_line(unique_postures, x_fixed_val = -525, y_fixed_val = 68)
   message("Identifying indices for the start and end of each posture")
+
   line_posture_start_indices <- lapply(lines, function(line) as.numeric(rownames(line)))
   idxs <- add_adept_xy_to_indices(lapply(line_posture_start_indices, posture_indices_df), unique_postures)
-  append_last_idx_to_posture(idxs[[1]], full_df)
-  browser()
-
+  idxs_clean <- clean_up_posture_indices(idxs)
+  message("Identifying forces within each posture")
+  require(pbmcapply)
+  list_of_rows <- df_to_list_of_rows(idxs_clean[[1]])
+  a <- pbmclapply(list_of_rows, function(x) {
+    split_by_reference_force(full_df[x[['initial']]:x[['final']],])
+  })
 
   apply_function_to_posture <- function(full_df, f, start_idx, end_idx){
     return(f(full_df[start_idx:(end_idx),]))
@@ -33,8 +38,10 @@ main <- function() {
   message("Splitting by force trials")
   list_of_postures <- split(full_df, list(full_df$adept_x, full_df$adept_y), drop = TRUE)
 
-message("Plotting Settling Time Analysis")
+  message("Plotting Settling Time Analysis")
   sample_settling <- data.frame(settling = runif(100, -20, 20), initial_tension = runif(100,
     3, 20), final_tension = runif(100, 3, 20))
   tension_settling_scatter(sample_settling)
+
+
 }
