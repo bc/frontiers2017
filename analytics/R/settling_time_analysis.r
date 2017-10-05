@@ -25,7 +25,7 @@ integer_midpoint <- function(tuple_of_lower_and_upper) {
   return(floor((lower + upper)/2))
 }
 
-
+##' Evaluate whether a force trial has stabilized for a given muscle.
 ##' @param force_trial_df data.frame of numeric values, that includes the reference and measured columns
 ##' @param desired numeric the desired stabilized value for the vector, if the vector is 'stabilized'
 ##' @param err numeric the maximum allowable residual for a given value from the desired value.
@@ -281,9 +281,9 @@ delta_tension <- function(settling) {
   return(settling$final_tension - settling$initial_tension)
 }
 
-##' which_muscles_stabilized
-##' @param force_trial df of force trials with cols
-##' @param err highest acceptable error residual from desired tension
+##' Evaluate which of the muscles stabilized to a desired tension within th error threshold.
+##' @param force_trial df of force trials with cols including reference_M0, measured_M0
+##' @param err highest acceptable error residual from desired tension in same units as measured_MX
 ##' @return stability_truth_vector list of true/false logicals indicating which of the muscles did stabilized by the end of the time series.
 which_muscles_stabilized <- function(force_trial, err) {
   unlist(lapply(muscle_names, function(muscle) {

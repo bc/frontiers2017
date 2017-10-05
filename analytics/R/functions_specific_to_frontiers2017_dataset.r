@@ -12,8 +12,9 @@ maximum_tendon_force <- 20
 minimum_tendon_force <- 3
 data_location <- "~/Resilio Sync/data/realTimeData2017_08_16_13_23_42.txt"
 
+##' Add the Adept XY to the indices DF
 ##' @description
-##' this function takes in the indices. the last final index is a 0, because it hasn't been included yet.
+##' This function takes in the indices. the last final index is a 0, because it hasn't been included yet.
 ##' This function fills that index with the correct value for each of the lines sampled.
 ##' @param idxs list of two dataframes, that contain the coordinates of the points
 ##' @return idxs_with_adept added adept_x and adept_y columns
