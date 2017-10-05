@@ -217,6 +217,21 @@ calibrate_forces <- function(time_series, length, angle) {
   return(time_series)
 }
 
+##' Convert postures_grouped_by_line to dataframe of start and end indices, with posture XY
+##' One element per experiment (where an experiment is a specific set of
+##' postures. In the case of Frontiers2017 there are two elements, one for
+##' the Y line and one for the X line.
+##' @param postures_grouped_by_line The result from the fn postures_grouped_by_line
+##' @param unique_postures adept_x, adept_y dataframe with index row names
+##' @return idx_df A list of dataframes with the adept_x, adept_y, start index, end index.
+postures_to_idx_dfs <- function(postures_grouped_by_line, unique_postures) {
+  line_posture_start_indices <- lapply(postures_grouped_by_line, function(line) as.numeric(rownames(line)))
+  idxs <- add_adept_xy_to_indices(lapply(line_posture_start_indices, posture_indices_df),
+    unique_postures)
+  idxs_clean <- clean_up_posture_indices(idxs)
+  return(idxs_clean)
+}
+
 
 # This function estimates the A matrix from the measured tendon force and
 # endpoint forces and torques
