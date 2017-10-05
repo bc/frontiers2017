@@ -24,7 +24,8 @@ main <- function() {
   column_to_separate_forces <- reference("M0")
   forces_at_fixed_x_postures <- pbmclapply(line_1_rows_list, function(index_row) {
     indices_tuple <- c(index_row[["initial"]], index_row[["final"]])
-    return(get_forces_list(full_df, indices_tuple, column_to_separate_forces))
+    list_of_forces <- get_forces_list(full_df, indices_tuple, column_to_separate_forces)
+    return(list_of_forces)
   })
   browser()
 

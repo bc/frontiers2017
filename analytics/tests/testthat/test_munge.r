@@ -35,3 +35,8 @@ test_that("one can remove nonstabilized force trials for 100 postures in y", {
   stabilization_statistic <- paste0(percentage_of_trials_remaining_with_err_threshold,"% of trials remain with a stabilization metric of ", stabilization_err_99_percentile, "N")
   print(stabilization_statistic)
 })
+
+test_that('we can extract the forces from the index dataframes', {
+idx_dfs <- rds_from_package_extdata("index_dataframes_for_two_posture_lines.rds")
+
+})
