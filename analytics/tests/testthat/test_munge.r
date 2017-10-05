@@ -3,6 +3,7 @@ require(testthat)
 source("../../R/settling_time_analysis.r")
 source("../../R/functions_specific_to_frontiers2017_dataset.r")
 source("../../R/generic_tools.r")
+source("../../R/time_series_functions.r")
 
 test_that("one can remove nonstabilized force trials for few postures", {
   posture_samples_n_100_fix_x <- rds_from_package_extdata("posture_samples_n_100_fix_x.rds")
@@ -15,7 +16,7 @@ test_that("one can remove nonstabilized force trials for few postures", {
   expect_false(too_stringent_yields_false)
 })
 
-test_that("one can remove nonstabilized force trials for many postures", {
+test_that("one can remove nonstabilized force trials for 100 postures in y", {
   posture_samples_n_100_fix_x <- rds_from_package_extdata("posture_samples_n_100_fix_x.rds")
   all_force_trials <- unlist(posture_samples_n_100_fix_x, recursive = FALSE)
   all_settled_force_trials <- remove_unsettled_force_trials(all_force_trials, 0.4)
@@ -28,9 +29,9 @@ test_that("one can remove nonstabilized force trials for many postures", {
     width = 10, height = 10)
     plot_remaining_force_trial_fraction_as_function_of_err(different_errors, num_remaining_force_trials, length(all_force_trials))
   dev.off()
-
-  percentage_of_trials_remaining_with_err_threshold <- length(remove_unsettled_force_trials(all_force_trials,
-    stabilization_err_99_percentile))/10000
+  force_trials_that_settled <- remove_unsettled_force_trials(all_force_trials,stabilization_err_99_percentile)
+  percentage_of_trials_remaining_with_err_threshold <- length(force_trials_that_settled)/10000
   expect_true(abs(0.99 - percentage_of_trials_remaining_with_err_threshold) < 0.01)
-  browser()
+  stabilization_statistic <- paste0(percentage_of_trials_remaining_with_err_threshold,"% of trials remain with a stabilization metric of ", stabilization_err_99_percentile, "N")
+  print(stabilization_statistic)
 })
