@@ -31,14 +31,15 @@ posture_indices_df <- function(line_posture_start_indices){
   return(data.frame(initial = initial,final = final))
 }
 
-##' @param idxs dataframe, that contain the coordinates of the points, and adept_x and adept_y columns
-##' @return idxs_with_adept added adept_x and adept_y columns
-append_last_idx_to_posture <- function(idx_df, full_df){
-  last_posture_indices_and_adept_xy <- tail(idx_df, 1)
-  initial_val <- last_posture_indices_and_adept_xy[['initial']]
-
-  browser()
-
-  overshot_final_posture_sample <- full_df[initial_val + 83000, 'adept_y']
-
+##'Clean up the end of the postures
+##' The last index of the postures needs to be added to indicate the end of data collection for each line.
+##' Importantly, the second trial was interrupted, so we delete the last posture (as the forces did not complete)
+##' I did a manual bisection of the indices to find the end of the 1000 posture line (element 1 of the input)
+##' @param idxs_of_lines_1_and_2 list of two elements, each with the initial, final idx from full_df.
+##' @return idxs_of_lines_1_and_2_fixed last elements are hard-coded based on the initial data.
+  clean_up_posture_indices <- function(idxs_of_lines_1_and_2){
+    idxs <- idxs_of_lines_1_and_2 #make copy
+    idxs[[1]] <- idxs[[1]][-nrow(idxs[[1]]),]
+    idxs[[2]][1000,2] <- 81369527
+  return(idxs)
 }
