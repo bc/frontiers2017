@@ -3,7 +3,6 @@
 ##' @param last_n_milliseconds the number of tail milliseconds from which we should calculate the settled standard deviation.
 ##' @param muscle the muscle of interest in a string e.g. 'M0'
 ##' @return reference_standard_deviation df with reference (desired) muscle tension, variance, maximum residual
-##' @importFrom base rbind
 get_reference_to_variance_relationship_df <- function(force_list, last_n_milliseconds,
   muscle) {
   ref_sd_df <- do.call("rbind", lapply(forces, function(x) {
