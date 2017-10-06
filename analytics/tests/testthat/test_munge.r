@@ -5,17 +5,6 @@ source("../../R/functions_specific_to_frontiers2017_dataset.r")
 source("../../R/generic_tools.r")
 source("../../R/time_series_functions.r")
 
-test_that("one can remove nonstabilized force trials for few postures", {
-  posture_samples_n_100_fix_x <- rds_from_package_extdata("posture_samples_n_100_fix_x.rds")
-  test_example_force_trial <- posture_samples_n_100_fix_x[[1]][[1]]
-  first_posture_stablizes <- force_trial_does_stabilize(test_example_force_trial,
-    muscle = "M0", err = 0.5)
-  too_stringent_yields_false <- force_trial_does_stabilize(test_example_force_trial,
-    muscle = "M0", err = 0.005)
-  expect_true(first_posture_stablizes)
-  expect_false(too_stringent_yields_false)
-})
-
 test_that("one can remove nonstabilized force trials for 100 postures in y", {
   posture_samples_n_100_fix_x <- rds_from_package_extdata("posture_samples_n_100_fix_x.rds")
   all_force_trials <- unlist(posture_samples_n_100_fix_x, recursive = FALSE)
@@ -34,7 +23,24 @@ test_that("one can remove nonstabilized force trials for 100 postures in y", {
   expect_true(abs(0.99 - percentage_of_trials_remaining_with_err_threshold) < 0.01)
   stabilization_statistic <- paste0(percentage_of_trials_remaining_with_err_threshold,"% of trials remain with a stabilization metric of ", stabilization_err_99_percentile, "N")
   print(stabilization_statistic)
+
+  full_df <- readRDS("~/Resilio Sync/data/realTimeData2017_08_16_13_23_42.rds")
+  a <- list_of_forces_to_stabilized_df(all_settled_force_trials, data_location, full_df=full_df, muscle_of_interest = "M0", err=0.4)
+  browser()
 })
+
+test_that("one can remove nonstabilized force trials for few postures", {
+  posture_samples_n_100_fix_x <- rds_from_package_extdata("posture_samples_n_100_fix_x.rds")
+  test_example_force_trial <- posture_samples_n_100_fix_x[[1]][[1]]
+  first_posture_stablizes <- force_trial_does_stabilize(test_example_force_trial,
+    muscle = "M0", err = 0.5)
+  too_stringent_yields_false <- force_trial_does_stabilize(test_example_force_trial,
+    muscle = "M0", err = 0.005)
+  expect_true(first_posture_stablizes)
+  expect_false(too_stringent_yields_false)
+})
+
+
 
 test_that('we can extract the forces from the index dataframes', {
 idx_dfs <- rds_from_package_extdata("index_dataframes_for_two_posture_lines.rds")

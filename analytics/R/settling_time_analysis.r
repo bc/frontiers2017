@@ -92,9 +92,12 @@ get_reference_value <- function(index_target, full_df, muscle_of_interest) {
 ##' @param full_df_path path to original realTimeData2017_08_16_13_23_42.txt
 ##' @param err acceptable Newton threshold for settling for tendon force.
 ##' @return stabilized_df dataframe representing how the list of forces stabilized.
+##' @importFrom pbmcapply pbmclapply
 list_of_forces_to_stabilized_df <- function(forces_list, full_df_path, err, full_df,
   muscle_of_interest) {
-  list_of_stable_dfs <- lapply(forces_list, force_trial_to_stable_index_df, full_df_path,
+    message("Acquiring stabilized_and_filled_df for provided list of force trials")
+    require(pbmcapply)
+  list_of_stable_dfs <- pbmclapply(forces_list, force_trial_to_stable_index_df, full_df_path,
     err)
   stabilized_df <- sort_by_initial_index(rbind_dfs(list_of_stable_dfs))
   filled_df <- fill_initials_into_stabilization_df(stabilized_df, full_df, muscle_of_interest)
@@ -109,7 +112,7 @@ list_of_forces_to_stabilized_df <- function(forces_list, full_df_path, err, full
 ##' @importFrom parallel mclapply
 list_of_postures_of_forces_to_stabilized_df <- function(postures, full_df_path, err,
   full_df, muscle_of_interest) {
-  mclapply(postures, list_of_forces_to_stabilized_df, full_df_path, err, full_df,
+  lapply(postures, list_of_forces_to_stabilized_df, full_df_path, err, full_df,
     muscle_of_interest, mc.cores = 4)
 }
 
