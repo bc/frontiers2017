@@ -58,4 +58,4 @@ frontiers2017_columns_to_ignore <- c(
 
 
 ##' These are the posture values, which are repeated across every data observation.
-columns_to_extract_into_attributes <- c(unlist(lapply(muscle_names, reference)), "adept_x", "adept_y")
+columns_to_extract_into_attributes <- function() {c(unlist(lapply(muscle_names, reference)), "adept_x", "adept_y")}

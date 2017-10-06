@@ -1,3 +1,11 @@
+#load all available material
+source("R/time_series_functions.r")
+source("R/data_description.r")
+source("R/force_trial_stability.r")
+source("R/functions_specific_to_frontiers2017_dataset.r")
+source("R/generic_tools.r")
+source("R/settling_time_analysis.r")
+
 options(error = NULL)
 main <- function() {
 

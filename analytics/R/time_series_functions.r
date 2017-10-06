@@ -37,15 +37,27 @@ plot_tendon_rise_time_curves <- function(time_series_of_forces, tendon_of_intere
     lines(time_series_of_forces[[reference(x)]])
   })
 }
-
-# These functions are useful because they prepend measured, reference, or command
-# in front of an input tendon of interest (e.g. M0, M1)
+# Compose measured_M* string
+##' These functions are useful because they prepend measured, reference, or command
+##' in front of an input tendon of interest (e.g. M0, M1)
+##' @param muscle_string e.g. "M0"
+##' @return composed_field_name e.g. "measured_M0"
 measured <- function(muscle_string) {
   paste0("measured_", muscle_string)
 }
+# Compose reference_M* string
+##' These functions are useful because they prepend measured, reference, or command
+##' in front of an input tendon of interest (e.g. M0, M1)
+##' @param muscle_string e.g. "M0"
+##' @return composed_field_name e.g. "reference_M0"
 reference <- function(muscle_string) {
   paste0("reference_", muscle_string)
 }
+# Compose command_M* string
+##' These functions are useful because they prepend measured, reference, or command
+##' in front of an input tendon of interest (e.g. M0, M1)
+##' @param muscle_string e.g. "M0"
+##' @return composed_field_name e.g. "command_M0"
 command <- function(muscle_string) {
   paste0("command_", muscle_string)
 }

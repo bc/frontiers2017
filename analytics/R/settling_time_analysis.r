@@ -319,7 +319,7 @@ remove_unsettled_force_trials <- function(list_of_force_trials, err) {
 
 ##' Plot remaining force trial fraction as a function of error
 ##' horizontal line set to exactly 0.99 to indicate the error thresholds that satisfy the metric, where we want at least 99% of the data to remain after the filter.
-##' @description the stabilization_err_99_percentile is used to set the err metric vertical line
+##' the stabilization_err_99_percentile is used to set the err metric vertical line
 ##' @param different_errors the X values of error that were tested
 ##' @param trials_remaining the number of trials that remained when the err was applied as a filter
 ##' @param total_trials_num the number of total trials, composed of the settled and unsettled force trials.
