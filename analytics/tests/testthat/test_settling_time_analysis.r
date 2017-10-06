@@ -75,23 +75,9 @@ test_that("can_eval_stabilize_idx_to_2_postures", {
   full_df <- readRDS("~/Resilio Sync/data/realTimeData2017_08_16_13_23_42.rds")
   print("Loading precomputed posture samples")
   posture_samples_n_100_fix_x <- rds_from_package_extdata("posture_samples_n_100_fix_x.rds")
-
   v <- list_of_postures_of_forces_to_stabilized_df(posture_samples_n_100_fix_x[1:100], full_df_path = data_location,
     err = 0.5, full_df, muscle_of_interest = "M0")
-  # get_reference_to_variance_relationship_df(x, 30, 'M0')}) a <- do.call('rbind',)
-  # plot(tsd, xlab='M0 reference force (N)', ylab = 'SD(last 100 ms of force
-  # trial)', pch=19)
-
   stability_df <- do.call("rbind", list_of_postures_of_forces_to_stabilized_df(posture_samples_n_100_fix_x[1:2][-13][-14],
     full_df_path = data_location, err = 0.5, full_df, muscle_of_interest = "M0"))
-
   stability_metrics_df <- do.call("rbind", lapply(posture_samples_n_100_fix_x[1:100], posture_list_to_stability_metrics_df_rows, last_n_milliseconds = 100, muscle = "M0"))
-  pdf("../../../output/settling_time_analysis.pdf", width = 10, height = 10)
-  plot(stability_metrics_df$reference, stability_metrics_df$max_residual, col = scales::alpha('black', 0.15), pch=20, xlab="Reference force for M0", main = "Sample of 100 postures (fixed-x), n=100 forces per posture.", ylab="Max Residual from reference in last 100ms")
-    tension_settling_scatter(stability_df)
-    hist(stability_metrics_df[,3], breaks=50, col='black', xlim=c(0, 2), xlab="Maximum residual from desired force in last 100ms", main = "Sample of 100 postures (fixed-x), n=100 forces per posture.")
-    plot(stability_df$delta_force, stability_df$amortized_velocity_of_force)
-    settling_time_histogram_for_posture(v[[1]])
-    settling_time_histogram_for_posture(v[[2]])
-  dev.off()
 })
