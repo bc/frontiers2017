@@ -24,13 +24,14 @@ outNum = size(jr3Force,2);
 %%
 linOrder = 2;
 data = iddata(jr3Force,forceRef,0.001);
-sys = n4sid(data,linOrder,'Ts',0.001,'Focus','simulation','N4Weight','MOESP');
+sysLinear = n4sid(data,linOrder,'Ts',0.001,'Focus','simulation','N4Weight','MOESP');
 jr3ForcePredict = dlsim(sys.A,sys.B,sys.C,sys.D,forceRef);
 axis = {'fX','fY','fZ'};
 disp('Linear system identification performance')
 for i = 1 : size(jr3Force,2)
     disp(['VAF for ',axis{i},' was: ',num2str(vaf(jr3Force(:,i),jr3ForcePredict(:,i)))])
 end
+bodePlot(sysLinear)
 %%
 inputNL = poly1d('deg',10);
 linModel = idss(sys.A,sys.B,sys.C,sys.D,'Ts',0.001);
