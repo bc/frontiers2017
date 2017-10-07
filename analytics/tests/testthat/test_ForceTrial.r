@@ -3,6 +3,7 @@ require(testthat)
 source("../../R/settling_time_analysis.r")
 source("../../R/functions_specific_to_frontiers2017_dataset.r")
 source("../../R/generic_tools.r")
+source("../../R/ForceTrial.r")
 source("../../R/time_series_functions.r")
 source("../../R/force_trial_stability.r")
 

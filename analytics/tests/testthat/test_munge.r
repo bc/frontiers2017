@@ -67,7 +67,7 @@ test_that("one can remove nonstabilized force trials for 100 postures in y", {
 
 forcetrial <-   ForceTrial(force_trials_that_settled_fix_x[[100]], full_df_path=data_location, full_df,
     err, last_n_milliseconds = 100)
-require(pbmcapply)
+    require(pbmcapply)
     forcetrials <- pbmclapply(force_trials_that_settled_fix_x, ForceTrial, data_location, full_df, err,100)
 
 
