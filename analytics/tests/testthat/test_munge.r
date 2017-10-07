@@ -70,7 +70,7 @@ test_that("one can remove nonstabilized force trials for 100 postures in y", {
   dev.off()
 
 
-forcetrial <-   forcetrial_structure_object(all_settled_force_trials[[1]], 50, 100, full_df_path=data_location, full_df,
+forcetrial <-   forcetrial_structure_object(all_settled_force_trials[[1]], full_df_path=data_location, full_df,
     err, last_n_milliseconds = 100)
 
 

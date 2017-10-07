@@ -12,8 +12,8 @@ forcetrial_structure_object <- function(timeseries_df, full_df_path, full_df, er
     err, full_df, muscle_of_interest)
   stability_info <- force_trial_to_stable_metrics(timeseries_df, last_n_milliseconds,
     muscle_of_interest)
-  adept_x <- head(timeseries_df, 1)$adept_x
-  adept_y <- head(timeseries_df, 1)$adept_y
+    adept_coordinates(timeseries_df)
+
   # remove the encoder and adept data columns that aren't being used for this analysis.
   angle_column_names <- do.call("c", lapply(0:6, angle))
   drops <- c("adept_x", "adept_y", angle_column_names)
