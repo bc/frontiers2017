@@ -36,8 +36,17 @@ adept_coordinates <- function(timeseries_df) {
   return(c(adept_x, adept_y))
 }
 
+##' Remove Encoder (angle_*) and Adept xy columns'
+##' @param timeseries_df dataframe of the time series with all 39 columns
+##' @return df dataframe without adept or angle columns
+  rm_encoder_and_adept_cols <- function(timeseries_df){
+    angle_column_names <- do.call("c", lapply(0:6, angle))
+    drops <- c("adept_x", "adept_y", angle_column_names)
+    return(rm_cols(timeseries_df, drops))
+  }
+
 ##' Compose start and final indices into a clean little dataframe
-##' @param line_postures_start_indices line_postures_start_indices 
+##' @param line_postures_start_indices line_postures_start_indices
 ##' @return indices_df dataframe with the initial and final indices as the only elements
 posture_indices_df <- function(line_posture_start_indices) {
   final <- c(line_posture_start_indices[-1] - 1, 0)
