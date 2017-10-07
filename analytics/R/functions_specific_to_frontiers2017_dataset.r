@@ -28,7 +28,7 @@ add_adept_xy_to_indices <- function(idxs, unique_postures) {
 
 ##' Get AdeptX and AdeptY numeric tuple from first row of dataframe
 ##' @param timeseries_df time series with the adept_x and adept_y columns
-##' @reutrn vector of adept_x,adept_y numeric values.
+##' @return vector of adept_x,adept_y numeric values.
 adept_coordinates <- function(timeseries_df) {
   df_head <- head(timeseries_df, 1)
   adept_x <- df_head$adept_x
@@ -36,8 +36,26 @@ adept_coordinates <- function(timeseries_df) {
   return(c(adept_x, adept_y))
 }
 
+##' Remove columns by a vector of colnames
+##' @param timeseries_df dataframe with columns you want to remove
+##' @param drops vector of string names of columns to rm
+##' @return df_clean dataframe with dropped columns
+##' TODO test
+rm_cols <- function(timeseries_df, drops) {
+  timeseries_df[, !(names(timeseries_df) %in% drops)]
+}
+
+##' Remove Encoder (angle_*) and Adept xy columns'
+##' @param timeseries_df dataframe of the time series with all 39 columns
+##' @return df dataframe without adept or angle columns
+  rm_encoder_and_adept_cols <- function(timeseries_df){
+    angle_column_names <- do.call("c", lapply(0:6, angle))
+    drops <- c("adept_x", "adept_y", angle_column_names)
+    return(rm_cols(timeseries_df, drops))
+  }
+
 ##' Compose start and final indices into a clean little dataframe
-##' @param line_postures_start_indices
+##' @param line_postures_start_indices line_postures_start_indices
 ##' @return indices_df dataframe with the initial and final indices as the only elements
 posture_indices_df <- function(line_posture_start_indices) {
   final <- c(line_posture_start_indices[-1] - 1, 0)
