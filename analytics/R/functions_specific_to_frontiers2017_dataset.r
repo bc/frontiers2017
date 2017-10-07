@@ -28,7 +28,7 @@ add_adept_xy_to_indices <- function(idxs, unique_postures) {
 
 ##' Get AdeptX and AdeptY numeric tuple from first row of dataframe
 ##' @param timeseries_df time series with the adept_x and adept_y columns
-##' @reutrn vector of adept_x,adept_y numeric values.
+##' @return vector of adept_x,adept_y numeric values.
 adept_coordinates <- function(timeseries_df) {
   df_head <- head(timeseries_df, 1)
   adept_x <- df_head$adept_x
@@ -37,7 +37,7 @@ adept_coordinates <- function(timeseries_df) {
 }
 
 ##' Compose start and final indices into a clean little dataframe
-##' @param line_postures_start_indices
+##' @param line_postures_start_indices line_postures_start_indices 
 ##' @return indices_df dataframe with the initial and final indices as the only elements
 posture_indices_df <- function(line_posture_start_indices) {
   final <- c(line_posture_start_indices[-1] - 1, 0)
