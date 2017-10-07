@@ -42,9 +42,9 @@ adept_coordinates <- function(timeseries_df) {
 ##' @param desired_ms the ideal length (integer)
 ##' @param max_delta_acceptable integer The maximum aceptable residual from the desired_ms
 ##' @return is_acceptable logical result
-force_ts_len_is_acceptable <- function(force_time_series, desired_ms = 800, max_delta_acceptable=50){
-  observed_ms <- length(force_time_series[,1])
-  if ((abs(observed_ms - desired_ms)) < max_delta_acceptable){
+force_ts_len_is_acceptable <- function(force_time_series, desired_ms = 800, max_delta_acceptable = 50) {
+  observed_ms <- length(force_time_series[, 1])
+  if ((abs(observed_ms - desired_ms)) < max_delta_acceptable) {
     return(TRUE)
   } else {
     return(FALSE)
@@ -64,11 +64,11 @@ rm_cols <- function(timeseries_df, drops) {
 ##' Remove Encoder (angle_*) and Adept xy columns'
 ##' @param timeseries_df dataframe of the time series with all 39 columns
 ##' @return df dataframe without adept or angle columns
-  rm_encoder_and_adept_cols <- function(timeseries_df){
-    angle_column_names <- do.call("c", lapply(0:6, angle))
-    drops <- c("adept_x", "adept_y", angle_column_names)
-    return(rm_cols(timeseries_df, drops))
-  }
+rm_encoder_and_adept_cols <- function(timeseries_df) {
+  angle_column_names <- do.call("c", lapply(0:6, angle))
+  drops <- c("adept_x", "adept_y", angle_column_names)
+  return(rm_cols(timeseries_df, drops))
+}
 
 ##' Compose start and final indices into a clean little dataframe
 ##' @param line_postures_start_indices line_postures_start_indices

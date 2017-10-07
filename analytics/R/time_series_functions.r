@@ -21,11 +21,11 @@ plot_force_smoothed_curves <- function(time_series_of_forces, force_dimensions =
 ##' @param indices where the posture starts and stops. 2 element vector of integers
 ##' @param column_to_separate_forces string, by default 'reference_M0'.
 ##' @return forces a list of time_series objects which contain ~800 observations, representing each force trial.
-  get_forces_list <- function(full_df, indices, column_to_separate_forces = 'reference_M0'){
-    posture_indices <- indices[1]:indices[2]
-    forces <- split(full_df[posture_indices,], full_df[posture_indices,column_to_separate_forces])[-1]
-    return(forces)
-  }
+get_forces_list <- function(full_df, indices, column_to_separate_forces = "reference_M0") {
+  posture_indices <- indices[1]:indices[2]
+  forces <- split(full_df[posture_indices, ], full_df[posture_indices, column_to_separate_forces])[-1]
+  return(forces)
+}
 
 
 plot_tendon_rise_time_curves <- function(time_series_of_forces, tendon_of_interest_string_list,
@@ -40,24 +40,24 @@ plot_tendon_rise_time_curves <- function(time_series_of_forces, tendon_of_intere
 # Compose measured_M* string
 ##' These functions are useful because they prepend measured, reference, or command
 ##' in front of an input tendon of interest (e.g. M0, M1)
-##' @param muscle_string e.g. "M0"
-##' @return composed_field_name e.g. "measured_M0"
+##' @param muscle_string e.g. 'M0'
+##' @return composed_field_name e.g. 'measured_M0'
 measured <- function(muscle_string) {
   paste0("measured_", muscle_string)
 }
 # Compose reference_M* string
 ##' These functions are useful because they prepend measured, reference, or command
 ##' in front of an input tendon of interest (e.g. M0, M1)
-##' @param muscle_string e.g. "M0"
-##' @return composed_field_name e.g. "reference_M0"
+##' @param muscle_string e.g. 'M0'
+##' @return composed_field_name e.g. 'reference_M0'
 reference <- function(muscle_string) {
   paste0("reference_", muscle_string)
 }
 # Compose command_M* string
 ##' These functions are useful because they prepend measured, reference, or command
 ##' in front of an input tendon of interest (e.g. M0, M1)
-##' @param muscle_string e.g. "M0"
-##' @return composed_field_name e.g. "command_M0"
+##' @param muscle_string e.g. 'M0'
+##' @return composed_field_name e.g. 'command_M0'
 command <- function(muscle_string) {
   paste0("command_", muscle_string)
 }
@@ -66,7 +66,7 @@ command <- function(muscle_string) {
 ##' These functions are useful because they prepend measured, reference, or command
 ##' in front of an input tendon of interest (e.g. M0, M1)
 ##' @param muscle_number e.g. 0, or 1
-##' @return composed_field_name e.g. "angle_0"
+##' @return composed_field_name e.g. 'angle_0'
 angle <- function(muscle_number) {
   paste0("angle_", as.character(muscle_number))
 }
@@ -76,8 +76,8 @@ angle <- function(muscle_number) {
 ##' @param time_series A dataframe that has a column called robot_flag, where 0 is initialized, 1 is moving, and 2 is ready.
 ##' @param ts_trimmed time_series without any incidences of robot_flag as 0 or 2.
 rm_points_where_adept_robot_is_moving <- function(time_series) {
-  no_2 <- time_series[time_series$robot_flag != 1, ] #ready
-  no_0_2 <- no_2[time_series$robot_flag != 0, ] #initialized
+  no_2 <- time_series[time_series$robot_flag != 1, ]  #ready
+  no_0_2 <- no_2[time_series$robot_flag != 0, ]  #initialized
   return(no_0_2)  #a dataframe with rows as observations.
 }
 
@@ -199,7 +199,7 @@ split_by_position <- function(vector_of_positions, time_series_dataframe) {
 ##' @description derived from https://stackoverflow.com/questions/3492379/data-frame-rows-to-a-list
 ##' @param df Data frame
 ##' @return df_list a list of elements, each of which is a representative row from the original df
-df_to_list_of_rows <- function(df){
+df_to_list_of_rows <- function(df) {
   df_list <- setNames(split(df, seq(nrow(df))), rownames(df))
   return(df_list)
 }
@@ -209,8 +209,8 @@ df_to_list_of_rows <- function(df){
 `%not in%` <- function(x, table) is.na(match(x, table, nomatch = NA_integer_))
 
 # make sure col is named reference_M0 robotflag int 0 means initialized, 1 means
-# moving, 2 means ready motorflag int 0 means initialized, 1 means
-# it is applying the force,2 means ready.
+# moving, 2 means ready motorflag int 0 means initialized, 1 means it is applying
+# the force,2 means ready.
 
 split_by_reference_force <- function(time_series_dataframe) {
   forces <- unique(time_series_dataframe$reference_M0)
@@ -336,21 +336,21 @@ wrench_to_phi <- function(vector_3d) {
   return(list(rho = rho, theta = theta, phi = phi))
 }
 
-discrete_diff <- function(vector){
+discrete_diff <- function(vector) {
   final <- c(vector[-1], 0)
   initial <- vector
-  diff_vec <- final-initial
-  return(head(diff_vec,length(vector)-1))
+  diff_vec <- final - initial
+  return(head(diff_vec, length(vector) - 1))
 }
 
 ##' Extract the forces from each posture.
 ##' @param idxs a dataframe with cols initial, final, adept_x, and adept_y
 ##' @param full_df data timeframe with columns of interest
 ##' @return list of time series dataframes, for each of the postures provided in idxs.
-forces_per_posture <- function(idxs, full_df){
-    # 0.36252s/posture with lapply
-    forces <- lapply(df_to_list_of_rows(idxs), function(row){
-      get_forces_list(full_df, indices = c(row[['initial']], row[['final']]))
-    })
-    return(forces)
+forces_per_posture <- function(idxs, full_df) {
+  # 0.36252s/posture with lapply
+  forces <- lapply(df_to_list_of_rows(idxs), function(row) {
+    get_forces_list(full_df, indices = c(row[["initial"]], row[["final"]]))
+  })
+  return(forces)
 }
