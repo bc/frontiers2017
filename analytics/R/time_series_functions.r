@@ -62,6 +62,15 @@ command <- function(muscle_string) {
   paste0("command_", muscle_string)
 }
 
+# Compose encoder angle string
+##' These functions are useful because they prepend measured, reference, or command
+##' in front of an input tendon of interest (e.g. M0, M1)
+##' @param muscle_number e.g. 0, or 1
+##' @return composed_field_name e.g. "angle_0"
+angle <- function(muscle_number) {
+  paste0("angle_", as.character(muscle_number))
+}
+
 ##' We remove all observations where robot_flag==1
 ##' @param time_series A dataframe that has a column called robot_flag, where 0 is initialized, 1 is moving, and 2 is ready.
 ##' @param ts_trimmed time_series without any incidences of robot_flag as 0 or 2.

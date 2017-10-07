@@ -96,16 +96,13 @@ get_reference_value <- function(index_target, full_df, muscle_of_interest) {
 ##' @importFrom pbmcapply pbmclapply
 list_of_forces_to_stabilized_df <- function(forces_list, full_df_path, err, full_df,
   muscle_of_interest) {
-    message("Acquiring stabilized_and_filled_df for provided list of force trials")
-    require(pbmcapply)
-  list_of_stable_dfs <- pbmclapply(forces_list, force_trial_to_stable_index_df, full_df_path,
+  list_of_stable_dfs <- lapply(forces_list, force_trial_to_stable_index_df, full_df_path,
     err)
   stabilized_df <- sort_by_initial_index(rbind_dfs(list_of_stable_dfs))
   filled_df <- fill_initials_into_stabilization_df(stabilized_df, full_df, muscle_of_interest)
   stabilized_and_filled_df <- fill_force_velocity_metrics(filled_df)
   return(stabilized_and_filled_df)
 }
-
 
 ##' @title list_of_postures_of_forces_to_stabilized_df
 ##' @param postures list of postures, each containing a list of force trial dataframes
