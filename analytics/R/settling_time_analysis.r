@@ -92,9 +92,10 @@ get_reference_value <- function(index_target, full_df, muscle_of_interest) {
 ##' @param full_df_path path to original realTimeData2017_08_16_13_23_42.txt
 ##' @param err acceptable Newton threshold for settling for tendon force.
 ##' @return stabilized_df dataframe representing how the list of forces stabilized.
+##' @importFrom pbmcapply pbmclapply
 list_of_forces_to_stabilized_df <- function(forces_list, full_df_path, err, full_df,
   muscle_of_interest) {
-  list_of_stable_dfs <- lapply(forces_list, force_trial_to_stable_index_df, full_df_path,
+  list_of_stable_dfs <- pbmclapply(forces_list, force_trial_to_stable_index_df, full_df_path,
     err)
   stabilized_df <- sort_by_initial_index(rbind_dfs(list_of_stable_dfs))
   filled_df <- fill_initials_into_stabilization_df(stabilized_df, full_df, muscle_of_interest)
@@ -326,7 +327,7 @@ remove_unsettled_force_trials <- function(list_of_force_trials, err) {
 ##' @param total_trials_num the number of total trials, composed of the settled and unsettled force trials.
 plot_remaining_force_trial_fraction_as_function_of_err <- function(different_errors,
   trials_remaining, total_trials_num) {
-  plot(different_errors, (trials_remaining/total_trials_num*100, type = "l", xlab = "Maximum Error Threshold (N)",
+  plot(different_errors, (trials_remaining/total_trials_num)*100, type = "l", xlab = "Maximum Error Threshold (N)",
     ylab = "Force trials that settled (%)", main = paste0("n=", total_trials_num,
       " Force Trials"))
   abline(h = 0.99)
