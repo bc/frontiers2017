@@ -19,46 +19,6 @@ test_that("one can remove nonstabilized force trials for few postures", {
   expect_false(too_stringent_yields_false)
 })
 
-
-
-test_that('we can extract the forces from the index dataframes', {
-posture_idxs_per_line <- read_rds_to_package_extdata('index_dataframes_for_two_posture_lines.rds')
-full_df <- readRDS("~/Resilio Sync/data/realTimeData2017_08_16_13_23_42.rds"); print("Loading full_df. Expect 2'")
-fix_x_postures <- posture_idxs_per_line[[1]]
-fix_y_postures <- posture_idxs_per_line[[2]]
-
-require(pbmcapply)
-posture_start_finish_indices_to_L_of_ForceTrials <- function(fix_x_postures, full_df){
-  pbmclapply(df_to_list_of_rows(fix_x_postures), function(posture_idx_row) {
-    indices <- c(posture_idx_row[['initial']],posture_idx_row[['final']])
-    ts <- rm_points_where_adept_robot_is_moving(full_df[indices[1]:indices[2],])
-    return(
-      lapply(
-        get_forces_list(full_df, indices, column_to_separate_forces = 'reference_M0'), ForceTrial, data_location, full_df, err=0.4
-      )
-    )
-  })
-}
-forceTrials_fix_x<- unlist(posture_start_finish_indices_to_L_of_ForceTrials(head(fix_x_postures,10), full_df), recursive=FALSE)
-
-remove_unsettled_force_trials(all_force_trials_fix_x, 0.4)
-browser()
-
-})
-
-test_that("ForceTrial works with one force", {
-  all_force_trials_fix_x <- unlist(read_rds_to_package_extdata("posture_samples_n_100_fix_x.rds"), recursive = FALSE)[1]
-  one_sample_settled_force <- remove_unsettled_force_trials(all_force_trials_fix_x, 0.4)[[1]]
-  err = 0.4
-  full_df_path <- data_location
-  full_df <- readRDS("~/Resilio Sync/data/realTimeData2017_08_16_13_23_42.rds"); print("Loading full_df. Expect 2'")
-  FT_example <- ForceTrial(one_sample_settled_force, full_df_path, full_df, err)
-  expect_equal(dput(attr(FT_example,"adept_coordinates")), c(-525, 63.360715))
-  expect_equal(attr(FT_example,"stability_info")[['last_n_milliseconds']], 100)
-  expect_equal(attr(FT_example,"stability_df")[['initial_reference_force']], 18.225344)
-})
-
-
 test_that("one can remove nonstabilized force trials for 100 postures in y", {
   all_force_trials_fix_x <- unlist(read_rds_to_package_extdata("posture_samples_n_100_fix_x.rds"), recursive = FALSE)
 
@@ -78,7 +38,7 @@ test_that("one can remove nonstabilized force trials for 100 postures in y", {
   print(stabilization_statistic)
   print('Reading full_df, expect 2')
   full_df <- readRDS("~/Resilio Sync/data/realTimeData2017_08_16_13_23_42.rds")
-  browser()
+
   print('Removing unsettled force trials')
   all_settled_force_trials_fix_x <- remove_unsettled_force_trials(all_force_trials_fix_x, 0.4)
   print('Computing Stabilized Df')
