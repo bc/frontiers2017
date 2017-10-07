@@ -326,8 +326,8 @@ remove_unsettled_force_trials <- function(list_of_force_trials, err) {
 ##' @param total_trials_num the number of total trials, composed of the settled and unsettled force trials.
 plot_remaining_force_trial_fraction_as_function_of_err <- function(different_errors,
   trials_remaining, total_trials_num) {
-  plot(different_errors, trials_remaining/total_trials_num, type = "l", xlab = "Maximum Error Threshold (N)",
-    ylab = "Percentage of force trials that settled", main = paste0("n=", total_trials_num,
+  plot(different_errors, (trials_remaining/total_trials_num*100, type = "l", xlab = "Maximum Error Threshold (N)",
+    ylab = "Force trials that settled (%)", main = paste0("n=", total_trials_num,
       " Force Trials"))
   abline(h = 0.99)
   abline(v = stabilization_err_99_percentile)
