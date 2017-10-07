@@ -23,7 +23,7 @@ force_trial_to_stable_metrics <- function(force_trial, last_n_milliseconds, musc
   ref <- tail(force_trial, 1)[, reference(muscle)]
   measured_tail <- tail(force_trial, last_n_milliseconds)[, measured(muscle)]
   max_residual <- max(abs(range(measured_tail) - ref))
-  vec_row = data.frame(reference = ref, sd = sd(measured_tail), max_residual = max_residual)
+  vec_row = data.frame(last_n_milliseconds = last_n_milliseconds, reference = ref, sd = sd(measured_tail), max_residual = max_residual)
   return(vec_row)
 }
 ##' posture_list_to_stability_metrics_df_rows

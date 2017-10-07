@@ -69,6 +69,11 @@ test_that("one can remove nonstabilized force trials for 100 postures in y", {
   settling_time_histogram_for_posture(stability_df, breaks = 100)
   dev.off()
 
+
+a<-   forcetrial_structure_object(50, 100, all_settled_force_trials[[1]], full_df_path=data_location, full_df,
+    err, last_n_milliseconds = 100)
+
+    
   browser()
   list_of_posture_and_stability <- do.call('rbind',pbmclapply(df_to_list_of_rows(stability_df)[1:4],
     function(stability_row) {

@@ -105,6 +105,8 @@ list_of_forces_to_stabilized_df <- function(forces_list, full_df_path, err, full
   stabilized_and_filled_df <- fill_force_velocity_metrics(filled_df)
   return(stabilized_and_filled_df)
 }
+
+
 ##' @title list_of_postures_of_forces_to_stabilized_df
 ##' @param postures list of postures, each containing a list of force trial dataframes
 ##' @param full_df_path path to realTimeData2017_08_16_13_23_42.txt
