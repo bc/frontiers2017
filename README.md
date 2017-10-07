@@ -84,3 +84,17 @@ figs + tables num max is 15
 #Kian TODO
 register here:
 https://www.frontiersin.org/Registration/Register.aspx
+
+
+# Ideas
+We know that the 7x3 diagram showing the bode plots is related to the A matrix. the first value (where Frequency in HZ ==0) shoul dbe the element for the A matrix. Let's compare that A matrix vs the one we get from linear regression.
+
+the 0HZ gain changes for different muscles, and for different outputs.
+TODO Compute the bandwidth for each of the bode plots
+TODO Compute the 0HZ gain for each of the plots
+TODO get confidence interval for frequency responses (an example)
+FRF = frequency response function
+
+time constant - when you get a step input, how long does it take to reach 66% of the step function (exp(-t/tau))
+
+our PI controller is a first order system

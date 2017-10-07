@@ -1,8 +1,15 @@
-##' @title rds_from_package_extdata
+##' Read RDS from package extdata folder
 ##' @param filename string, for the file within the extdata folder of the analytics package.
 ##' @return object the object yielded from the filepath rds
-rds_from_package_extdata <- function(filename){
+read_rds_to_package_extdata <- function(filename){
   readRDS(system.file("extdata", filename, package="analytics"))
+}
+
+##' @title Save RDS to package extdata folder
+##' @param filename string, for the file to place within the extdata folder of the analytics package.
+##' @return object the object yielded from the filepath rds
+save_rds_to_package_extdata <- function(object, filename){
+  saveRDS(object, system.file("extdata", filename, package="analytics"))
 }
 
 ##' @title first_rowname
