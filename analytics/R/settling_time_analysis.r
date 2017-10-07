@@ -70,7 +70,6 @@ add_initial_and_final_reference_values <- function(stabilization_dataframe, full
 ##' @param muscle_of_interest . muscle name string, i.e. 'M0'
 ##' @return df_filled stabilization dataframe with initial reference values added.
 fill_initials_into_stabilization_df <- function(df, full_df, muscle_of_interest) {
-  print("Filling initials into new DF")
   target_prior_indices <- df$initial_index - 1
   reference_values <- as.numeric(lapply(target_prior_indices, get_reference_value,
     full_df, muscle_of_interest))

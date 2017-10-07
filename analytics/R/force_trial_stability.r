@@ -38,7 +38,6 @@ posture_list_to_stability_metrics_df_rows <- function(list_of_force_trials, last
   return(do.call("rbind", reference_df_rows))
 }
 
-
 ##' How many force trials meet the spec, if the spec is a certain envelope size for error?
 ##' Produces a plot of remaining % as a function of increasing err threshold. Draws a hardcoded line for the 99%
 ##" @param force_trials a list of raw force timeseries_DFs. has_settled has not been applied yet

@@ -71,12 +71,13 @@ angle <- function(muscle_number) {
   paste0("angle_", as.character(muscle_number))
 }
 
+##' Remove dataframe entires where the robot is moving
 ##' We remove all observations where robot_flag==1
 ##' @param time_series A dataframe that has a column called robot_flag, where 0 is initialized, 1 is moving, and 2 is ready.
 ##' @param ts_trimmed time_series without any incidences of robot_flag as 0 or 2.
 rm_points_where_adept_robot_is_moving <- function(time_series) {
-  no_2 <- time_series[time_series$robot_flag != 2, ]
-  no_0_2 <- no_2[time_series$robot_flag != 0, ]
+  no_2 <- time_series[time_series$robot_flag != 1, ] #ready
+  no_0_2 <- no_2[time_series$robot_flag != 0, ] #initialized
   return(no_0_2)  #a dataframe with rows as observations.
 }
 

@@ -3,4 +3,3 @@
 export(tension_settling_scatter)
 importFrom(WVPlots,ScatterHistC)
 importFrom(parallel,mclapply)
-importFrom(pbmcapply,pbmclapply)
