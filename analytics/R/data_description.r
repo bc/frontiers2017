@@ -214,14 +214,7 @@ plot_porcupine_of_endpoint_wrenches <- function(forces) {
   rasterImage(legend_image, -1.5, 1, -1,3)
   text(x=-1, y = seq(1,3,l=length(values_to_label_on_legend)), labels = signif(values_to_label_on_legend,3), adj = c(0, 0.5))
 }
-force_ts_len_is_acceptable <- function(force_time_series, desired_ms = 800, max_delta_acceptable=50){
-  observed_ms <- length(force_time_series[,1])
-  if ((abs(observed_ms - desired_ms)) < max_delta_acceptable){
-    return(TRUE)
-  } else {
-    return(FALSE)
-  }
-}
+
 data_description_analysis <- function(first_data_chunk, minimum_tendon_force, maximum_tendon_force, indices_of_interest){
   postures <- split_by_position(first_data_chunk$adept_x, first_data_chunk)
   forces <- unlist(lapply(postures, split_by_reference_force), recursive=FALSE)

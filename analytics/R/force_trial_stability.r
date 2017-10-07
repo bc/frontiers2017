@@ -65,7 +65,7 @@ indices_from_posture_df_row <- function(posture_df_row) c(posture_df_row[["initi
 ##' @param df_of_postures dataframe with columns including the initial and final indices in reference to each posture group collected.
 ##' @param full_df dataframe object of the full dataset collected, from which the indices will extract the sections.
 ##' @return list_of_force_trials A list containing a list (postures) of many ForceTrial objects.
-##' @importFrom pbmclapply pbmclapply
+##' @importFrom pbmcapply pbmclapply
 posture_start_finish_indices_to_L_of_ForceTrials <- function(df_of_postures, full_df,
   data_location, err) {
   pbmclapply(df_to_list_of_rows(df_of_postures), function(row) {

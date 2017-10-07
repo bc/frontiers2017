@@ -36,6 +36,22 @@ adept_coordinates <- function(timeseries_df) {
   return(c(adept_x, adept_y))
 }
 
+
+##' Length of the force trial is within range of the acceptable length
+##' @param force_time_series Dataframe of observations
+##' @param desired_ms the ideal length (integer)
+##' @param max_delta_acceptable integer The maximum aceptable residual from the desired_ms
+##' @return is_acceptable logical result
+force_ts_len_is_acceptable <- function(force_time_series, desired_ms = 800, max_delta_acceptable=50){
+  observed_ms <- length(force_time_series[,1])
+  if ((abs(observed_ms - desired_ms)) < max_delta_acceptable){
+    return(TRUE)
+  } else {
+    return(FALSE)
+  }
+}
+
+
 ##' Remove columns by a vector of colnames
 ##' @param timeseries_df dataframe with columns you want to remove
 ##' @param drops vector of string names of columns to rm
