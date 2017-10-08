@@ -39,13 +39,14 @@ posture_list_to_stability_metrics_df_rows <- function(list_of_force_trials, last
   return(do.call("rbind", reference_df_rows))
 }
 
-##' How many force trials meet the spec, if the spec is a certain envelope size for error?
-##' Produces a plot of remaining % as a function of increasing err threshold. Draws a hardcoded line for the 99%
+##' @title How many force trials meet the spec
+##' @description if the spec is a certain envelope size for error?
+##' Produces a plot of remaining fraction as a function of increasing err threshold. Draws a hardcoded line for the 99%
 ##' @param force_trials a list of raw force timeseries_DFs. has_settled has not been applied yet
-##' @param err_length.out integer, the resolution along the X axis by which diff err thresholds will be evaluated
+##' @param err_lenout integer, the resolution along the X axis by which diff err thresholds will be evaluated
 ##' @importFrom parallel mclapply
-try_different_stability_thresholds <- function(force_trials, err_length.out = 20) {
-  different_errors <- seq(0.1, 1, length.out = err_length.out)
+try_different_stability_thresholds <- function(force_trials, err_lenout = 20) {
+  different_errors <- seq(0.1, 1, length.out = err_lenout)
   num_remaining_force_trials <- unlist(mclapply(different_errors, function(err) {
     length(remove_unsettled_force_trials(force_trials, err))
   }))
