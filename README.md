@@ -2,40 +2,51 @@
 
 # Installation
 
-# Put dataset on the EC2 Server:
+### Put dataset on the EC2 Server:
 via https://www.rstudio.com/products/rstudio/download-server/
 ```
 git config --global core.editor "vim"
-sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9
-sudo add-apt-repository 'deb [arch=amd64,i386] https://cran.rstudio.com/bin/linux/ubuntu xenial/'
 sudo apt-get update
-sudo apt-get -y install r-base libssl-dev
-sudo apt-get install r-base libapparmor1 gdebi-core
-wget http://download2.rstudio.org/rstudio-server-0.97.336-amd64.deb -O rstudio.deb
-sudo gdebi rstudio.deb
+sudo apt-get -y install r-base libssl-dev libcurl4-openssl-dev libxml2-dev libapparmor1 gdebi-core mosh
+wget https://download2.rstudio.org/rstudio-server-1.0.153-amd64.deb
+yes | sudo gdebi rstudio-server-1.0.153-amd64.deb
+sudo rstudio-server verify-installation
+sudo rstudio-server license-manager status
+sudo apt-get install -y awscli
 ```
 
-# Enter information for a new user with a simple password
+### Data Acquisition
 ```
-sudo adduser rstudio
-
-#then log in as the user
-sudo - brian
-```
-# Import the data to local AWS disk
-```
-scp ~/Resilio\ Sync/data/realTimeData2017_08_16_13_23_42.txt ubuntu@ec2-54-215-246-21.us-west-1.compute.amazonaws.com:/home/ubuntu/data/realTimeData2017_08_16_13_23_42.txt
-```
-on aws CPU
-```
-git clone git@github.com:bc/frontiers2017 && cd frontiers2017/figures/
-rscript main.r
+aws configure
+sudo adduser brian
+#then log in as the user after setting a password
+sudo mkdir -p /home/brian/Resilio\ Sync/data
+sudo aws s3 cp s3://bc-frontiers-2017/realTimeData2017_08_16_13_23_42.rds /home/brian/Resilio\ Sync/data/realTimeData2017_08_16_13_23_42.rds
+sudo aws s3 cp s3://bc-frontiers-2017/realTimeData2017_08_16_13_23_42.txt /home/brian/Resilio\ Sync/data/realTimeData2017_08_16_13_23_42.txt
+sudo su - brian
+git clone git@github.com:bc/frontiers2017.git && cd frontiers2017/analytics
 ```
 
+### Now in $R
+```
+install.packages('devtools')
+library(devtools)
+install()
+test()
+```
+
+# MBP->S3 disk
+```
+aws s3 cp ~/Resilio Sync/data/realTimeData2017_08_16_13_23_42.rds s3://bc-frontiers-2017/
+```
+
+
+
+### EC2 output-->MBP
 ```
 scp -r ubuntu@ec2-54-215-246-21.us-west-1.compute.amazonaws.com:/home/ubuntu/output ~/Downloads
 ```
-# TODO
+### TODO
 pick suggested reviewers
 
 12k words including citations, but excluding abstract, igure captions, and funding statements, and acknowledgement and references. abstract 350 words, must have running title <= 5 words
@@ -73,3 +84,17 @@ figs + tables num max is 15
 #Kian TODO
 register here:
 https://www.frontiersin.org/Registration/Register.aspx
+
+
+# Ideas
+We know that the 7x3 diagram showing the bode plots is related to the A matrix. the first value (where Frequency in HZ ==0) shoul dbe the element for the A matrix. Let's compare that A matrix vs the one we get from linear regression.
+
+the 0HZ gain changes for different muscles, and for different outputs.
+TODO Compute the bandwidth for each of the bode plots
+TODO Compute the 0HZ gain for each of the plots
+TODO get confidence interval for frequency responses (an example)
+FRF = frequency response function
+
+time constant - when you get a step input, how long does it take to reach 66% of the step function (exp(-t/tau))
+
+our PI controller is a first order system
