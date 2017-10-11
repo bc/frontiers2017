@@ -23,10 +23,17 @@ plot_force_smoothed_curves <- function(time_series_of_forces, force_dimensions =
 ##' @return forces a list of time_series objects which contain ~800 observations, representing each force trial.
 get_forces_list <- function(full_df, indices, column_to_separate_forces = "reference_M0") {
   posture_indices <- indices[1]:indices[2]
-  forces <- split(full_df[posture_indices, ], full_df[posture_indices, column_to_separate_forces])[-1]
+  forces <- split(full_df[posture_indices,], full_df[posture_indices, column_to_separate_forces])[-1]
   return(forces)
 }
-
+##' Compose list of index Tuples from a dataframe of postures'
+##' Typically there is also adept_x, adept_y columns, but we do not use them here. Therefore they are trimmed.
+##' @param posture_index_df dataframe with initial and final columns of integers.
+##' @return posture numeric tuple vectors of (start, fin) indices
+  posture_idxs_to_index_tuples <- function(posture_index_df){
+    indices <- lapply(df_to_list_of_rows(posture_index_df[,1:2]), as.numeric)
+    return(indices)
+  }
 
 plot_tendon_rise_time_curves <- function(time_series_of_forces, tendon_of_interest_string_list,
   ...) {
@@ -255,28 +262,6 @@ postures_to_idx_dfs <- function(postures_grouped_by_line, unique_postures) {
 }
 
 
-# This function estimates the A matrix from the measured tendon force and
-# endpoint forces and torques
-find_A_matrix <- function(data) {
-  # The regressor matrix is concatenation of tendon forces
-  time <- data[[1]]
-  numForceChanges <- length(time)
-  force_col_names <- c("JR3.FX", "JR3.FY", "JR3.FZ", "JR3.MX", "JR3.MY", "JR3.MZ")
-  muscle_col_names <- c("measured_M0", "measured_M1", "measured_M2", "measured_M3",
-    "measured_M4", "measured_M5", "measured_M6")
-  raw_regressor <- as.matrix(data[muscle_col_names])
-  regressor <- rm_mean_for_multiple_columns(raw_regressor)
-  raw_endpointForceObservation <- data[force_col_names]
-  endpointForceObservation <- rm_mean_for_multiple_columns(raw_endpointForceObservation)
-  AMatrix <- matrix(solve(qr(regressor, LAPACK = TRUE), endpointForceObservation),
-    7, 6)
-  endpointForcePrediction <- data.frame(regressor %*% AMatrix)
-  colnames(endpointForcePrediction) <- force_col_names
-  colnames(AMatrix) <- force_col_names
-  rownames(AMatrix) <- muscle_col_names
-  return(list(AMatrix = AMatrix, endpointForceObservation = endpointForceObservation,
-    endpointForcePrediction = endpointForcePrediction))
-}
 
 rm_mean_for_multiple_columns <- function(df) {
   col_means <- apply(df, 2, mean)
@@ -284,6 +269,29 @@ rm_mean_for_multiple_columns <- function(df) {
     df[, i] <- df[, i] - col_means[[i]]
   }
   return(df)
+}
+
+
+
+# This function estimates the A matrix from the measured tendon force and
+# endpoint forces and torques
+find_A_matrix <- function(data) {
+  # The regressor matrix is concatenation of tendon forces
+  time <- data[[1]]
+  numForceChanges <- length(time)
+  measured_muscle_col_names <- simplify2array(lapply(muscle_names, measured))
+  raw_regressor <- as.matrix(data[measured_muscle_col_names])
+  regressor <- rm_mean_for_multiple_columns(raw_regressor)
+  raw_endpointForceObservation <- data[force_column_names]
+  endpointForceObservation <- rm_mean_for_multiple_columns(raw_endpointForceObservation)
+  AMatrix <- matrix(solve(qr(regressor, LAPACK = TRUE), endpointForceObservation),
+  7, 6)
+  endpointForcePrediction <- data.frame(regressor %*% AMatrix)
+  colnames(endpointForcePrediction) <- force_column_names
+  colnames(AMatrix) <- force_column_names
+  rownames(AMatrix) <- measured_muscle_col_names
+  return(list(AMatrix = AMatrix, endpointForceObservation = endpointForceObservation,
+    endpointForcePrediction = endpointForcePrediction))
 }
 
 visualize_A_matrix_performance <- function(A_matrix_results) {

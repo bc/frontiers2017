@@ -3,6 +3,7 @@ source("R/time_series_functions.r")
 source("R/data_description.r")
 source("R/force_trial_stability.r")
 source("R/ForceTrial.r")
+source("R/linear_fit.r")
 source("R/functions_specific_to_frontiers2017_dataset.r")
 source("R/generic_tools.r")
 source("R/settling_time_analysis.r")
@@ -36,10 +37,22 @@ main <- function() {
     list_of_forces <- get_forces_list(full_df, indices_tuple, column_to_separate_forces)
     return(list_of_forces)
   })
-  browser()
 
 
 
   message("Splitting by force trials")
   list_of_postures <- split(full_df, list(full_df$adept_x, full_df$adept_y), drop = TRUE)
+}
+
+##' Munge full_DF into the posture RDS files
+produce_ForceTrial_rds_objects <- function(){
+  posture_idxs_per_line <- read_rds_to_package_extdata("index_dataframes_for_two_posture_lines.rds") #hardcoded index dfs
+  full_df <- readRDS("~/Resilio Sync/data/realTimeData2017_08_16_13_23_42.rds")
+  print("Loading full_df. Expect 2'")
+  err = 0.4
+  last_n_milliseconds = 100
+  fix_x_postures <- posture_idxs_per_line[[1]]
+  fix_y_postures <- posture_idxs_per_line[[2]]
+  many_postures_to_ForceTrials(posture_idxs_to_index_tuples(fix_x_postures), full_df, column_to_separate_forces = "reference_M0", err=0.4, last_n_milliseconds, save_rds=TRUE)
+  many_postures_to_ForceTrials(posture_idxs_to_index_tuples(fix_y_postures), full_df, column_to_separate_forces = "reference_M0", err=0.4, last_n_milliseconds, save_rds=TRUE)
 }

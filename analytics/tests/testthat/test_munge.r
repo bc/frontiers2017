@@ -59,7 +59,7 @@ test_that("one can remove nonstabilized force trials for 100 postures in y", {
   tension_settling_scatter(stability_df)
   hist(stability_metrics_df[, 3], breaks = 50, col = "black", xlim = c(0, 2), xlab = "Maximum residual from desired force in last 100ms",
     main = "Sample of 100 postures (fixed-x), n=100 forces per posture.")
-  
+
   reasonable_delta_force <- abs(stability_df$delta_force) > 1
   stability_df_no_small_deltas <- stability_df[reasonable_delta_force, ]
   hist(stability_df$amortized_velocity_of_force * 1000, breaks = 200, cex = 0.15,
@@ -68,7 +68,7 @@ test_that("one can remove nonstabilized force trials for 100 postures in y", {
   dev.off()
   ######
 
-
+err <- 0.4
   forcetrial <- ForceTrial(force_trials_that_settled_fix_x[[100]], full_df_path = data_location,
     full_df, err, last_n_milliseconds = 100)
   require(pbmcapply)
@@ -83,7 +83,6 @@ test_that("one can remove nonstabilized force trials for 100 postures in y", {
       initial_observation <- full_df[idx, ]
       info_with_posture <- cbind(stability_row, data.frame(adept_x = initial_observation$adept_x,
         adept_y = initial_observation$adept_y))
-      browser()
       return(info_with_posture)
     }))
 })

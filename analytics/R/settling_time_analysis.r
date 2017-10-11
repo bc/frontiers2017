@@ -95,12 +95,63 @@ get_reference_value <- function(index_target, full_df, muscle_of_interest) {
 ##' @importFrom pbmcapply pbmclapply
 list_of_forces_to_stabilized_df <- function(forces_list, full_df_path, err, full_df,
   muscle_of_interest) {
-  list_of_stable_dfs <- pbmclapply(forces_list, force_trial_to_stable_index_df, full_df_path,
+  list_of_stable_dfs <- lapply(forces_list, force_trial_to_stable_index_df, full_df_path,
     err)
   stabilized_df <- sort_by_initial_index(rbind_dfs(list_of_stable_dfs))
   filled_df <- fill_initials_into_stabilization_df(stabilized_df, full_df, muscle_of_interest)
   stabilized_and_filled_df <- fill_force_velocity_metrics(filled_df)
   return(stabilized_and_filled_df)
+}
+##' Many Postures to a list of Postures
+##' Where 1 Posture has many ForceTrials
+##' @param list_of_posture_indices a list of tuples, each with an initial and final index within full_df to extract as a posture.
+##' @param full_df full dataset
+##' @param column_to_separate_forces string, i.e. "measured_M0"
+##' @param err highest acceptable residual from reference force
+##' @param last_n_milliseconds integer, used to calculate static stability
+##' @param save_rds by deafult it will return the List of List of ForceTrials. Else it will save each posture as an RDS file.
+##' @return Postures list of list of ForceTrials
+##' @importFrom pbapply pblapply
+many_postures_to_ForceTrials <- function(list_of_posture_indices, full_df, column_to_separate_forces, err, last_n_milliseconds, save_rds=FALSE){
+    if (save_rds){
+      pblapply(list_of_posture_indices, posture_to_ForceTrials_to_RDS, full_df, column_to_separate_forces, err, last_n_milliseconds)
+    } else {
+      fts <- pblapply(list_of_posture_indices, posture_to_ForceTrials, full_df, column_to_separate_forces, err, last_n_milliseconds)
+      return(fts)
+    }
+
+}
+
+##' One list of posture indices to a Posture To RDS
+##' Where a Posture has many ForceTrials. use posture_to_ForceTrials if you want the object returned.
+##' @param posture_indices tuple, with an initial and final index within full_df to extract as the posture.
+##' @param full_df full dataset
+##' @param column_to_separate_forces string, i.e. "measured_M0"
+##' @param err highest acceptable residual from reference force
+##' @param last_n_milliseconds integer, used to calculate static stability
+##' @importFrom pbmcapply pbmclapply
+posture_to_ForceTrials_to_RDS <- function(posture_indices, full_df, column_to_separate_forces, err, last_n_milliseconds){
+  ForceTrials_list_for_the_posture <- posture_to_ForceTrials(posture_indices, full_df, column_to_separate_forces, err, last_n_milliseconds)
+  first_force_trial <- ForceTrials_list_for_the_posture[[1]]
+  adept_coords <- adept_coordinates_from_ForceTrial(first_force_trial)
+  force_trial_file_string_with_posture <- paste0("force_trial_adept_x_",adept_coords[1], "_adept_y_", adept_coords[2], ".rds")
+  save_rds_to_Resilio(ForceTrials_list_for_the_posture, force_trial_file_string_with_posture)
+
+}
+
+##' One list of posture indices to a Posture
+##' Where a Posture has many ForceTrials
+##' @param posture_indices tuple, with an initial and final index within full_df to extract as the posture.
+##' @param full_df full dataset
+##' @param column_to_separate_forces string, i.e. "measured_M0"
+##' @param err highest acceptable residual from reference force
+##' @param last_n_milliseconds integer, used to calculate static stability
+##' @return list_of_ForceTrials list of ForceTrials
+##' @importFrom pbmcapply pbmclapply
+posture_to_ForceTrials <- function(posture_indices, full_df, column_to_separate_forces, err, last_n_milliseconds){
+    posture <- get_forces_list(full_df, posture_indices, column_to_separate_forces)
+    fts <- lapply(posture, ForceTrial, data_location, full_df, err, last_n_milliseconds)
+  return(fts)
 }
 
 ##' @title list_of_postures_of_forces_to_stabilized_df
@@ -112,7 +163,7 @@ list_of_forces_to_stabilized_df <- function(forces_list, full_df_path, err, full
 list_of_postures_of_forces_to_stabilized_df <- function(postures, full_df_path, err,
   full_df, muscle_of_interest) {
   lapply(postures, list_of_forces_to_stabilized_df, full_df_path, err, full_df,
-    muscle_of_interest, mc.cores = 4)
+    muscle_of_interest)
 }
 
 ##' @title fill_force_velocity_metrics

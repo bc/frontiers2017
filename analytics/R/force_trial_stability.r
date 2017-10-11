@@ -52,8 +52,8 @@ try_different_stability_thresholds <- function(force_trials, err_lenout = 20) {
   }))
   plot_remaining_force_trial_fraction_as_function_of_err(different_errors, num_remaining_force_trials,
     length(force_trials))
+    return(cbind(different_errors, num_remaining_force_trials))
 }
-
 
 ##' Indices from a Posture DF row'
 ##'@param posture_df_row a dataframe with initial and final columns
@@ -61,17 +61,34 @@ try_different_stability_thresholds <- function(force_trials, err_lenout = 20) {
 indices_from_posture_df_row <- function(posture_df_row) c(posture_df_row[["initial"]],
   posture_df_row[["final"]])
 
+##' Compute and save ForceTrials to RDS files'
 ##' Turn a dataframe of collected observations, with square input to reference, into formal ForceTrial objects
 ##' Works with stabilized or nonstabilized force trials. It will add attributes of stabilization only for those that meet the err criteria
+##' saves each to a folder
+##' @param df_row dataframe with 1 row with columns including the initial and final indices in reference to a posture collected.
+##' @param column_to_separate_forces i.e. 'measured_M0'
+##' @param data_location path to realTimeData2017_08_16_13_23_42.txt
+##' @param full_df realTimeData2017_08_16_13_23_42.rds
+##' @param err max allowable residual from reference force for muscle of interest
+save_ForceTrials_to_rds <- function(df_row, column_to_separate_forces, data_location, full_df, err) {
+    indices <- indices_from_posture_df_row(df_row)
+    force_trial_file_string_with_posture <- paste0("force_trial_adept_x_",df_row[['adept_x']], "_adept_y_", df_row[['adept_y']], ".rds")
+    force_list <- get_forces_list(full_df, indices, column_to_separate_forces)
+    print('Coerscing to ForceTrial')
+    force_trials_list <- lapply(force_list, ForceTrial, data_location, full_df, err)
+    print('Saving RDS to Resilio')
+    save_rds_to_Resilio(force_trials_list, force_trial_file_string_with_posture)
+    print('Cleaning up memory')
+    rm(force_trials_list,force_trials_list)
+  }
+
+##' Turn a dataframe of collected observations, with square input to reference, into formal ForceTrial objects
+##' Works with stabilized or nonstabilized force trials. It will add attributes of stabilization only for those that meet the err criteria
+##' saves each to a folder
 ##' @param df_of_postures dataframe with columns including the initial and final indices in reference to each posture group collected.
 ##' @param full_df dataframe object of the full dataset collected, from which the indices will extract the sections.
-##' @return list_of_force_trials A list containing a list (postures) of many ForceTrial objects.
 ##' @importFrom pbmcapply pbmclapply
 posture_start_finish_indices_to_L_of_ForceTrials <- function(df_of_postures, full_df,
   data_location, err) {
-  pbmclapply(df_to_list_of_rows(df_of_postures), function(row) {
-    indices <- indices_from_posture_df_row(row)
-    return(lapply(get_forces_list(full_df, indices, column_to_separate_forces = "reference_M0"),
-      ForceTrial, data_location, full_df, err))
-  })
+  lapply(df_to_list_of_rows(df_of_postures), save_ForceTrials_to_rds, column_to_separate_forces="measured_M0", data_location, full_df, err)
 }
