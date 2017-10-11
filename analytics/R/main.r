@@ -1,63 +1,58 @@
+#load all available material
+source("R/time_series_functions.r")
+source("R/data_description.r")
+source("R/force_trial_stability.r")
+source("R/ForceTrial.r")
+source("R/linear_fit.r")
+source("R/functions_specific_to_frontiers2017_dataset.r")
+source("R/generic_tools.r")
+source("R/settling_time_analysis.r")
+
 options(error = NULL)
 main <- function() {
 
-  # make sure you run main.r from the figures directory for saving to work
-  # setwd('~/Documents/GitHub/bc/frontiers2017/figures') Make sure you have already
-  # installed the dependencies: install.packages(c('ggplot2', 'caTools',
-  # 'testthat', 'GGally', 'plotrix','scatterplot3d'))
   source("R/data_description.r")
   source("R/time_series_functions.r")
   source("R/functions_specific_to_frontiers2017_dataset.r")
   source("R/settling_time_analysis.r")
-
-  # Fig DataDescription Only take first part of data to create data description
-  # figure. (60e3 = first 60 seconds)
-  first_data_chunk <- read.csv(data_location, nrows = 85000, header = TRUE)
-
-  # Save snapshot of just first posture
-  save_snapshot_for_first_posture(raw_data_timeseries_df = first_data_chunk)
-
-  message("Computing Data Description Analysis Figure")
-  pdf("../output/data_description_analysis.pdf", width = 14.2, height = 10)
-  data_description_analysis(first_data_chunk, minimum_tendon_force, maximum_tendon_force,
-    indices_of_interest = 2:5)
-  dev.off()
 
   message("Pulling full dataset. Expect completion in 2'")
   require(microbenchmark)
   data_load_mbm <- microbenchmark(full_df <- readRDS("~/Resilio Sync/data/realTimeData2017_08_16_13_23_42.rds"),
     times = 1)
   print(data_load_mbm)
-  message("Identifying unique postures")
+  message("Identifying unique postures. Expect competion in ")
   unique_postures <- head(unique(full_df[c("adept_x", "adept_y")]), -1)
-  lines <- postures_grouped_by_line(unique_postures, x_fixed_val = -525, y_fixed_val = 68)
-  line_posture_start_indices <- lapply(lines, function(line) as.numeric(rownames(line)))
-  browser()
-  posture_indices_df <- function(line_posture_start_indices){
-    final <- c(line_posture_start_indices[-1]-1, 0)
-    initial <- c(line_posture_start_indices)
-    return(data.frame(initial = initial,final = final))
-  }
+  message("Grouping postures by line")
+  postures_per_line <- postures_grouped_by_line(unique_postures, x_fixed_val = -525, y_fixed_val = 68)
+  message("Identifying indices for the start and end of each posture")
+  idx_dfs <- postures_to_idx_dfs(postures_per_line, unique_postures)
 
-lapply(line_posture_start_indices, posture_indices_df)
-
-
-  browser()
-
-
-  apply_function_to_posture <- function(full_df, f, start_idx, end_idx){
-    return(f(full_df[start_idx:(end_idx),]))
-  }
+  message("Identifying forces within each posture")
+  require(pbmcapply)
+  line_1_rows_list <- df_to_list_of_rows(idx_dfs[[1]])
+  column_to_separate_forces <- reference("M0")
+  forces_at_fixed_x_postures <- pbmclapply(line_1_rows_list, function(index_row) {
+    indices_tuple <- c(index_row[["initial"]], index_row[["final"]])
+    list_of_forces <- get_forces_list(full_df, indices_tuple, column_to_separate_forces)
+    return(list_of_forces)
+  })
 
 
-  forces_for_posture_1 <- split_by_reference_force(
-    full_df[initial[1]:(final[1]-1),])
 
   message("Splitting by force trials")
   list_of_postures <- split(full_df, list(full_df$adept_x, full_df$adept_y), drop = TRUE)
+}
 
-message("Plotting Settling Time Analysis")
-  sample_settling <- data.frame(settling = runif(100, -20, 20), initial_tension = runif(100,
-    3, 20), final_tension = runif(100, 3, 20))
-  tension_settling_scatter(sample_settling)
+##' Munge full_DF into the posture RDS files
+produce_ForceTrial_rds_objects <- function(){
+  posture_idxs_per_line <- read_rds_to_package_extdata("index_dataframes_for_two_posture_lines.rds") #hardcoded index dfs
+  full_df <- readRDS("~/Resilio Sync/data/realTimeData2017_08_16_13_23_42.rds")
+  print("Loading full_df. Expect 2'")
+  err = 0.4
+  last_n_milliseconds = 100
+  fix_x_postures <- posture_idxs_per_line[[1]]
+  fix_y_postures <- posture_idxs_per_line[[2]]
+  many_postures_to_ForceTrials(posture_idxs_to_index_tuples(fix_x_postures), full_df, column_to_separate_forces = "reference_M0", err=0.4, last_n_milliseconds, save_rds=TRUE)
+  many_postures_to_ForceTrials(posture_idxs_to_index_tuples(fix_y_postures), full_df, column_to_separate_forces = "reference_M0", err=0.4, last_n_milliseconds, save_rds=TRUE)
 }

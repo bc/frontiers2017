@@ -14,6 +14,27 @@ plot_force_smoothed_curves <- function(time_series_of_forces, force_dimensions =
   })
 }
 
+##' Get forces list
+##' @description # [-1] was added to remove the nullification force before we
+##' changed to a new posture, and the intra-transition data
+##' @param full_df dataframe including the column reference_M0 and row.names
+##' @param indices where the posture starts and stops. 2 element vector of integers
+##' @param column_to_separate_forces string, by default 'reference_M0'.
+##' @return forces a list of time_series objects which contain ~800 observations, representing each force trial.
+get_forces_list <- function(full_df, indices, column_to_separate_forces = "reference_M0") {
+  posture_indices <- indices[1]:indices[2]
+  forces <- split(full_df[posture_indices,], full_df[posture_indices, column_to_separate_forces])[-1]
+  return(forces)
+}
+##' Compose list of index Tuples from a dataframe of postures'
+##' Typically there is also adept_x, adept_y columns, but we do not use them here. Therefore they are trimmed.
+##' @param posture_index_df dataframe with initial and final columns of integers.
+##' @return posture numeric tuple vectors of (start, fin) indices
+  posture_idxs_to_index_tuples <- function(posture_index_df){
+    indices <- lapply(df_to_list_of_rows(posture_index_df[,1:2]), as.numeric)
+    return(indices)
+  }
+
 plot_tendon_rise_time_curves <- function(time_series_of_forces, tendon_of_interest_string_list,
   ...) {
   lapply(tendon_of_interest_string_list, function(x) {
@@ -23,50 +44,48 @@ plot_tendon_rise_time_curves <- function(time_series_of_forces, tendon_of_intere
     lines(time_series_of_forces[[reference(x)]])
   })
 }
-
-# These functions are useful because they prepend measured, reference, or command
-# in front of an input tendon of interest (e.g. M0, M1)
+# Compose measured_M* string
+##' These functions are useful because they prepend measured, reference, or command
+##' in front of an input tendon of interest (e.g. M0, M1)
+##' @param muscle_string e.g. 'M0'
+##' @return composed_field_name e.g. 'measured_M0'
 measured <- function(muscle_string) {
   paste0("measured_", muscle_string)
 }
+# Compose reference_M* string
+##' These functions are useful because they prepend measured, reference, or command
+##' in front of an input tendon of interest (e.g. M0, M1)
+##' @param muscle_string e.g. 'M0'
+##' @return composed_field_name e.g. 'reference_M0'
 reference <- function(muscle_string) {
   paste0("reference_", muscle_string)
 }
+# Compose command_M* string
+##' These functions are useful because they prepend measured, reference, or command
+##' in front of an input tendon of interest (e.g. M0, M1)
+##' @param muscle_string e.g. 'M0'
+##' @return composed_field_name e.g. 'command_M0'
 command <- function(muscle_string) {
   paste0("command_", muscle_string)
 }
 
+# Compose encoder angle string
+##' These functions are useful because they prepend measured, reference, or command
+##' in front of an input tendon of interest (e.g. M0, M1)
+##' @param muscle_number e.g. 0, or 1
+##' @return composed_field_name e.g. 'angle_0'
+angle <- function(muscle_number) {
+  paste0("angle_", as.character(muscle_number))
+}
+
+##' Remove dataframe entires where the robot is moving
 ##' We remove all observations where robot_flag==1
 ##' @param time_series A dataframe that has a column called robot_flag, where 0 is initialized, 1 is moving, and 2 is ready.
+##' @param ts_trimmed time_series without any incidences of robot_flag as 0 or 2.
 rm_points_where_adept_robot_is_moving <- function(time_series) {
-  no_2 <- time_series[time_series$robot_flag != 2, ]
-  no_0_2 <- no_2[time_series$robot_flag != 0, ]
+  no_2 <- time_series[time_series$robot_flag != 1, ]  #ready
+  no_0_2 <- no_2[time_series$robot_flag != 0, ]  #initialized
   return(no_0_2)  #a dataframe with rows as observations.
-}
-
-##' It finds all plateaus and creates a new section for each plateau
-##' @param time_series A dataframe that has a column called command_M0.
-split_time_series_by_piecewise_commands <- function(time_series) {
-  get_indices_of_new_plateaus(time_series)
-  # split by those indices
-  return(data.frame())
-}
-
-extract_portion_where_signal_is_stabilized <- function(time_series) {
-  # increase indentation on the dataset until all signals have converged to their
-  # natural long-term time_series_without_transient_recordings
-  return(time_series)
-
-}
-
-# this evaluates the entire time_series entered. Does not clip other parts.
-##' @return dataframe_of_steady_state, 2 columsn = (value, variance), values = encovder values, force values, motor commands etc.
-extract_steady_state_estimation <- function(time_series) {
-  return(dataframe_of_steady_state)
-}
-
-concatenate_steady_state_values <- function(list_of_steady_state_dataframes) {
-  return(steady_state_dataframe)
 }
 
 create_vaf_posture_plots <- function(A_matrices_results) {
@@ -183,13 +202,22 @@ split_by_position <- function(vector_of_positions, time_series_dataframe) {
   return(data_split[2:length(data_split)])
 }
 
+##' Dataframe to list of rows
+##' @description derived from https://stackoverflow.com/questions/3492379/data-frame-rows-to-a-list
+##' @param df Data frame
+##' @return df_list a list of elements, each of which is a representative row from the original df
+df_to_list_of_rows <- function(df) {
+  df_list <- setNames(split(df, seq(nrow(df))), rownames(df))
+  return(df_list)
+}
+
 # not in function pulled via
 # https://stackoverflow.com/questions/5831794/opposite-of-in
 `%not in%` <- function(x, table) is.na(match(x, table, nomatch = NA_integer_))
 
 # make sure col is named reference_M0 robotflag int 0 means initialized, 1 means
-# moving, 2 means ready motorflag int 0 means initialized, 1 means
-# it<e2><80><99>s applying the force,2 means ready.
+# moving, 2 means ready motorflag int 0 means initialized, 1 means it is applying
+# the force,2 means ready.
 
 split_by_reference_force <- function(time_series_dataframe) {
   forces <- unique(time_series_dataframe$reference_M0)
@@ -218,30 +246,22 @@ calibrate_forces <- function(time_series, length, angle) {
   return(time_series)
 }
 
-
-# This function estimates the A matrix from the measured tendon force and
-# endpoint forces and torques
-find_A_matrix <- function(data) {
-  # The regressor matrix is concatenation of tendon forces
-  time <- data[[1]]
-  numForceChanges <- length(time)
-  force_col_names <- c("JR3.FX", "JR3.FY", "JR3.FZ", "JR3.MX", "JR3.MY", "JR3.MZ")
-  muscle_col_names <- c("measured_M0", "measured_M1", "measured_M2", "measured_M3",
-    "measured_M4", "measured_M5", "measured_M6")
-  raw_regressor <- as.matrix(data[muscle_col_names])
-  regressor <- rm_mean_for_multiple_columns(raw_regressor)
-  raw_endpointForceObservation <- data[force_col_names]
-  endpointForceObservation <- rm_mean_for_multiple_columns(raw_endpointForceObservation)
-  AMatrix <- matrix(solve(qr(regressor, LAPACK = TRUE), endpointForceObservation),
-    7, 6)
-  endpointForcePrediction <- data.frame(regressor %*% AMatrix)
-  colnames(endpointForcePrediction) <- force_col_names
-  colnames(AMatrix) <- force_col_names
-  rownames(AMatrix) <- muscle_col_names
-  browser()
-  return(list(AMatrix = AMatrix, endpointForceObservation = endpointForceObservation,
-    endpointForcePrediction = endpointForcePrediction))
+##' Convert postures_grouped_by_line to dataframe of start and end indices, with posture XY
+##' One element per experiment (where an experiment is a specific set of
+##' postures. In the case of Frontiers2017 there are two elements, one for
+##' the Y line and one for the X line.
+##' @param postures_grouped_by_line The result from the fn postures_grouped_by_line
+##' @param unique_postures adept_x, adept_y dataframe with index row names
+##' @return idx_df A list of dataframes with the adept_x, adept_y, start index, end index.
+postures_to_idx_dfs <- function(postures_grouped_by_line, unique_postures) {
+  line_posture_start_indices <- lapply(postures_grouped_by_line, function(line) as.numeric(rownames(line)))
+  idxs <- add_adept_xy_to_indices(lapply(line_posture_start_indices, posture_indices_df),
+    unique_postures)
+  idxs_clean <- clean_up_posture_indices(idxs)
+  return(idxs_clean)
 }
+
+
 
 rm_mean_for_multiple_columns <- function(df) {
   col_means <- apply(df, 2, mean)
@@ -249,6 +269,29 @@ rm_mean_for_multiple_columns <- function(df) {
     df[, i] <- df[, i] - col_means[[i]]
   }
   return(df)
+}
+
+
+
+# This function estimates the A matrix from the measured tendon force and
+# endpoint forces and torques
+find_A_matrix <- function(data) {
+  # The regressor matrix is concatenation of tendon forces
+  time <- data[[1]]
+  numForceChanges <- length(time)
+  measured_muscle_col_names <- simplify2array(lapply(muscle_names, measured))
+  raw_regressor <- as.matrix(data[measured_muscle_col_names])
+  regressor <- rm_mean_for_multiple_columns(raw_regressor)
+  raw_endpointForceObservation <- data[force_column_names]
+  endpointForceObservation <- rm_mean_for_multiple_columns(raw_endpointForceObservation)
+  AMatrix <- matrix(solve(qr(regressor, LAPACK = TRUE), endpointForceObservation),
+  7, 6)
+  endpointForcePrediction <- data.frame(regressor %*% AMatrix)
+  colnames(endpointForcePrediction) <- force_column_names
+  colnames(AMatrix) <- force_column_names
+  rownames(AMatrix) <- measured_muscle_col_names
+  return(list(AMatrix = AMatrix, endpointForceObservation = endpointForceObservation,
+    endpointForcePrediction = endpointForcePrediction))
 }
 
 visualize_A_matrix_performance <- function(A_matrix_results) {
@@ -299,4 +342,23 @@ wrench_to_phi <- function(vector_3d) {
   theta <- atan(y/x)
   phi <- atan(sqrt(x^2 + y^2)/z)
   return(list(rho = rho, theta = theta, phi = phi))
+}
+
+discrete_diff <- function(vector) {
+  final <- c(vector[-1], 0)
+  initial <- vector
+  diff_vec <- final - initial
+  return(head(diff_vec, length(vector) - 1))
+}
+
+##' Extract the forces from each posture.
+##' @param idxs a dataframe with cols initial, final, adept_x, and adept_y
+##' @param full_df data timeframe with columns of interest
+##' @return list of time series dataframes, for each of the postures provided in idxs.
+forces_per_posture <- function(idxs, full_df) {
+  # 0.36252s/posture with lapply
+  forces <- lapply(df_to_list_of_rows(idxs), function(row) {
+    get_forces_list(full_df, indices = c(row[["initial"]], row[["final"]]))
+  })
+  return(forces)
 }

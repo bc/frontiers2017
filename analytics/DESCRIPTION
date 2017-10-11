@@ -1,9 +1,26 @@
 Package: analytics
 Title: Prepares and analyzes all data for frontiers2017 paper.
-Version: 0.0.1
+Version: 0.0.4
 Authors@R: person("Brian", "Cohn", email = "brian.cohn@usc.edu", role = c("aut", "cre"))
 Description: Analyzes muscle tension to endpoint force relationships
-Depends: R (>= 3.4.1)
+Depends:
+  R (>= 3.2.3),
+  testthat,
+  devtools,
+  ggplot2,
+  parallel,
+  roxygen2,
+  xml2,
+  caTools,
+  WVPlots,
+  GGally,
+  plotrix,
+  scatterplot3d,
+  microbenchmark,
+  data.table,
+  pbmcapply,
+  pbapply
 License: USC
 Encoding: UTF-8
 LazyData: true
+RoxygenNote: 6.0.1

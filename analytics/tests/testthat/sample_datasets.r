@@ -1,3 +1,4 @@
+#TODO move this data into a small rds file in inst/extdata/sample_measured_M0_force_trial.rds
 sample_measured_M0_force_trial <- c(6.799018,
 6.77643,
 6.900664,
