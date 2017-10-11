@@ -18,7 +18,8 @@ Depends:
   scatterplot3d,
   microbenchmark,
   data.table,
-  pbmcapply
+  pbmcapply,
+  pbapply
 License: USC
 Encoding: UTF-8
 LazyData: true

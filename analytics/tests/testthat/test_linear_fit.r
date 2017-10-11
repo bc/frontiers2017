@@ -13,8 +13,20 @@ test_that("data for many postures can be used to create a list of A matrices",{
   vafs <- simplify2array(lapply(list_of_A_matrices, function(fit){
     variance_accounted_for(fit[[2]],fit[[3]])
   }))
-  cb <- cbind(list_of_A_matrices, vafs)
-  browser()
+  cb <- data.frame(cbind(list_of_postures, vafs))
+  expect_equal(nrow(cb),1206)
+  fix_x_vaf <- cb[cb$adept_x == -525.000,]
+  fix_y_vaf <- cb[cb$adept_y == 68.000,]
+  expect_equal(nrow(fix_x_vaf),206)
+  expect_equal(nrow(fix_y_vaf),1000)
+  ##Plot figure
+    p1 <- posture_dependency_plot(fix_y_vaf, "adept_x", "vafs")
+    p2 <- posture_dependency_plot(fix_y_vaf, "adept_x", "vafs")
+    require(gridExtra)
+    final <- gridExtra::grid.arrange(p1,p2, ncol = 2)
+    ggsave("posture_dependency_adept_xy.pdf", final, width = 7, height = 4, dpi=600)
+    ## end plot figure
+    browser()
 })
 
 
@@ -27,6 +39,8 @@ test_that("a_matrix <- forcetrial_list <- rds",{
   expect_equal(length(A_1), 3)
 })
 
+rds_posture_to_bootstrap_analysis <- function(rds_posture_string_path, sample_size){
+}
 
 test_that("an A matrix can be evaluated",{
 })
