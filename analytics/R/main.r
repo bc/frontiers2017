@@ -32,18 +32,7 @@ main <- function() {
   postures_per_line <- postures_grouped_by_line(unique_postures, x_fixed_val = -525, y_fixed_val = 68)
   message("Identifying indices for the start and end of each posture")
   idx_dfs <- postures_to_idx_dfs(postures_per_line, unique_postures)
-
-  message("Identifying forces within each posture")
-  require(pbmcapply)
-  line_1_rows_list <- df_to_list_of_rows(idx_dfs[[1]])
-  column_to_separate_forces <- reference("M0")
-  forces_at_fixed_x_postures <- pbmclapply(line_1_rows_list, function(index_row) {
-    indices_tuple <- c(index_row[["initial"]], index_row[["final"]])
-    list_of_forces <- get_forces_list(full_df, indices_tuple, column_to_separate_forces)
-    return(list_of_forces)
-  })
-
-
+  # to save to RDS: saveRDS(idx_dfs, "index_dataframes_for_two_posture_lines.rds")
 
   message("Splitting by force trials")
   list_of_postures <- split(full_df, list(full_df$adept_x, full_df$adept_y), drop = TRUE)

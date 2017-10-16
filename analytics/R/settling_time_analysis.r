@@ -317,16 +317,26 @@ rbind_dfs <- function(list_of_dfs) do.call("rbind", list_of_dfs)
 
 ##' tension_settling_scatter
 ##' @param settling data frame with columns: settling, initial_tension, final_tension
+##' @param ... passed values sent to WVPlots::ScatterHist
 ##' @return 0 just makes plot of settling~delta_tension
 ##' if length of a vector V is n, and some q exists s.t. v[q:n] is stable,
 ##' Then any value 1 < x < Q, where x is stable, implies x:N is also stable.
 ##' bounds = known stability bounds
 ##' @export
 ##' @importFrom WVPlots ScatterHistC
-tension_settling_scatter <- function(settling_df) {
+tension_settling_scatter <- function(settling_df, ...) {
   WVPlots::ScatterHist(settling_df, "delta_force", "settling_time", smoothmethod = "lm",
-    title = "settling_time~delta_force", annot_size = 1)
+    title = "settling_time~delta_force", annot_size = 1, ...)
 }
+
+##' Show settling force for given absolute value of delta force
+##' @param settling data frame with columns: settling, initial_tension, final_tension, delta_force
+abs_value_delta_force_scatter <- function(stability_df){
+  stability_df$abs_delta_force <- abs(stability_df$delta_force)
+  stability_df$bigger_than_0 <- stability_df$delta_force > 0
+  ggplot(data=stability_df, aes(abs_delta_force,settling_time, color=bigger_than_0)) + geom_point(size=0.5) + geom_smooth(method = "lm", se = FALSE) + xlab("|delta force_M0| Newtons") + ylab("Settling Time (ms)") + scale_color_manual(values = c("paleturquoise3", "orchid4")) + theme_bw()
+}
+
 ##' delta_tension
 ##' @param settling data frame with columns: settling, initial_tension, final_tension
 ##' @return numric vector of signed differences between prior and initial tensions
