@@ -70,9 +70,7 @@ test_that('we can plot stability_metrics for 1 posture', {
     dev.off()
   })
 
-
 test_that('we can plot stability_df for 1 posture', {
-  #TODO implement with all postures
   stability_df <- ForceTrials_to_stability_df(sample_posture_ForceTrials)
   reasonable_delta_force <- abs(stability_df$delta_force) > 1
   stability_df_no_small_deltas <- stability_df[reasonable_delta_force, ]
@@ -97,7 +95,6 @@ test_that('we can plot stability_df for all postures in X', {
     pch = 19, xlab = "d(tension)/dt  (Newtons/s)", main = "Amortized rate of change in M0 tension across all force trials?")
   settling_time_histogram_for_posture(stability_df, breaks = 200)
   tension_settling_scatter(stability_df)
-  tension_settling_scatter(abs_deltaforce_stability_df)
   abs_value_delta_force_scatter(stability_df)
   print(summary(stability_df))
   dev.off()

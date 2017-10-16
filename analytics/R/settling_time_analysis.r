@@ -48,8 +48,9 @@ bound_width <- function(tuple) {
 ##' @param stabilized_df stabilized dataframe with column settling_time as vector of integers
 ##' @param ... parameters passed to histogram function
 settling_time_histogram_for_posture <- function(stabilized_df,...) {
-  hist(stabilized_df$settling_time, freq = TRUE, xlab = "settling time ms",
-    ylab = "Number of force trials", main = "Settling times for one posture",
+  numrows <- nrow(stabilized_df)
+  hist(stabilized_df$settling_time, freq = TRUE, xlab = "Settling time (ms)",
+    ylab = "Number of Force Trials", main = paste0("Settling time. n_ForceTrials = ",numrows),
     col = "black",...)
 }
 ##' Add inital and final reference values
