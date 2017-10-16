@@ -1,6 +1,4 @@
 last_n_milliseconds = 100
-pbmclapply <- pblapply
-mclapply <- pblapply
 
 test_that("list of posture RDS paths to list of A matrices",{
   rds_folder_path <- "~/Resilio Sync/data/ForceTrials_at_each_posture/"
