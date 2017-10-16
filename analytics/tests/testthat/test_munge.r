@@ -99,4 +99,4 @@ test_that('we can plot stability_df for all postures in X', {
   print(summary(stability_df))
   dev.off()
 
-}
+})

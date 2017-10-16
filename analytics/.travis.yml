@@ -13,8 +13,8 @@ env:
     - RVERSION=3.4.1
 notifications:
      slack: kaspectscientists:OFGveqm4qxt26CPytZrHUxSV
-install:
-    - cd ./analytics
+before_install:
+  - cd analytics
 r_packages:
       - covr
 r_github_packages:
