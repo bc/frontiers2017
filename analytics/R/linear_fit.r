@@ -6,6 +6,8 @@
 prepend_string <- function(b, a) {
   paste0(a, b)
 }
+
+
 ##' Posture RDS to Static Training Data
 ##' Compose training data from a posture RDS (a list of ForceTrials)
 ##' @param rds_file_path string. object must be a list of ForceTrials

@@ -6,84 +6,80 @@ source("../../R/generic_tools.r")
 source("../../R/time_series_functions.r")
 source("../../R/force_trial_stability.r")
 
+pbmclapply <- pblapply
+mclapply <- pblapply
+
+sample_posture_ForceTrials <- read_rds_to_package_extdata("force_trial_adept_x_-527.463336_adept_y_68.rds")
+force_trials_list <- lapply(sample_posture_ForceTrials, ft_to_df)
 
 
 test_that("one can remove nonstabilized force trials for few postures", {
-  posture_samples_n_100_fix_x <- read_rds_to_package_extdata("posture_samples_n_100_fix_x.rds")
-  test_example_force_trial <- posture_samples_n_100_fix_x[[1]][[1]]
-  first_posture_stablizes <- force_trial_does_stabilize(test_example_force_trial,
+  test_example_ForceTrial <- ft_to_df(sample_posture_ForceTrials[[1]])
+  first_posture_stablizes <- force_trial_does_stabilize(test_example_ForceTrial,
     muscle = "M0", err = 0.5)
-  too_stringent_yields_false <- force_trial_does_stabilize(test_example_force_trial,
+  too_stringent_yields_false <- force_trial_does_stabilize(test_example_ForceTrial,
     muscle = "M0", err = 0.005)
   expect_true(first_posture_stablizes)
   expect_false(too_stringent_yields_false)
 })
 
-test_that("one can remove nonstabilized force trials for 100 postures in y", {
-  all_force_trials_fix_x <- unlist(read_rds_to_package_extdata("posture_samples_n_100_fix_x.rds"),
-    recursive = FALSE)
+test_that("we can create a conglomerate stability_df for 100 forces in a Posture",
+  {
+    stability_df <- ForceTrials_to_stability_df(sample_posture_ForceTrials)
+    pdf("../../../output/tension_settling_scatter_for_sample_posture_n=100_forcetrials.pdf",
+      width = 10, height = 10)
+    tension_settling_scatter(stability_df)
+    dev.off()
+  })
 
+test_that("one can remove nonstabilized force trials for 100 postures in y", {
   ######
   pdf("../../../output/force_trial_yield_under_settling_time_error_threshold.pdf",
     width = 10, height = 10)
-  try_different_stability_thresholds(all_force_trials_fix_x, 20)
+    try_different_stability_thresholds(force_trials_list, 200)
   dev.off()
   ######
+})
 
-  force_trials_that_settled_fix_x <- remove_unsettled_force_trials(all_force_trials_fix_x,
+test_that("we can evaluate the percentage of forcetrials that settled under an arbitrary threshold", {
+  force_trials_that_settled_fix_x <- remove_unsettled_force_trials(force_trials_list,
     stabilization_err_99_percentile)
-  percentage_of_trials_remaining_with_err_threshold <- length(force_trials_that_settled_fix_x)/10000
-  expect_true(abs(0.99 - percentage_of_trials_remaining_with_err_threshold) < 0.01)
+  percentage_of_trials_remaining_with_err_threshold <- length(force_trials_that_settled_fix_x)/100
+  expect_true(abs(0.98 - percentage_of_trials_remaining_with_err_threshold) < 0.01)
   stabilization_statistic <- paste0(percentage_of_trials_remaining_with_err_threshold,
     "% of trials remain with a stabilization metric of ", stabilization_err_99_percentile,
     "N")
-  print(stabilization_statistic)
-  print("Reading full_df, expect 2")
-  full_df <- readRDS("~/Resilio Sync/data/realTimeData2017_08_16_13_23_42.rds")
+})
 
+test_that('we can remove unsettled force trials', {
   print("Removing unsettled force trials")
-  all_settled_force_trials_fix_x <- remove_unsettled_force_trials(all_force_trials_fix_x,
-    0.4)
-  print("Computing Stabilized Df")
-  stability_df <- list_of_forces_to_stabilized_df(all_settled_force_trials_fix_x,
-    data_location, full_df = full_df, muscle_of_interest = "M0", err = 0.4)
-  print("Computing Stability Metrics")
-  stability_metrics_df <- posture_list_to_stability_metrics_df_rows(all_settled_force_trials_fix_x,
-    last_n_milliseconds = 100, muscle = "M0")
-  print("Plotting")
+  settled_forcetrials <- remove_unsettled_force_trials(force_trials_list, 0.4)
+    expect_true(length(force_trials_list) >= length(settled_forcetrials))
+  })
+
+test_that('we can plot stability_metrics for 1 posture', {
+  #TODO implement with all postures
+    stability_metrics <- ForceTrials_to_stability_info_df(sample_posture_ForceTrials)
   ######
-  pdf("../../../output/settling_time_analysis.pdf", width = 10, height = 10)
-  plot(stability_metrics_df$reference, stability_metrics_df$max_residual, col = scales::alpha("black",
+  pdf("../../../output/sample_posture_settling_time_analysis.pdf", width = 10, height = 10)
+  plot(stability_metrics$reference, stability_metrics$max_residual, col = scales::alpha("black",
     0.15), pch = 20, xlab = "Reference force for M0", main = "Sample of 100 postures (fixed-x), n=100 forces per posture.",
     ylab = "Max Residual from reference in last 100ms")
-  tension_settling_scatter(stability_df)
-  hist(stability_metrics_df[, 3], breaks = 50, col = "black", xlim = c(0, 2), xlab = "Maximum residual from desired force in last 100ms",
-    main = "Sample of 100 postures (fixed-x), n=100 forces per posture.")
+  hist(stability_metrics[, 3], breaks = 10, col = "black", xlim = c(0, max(stability_metrics[, 3])), xlab = "Maximum residual from desired force in last 100ms",
+    main = "Sample of 1 postures (fixed-x), n=100 forces at this posture.")
+    dev.off()
+  })
 
+
+test_that('we can plot stability_df for 1 posture', {
+  #TODO implement with all postures
+  stability_df <- ForceTrials_to_stability_df(sample_posture_ForceTrials)
   reasonable_delta_force <- abs(stability_df$delta_force) > 1
   stability_df_no_small_deltas <- stability_df[reasonable_delta_force, ]
-  hist(stability_df$amortized_velocity_of_force * 1000, breaks = 200, cex = 0.15,
-    pch = 19, xlab = "d(tension)/dt in N/s", main = "What is the amortized rate of change in M0 tension across all force trials?")
-  settling_time_histogram_for_posture(stability_df, breaks = 100)
+  pdf("../../../output/sample_posture_stability_df.pdf", width = 10, height = 10)
+  hist(stability_df$amortized_velocity_of_force * 1000, breaks = 20, cex = 0.15, col='black',
+    pch = 19, xlab = "d(tension)/dt  (Newtons/s)", main = "Amortized rate of change in M0 tension across all force trials?")
+  settling_time_histogram_for_posture(stability_df, breaks = 20)
+  print(summary(stability_df))
   dev.off()
-  ######
-  browser()
-
-err <- 0.4
-  forcetrial <- ForceTrial(force_trials_that_settled_fix_x[[100]], full_df_path = data_location,
-    full_df, err, last_n_milliseconds = 100)
-  require(pbmcapply)
-  forcetrials <- pbmclapply(force_trials_that_settled_fix_x, ForceTrial, data_location,
-    full_df, err, 100)
-
-
-
-  list_of_posture_and_stability <- do.call("rbind", pbmclapply(df_to_list_of_rows(stability_df)[1:4],
-    function(stability_row) {
-      idx <- stability_row[["initial_index"]]
-      initial_observation <- full_df[idx, ]
-      info_with_posture <- cbind(stability_row, data.frame(adept_x = initial_observation$adept_x,
-        adept_y = initial_observation$adept_y))
-      return(info_with_posture)
-    }))
 })
