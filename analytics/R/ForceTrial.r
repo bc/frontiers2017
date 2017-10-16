@@ -69,3 +69,36 @@ get_df_from_ForceTrial <- function(ForceTrial){
 converged_colmeans <- function(ForceTrial_list, last_n_milliseconds){
 as.data.frame(do.call('rbind',lapply(lapply(lapply(ForceTrial_list, get_df_from_ForceTrial), tail,last_n_milliseconds), colMeans)))
 }
+
+##' Coerce ForceTrial into a ForceTrial dataframe
+##' @param ForceTrial object of type ForceTrial
+##' @return df raw dataframe of the force trial.
+ft_to_df <- function(ForceTrial){
+  return(as.data.frame(do.call('cbind', ForceTrial)))
+}
+
+
+##' Get a stability df from a list of Force Trials
+##' @param list_of_force_trials List of force trials
+##' @return stability_df a stability data frame with initial_reference_force delta_force amortized_velocity_of_force, initial_index final_index final_reference_force settling_time
+ForceTrials_to_stability_df <- function(list_of_force_trials){
+  extract_and_rbind_attribute(list_of_force_trials, attribute_to_extract = "stability_df")
+}
+
+##' Get a stability_info df from a list of Force Trials
+##' @param list_of_force_trials List of force trials
+##' @return stability_info_df a stability_info data frame with last_n_milliseconds reference sd max_residual
+ForceTrials_to_stability_info_df <- function(list_of_force_trials){
+  extract_and_rbind_attribute(list_of_force_trials, attribute_to_extract = "stability_info")
+}
+
+##' Extract a row-like attribute from a list of elements
+##' rbind them into a large dataframe
+##' @param list_of_elements list of elements
+##" @param attribute_to_extract string, of the element that will be called from each element via attr()
+##' @return attribute_df a data_frame of the combined attributes across all elements of the list.
+extract_and_rbind_attribute <- function(list_of_elements, attribute_to_extract){
+  rbind_dfs(lapply(list_of_elements, function(x) {
+    attr(x, attribute_to_extract)
+  }))
+}
