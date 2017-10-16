@@ -67,6 +67,7 @@ test_that("one can remove nonstabilized force trials for 100 postures in y", {
   settling_time_histogram_for_posture(stability_df, breaks = 100)
   dev.off()
   ######
+  browser()
 
 err <- 0.4
   forcetrial <- ForceTrial(force_trials_that_settled_fix_x[[100]], full_df_path = data_location,

@@ -1,5 +1,6 @@
 last_n_milliseconds = 100
-
+pbmclapply <- pblapply
+mclapply <- pblapply
 
 test_that("list of posture RDS paths to list of A matrices",{
   rds_folder_path <- "~/Resilio Sync/data/ForceTrials_at_each_posture/"
@@ -20,13 +21,12 @@ test_that("data for many postures can be used to create a list of A matrices",{
   expect_equal(nrow(fix_x_vaf),206)
   expect_equal(nrow(fix_y_vaf),1000)
   ##Plot figure
-    p1 <- posture_dependency_plot(fix_y_vaf, "adept_x", "vafs")
-    p2 <- posture_dependency_plot(fix_y_vaf, "adept_x", "vafs")
+    fix_y <- posture_dependency_plot(fix_y_vaf, "adept_x", "vafs")
+    fix_x <- posture_dependency_plot(fix_x_vaf, "adept_y", "vafs")
     require(gridExtra)
-    final <- gridExtra::grid.arrange(p1,p2, ncol = 2)
-    ggsave("posture_dependency_adept_xy.pdf", final, width = 7, height = 4, dpi=600)
+    final <- gridExtra::grid.arrange(fix_y,fix_x, ncol = 2)
+    ggsave("posture_dependency_adept_xy.pdf", final, width = 14, height = 8, dpi=600)
     ## end plot figure
-    browser()
 })
 
 

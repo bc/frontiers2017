@@ -28,6 +28,7 @@ posture_rds_to_A_matrix <- function(rds_file_path, last_n_milliseconds) {
 ##' Uses all data to train
 ##' @param rds_file_path_list list of strings, each connects to a file, each containing a list of ForceTrials
 ##' @param last_n_milliseconds number of samples used to generate column means for static representation in training data
+##' @importFrom pbapply pblapply
 list_of_posture_rds_files_to_list_of_A_matrices <- function(list_of_posture_rds_paths,
   last_n_milliseconds) {
   lapply(list_of_posture_rds_paths, posture_rds_to_A_matrix, last_n_milliseconds)
