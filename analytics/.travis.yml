@@ -1,6 +1,8 @@
 language: r
 warnings_are_errors: false
 sudo: required
+before_install:
+  - cd analytics
 env:
   os:
     - linux
@@ -13,8 +15,6 @@ env:
     - RVERSION=3.4.1
 notifications:
      slack: kaspectscientists:OFGveqm4qxt26CPytZrHUxSV
-before_install:
-  - cd analytics
 r_packages:
       - covr
 r_github_packages:
