@@ -90,7 +90,7 @@ test_that('we can plot stability_df for all postures in X', {
 
   reasonable_delta_force <- abs(stability_df$delta_force) > 1
   stability_df_no_small_deltas <- stability_df[reasonable_delta_force, ]
-  pdf("../output/posture_stability_df.pdf", width = 10, height = 10)
+  pdf("../../../output/posture_stability_df.pdf", width = 10, height = 10)
   hist(stability_df$amortized_velocity_of_force * 1000, breaks = 200, cex = 0.15, col='black',
     pch = 19, xlab = "d(tension)/dt  (Newtons/s)", main = "Amortized rate of change in M0 tension across all force trials?")
   settling_time_histogram_for_posture(stability_df, breaks = 200)
