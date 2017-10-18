@@ -68,16 +68,3 @@ test_that("discrete_diff", {
   expect_equal(discrete_diff(c(10, 10, 10, 10)), c(0, 0, 0))
   expect_equal(discrete_diff(c(10, -10, 10, -10)), c(-20, 20, -20))
 })
-
-test_that("no errors occur when eval_stabilize_idx_to_2_postures", {
-  # load a list of postures fixed in X, each a list of force trials DFs.
-  print("Loading full_df. Expect 2'")
-  full_df <- readRDS("~/Resilio Sync/data/realTimeData2017_08_16_13_23_42.rds")
-  print("Loading precomputed posture samples")
-  posture_samples_n_100_fix_x <- read_rds_to_package_extdata("posture_samples_n_100_fix_x.rds")
-  v <- list_of_postures_of_forces_to_stabilized_df(posture_samples_n_100_fix_x[1:3], full_df_path = data_location,
-    err = 0.5, full_df, muscle_of_interest = "M0")
-  stability_df <- do.call("rbind", list_of_postures_of_forces_to_stabilized_df(posture_samples_n_100_fix_x[1:2][-13][-14],
-    full_df_path = data_location, err = 0.5, full_df, muscle_of_interest = "M0"))
-  stability_metrics_df <- do.call("rbind", lapply(posture_samples_n_100_fix_x[1:100], posture_list_to_stability_metrics_df_rows, last_n_milliseconds = 100, muscle = "M0"))
-})
