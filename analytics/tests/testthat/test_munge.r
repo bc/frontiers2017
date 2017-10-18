@@ -86,8 +86,7 @@ test_that('we can plot stability_df for all postures in X', {
   rds_postures <- all_file_paths("~/Resilio Sync/data/ForceTrials_at_each_posture/")
   stability_df <- do.call('rbind', pblapply(rds_postures, function(rds_path){
     ForceTrials_to_stability_df(readRDS(rds_path))
-  }))
-
+  }))s
   reasonable_delta_force <- abs(stability_df$delta_force) > 1
   stability_df_no_small_deltas <- stability_df[reasonable_delta_force, ]
   pdf("../../../output/posture_stability_df.pdf", width = 10, height = 10)
