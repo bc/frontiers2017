@@ -13,6 +13,27 @@ sample_posture_ForceTrials <- read_rds_to_package_extdata("force_trial_adept_x_-
 force_trials_list <- lapply(sample_posture_ForceTrials, ft_to_df)
 
 
+test_that('we can plot stability_df for all postures in X', {
+  rds_postures <- all_file_paths("~/Resilio Sync/data/ForceTrials_at_each_posture/")
+  stability_df <- do.call('rbind', pblapply(rds_postures, function(rds_path){
+    ForceTrials_to_stability_df(readRDS(rds_path))
+  }))
+
+  print(summary(stability_df))
+  reasonable_delta_force <- abs(stability_df$delta_force) > 1
+  stability_df_no_small_deltas <- stability_df[reasonable_delta_force, ]
+  pdf("../../../output/stability_df_deltaforce.pdf", width = 10, height = 10)
+  hist(stability_df$amortized_velocity_of_force * 1000, breaks = 200, cex = 0.15, col='black',
+  pch = 19, xlab = "d(tension)/dt  (Newtons/s)", main = "Amortized rate of change in M0 tension across all force trials")
+  settling_time_histogram_for_posture(stability_df, breaks = 200)
+  tension_settling_scatter(stability_df)
+  dev.off()
+  deltaforce_settling_time <- abs_value_delta_force_scatter(stability_df, pointsize = 0.05)
+  ggsave("stability_df_deltaforce_abs.pdf", deltaforce_settling_time, width=7, height=6, units = "in")
+})
+
+context("Manipulations based on stablization")
+
 test_that("one can remove nonstabilized force trials for few postures", {
   test_example_ForceTrial <- ft_to_df(sample_posture_ForceTrials[[1]])
   first_posture_stablizes <- force_trial_does_stabilize(test_example_ForceTrial,
@@ -41,6 +62,7 @@ test_that("one can remove nonstabilized force trials for 100 postures in y", {
   ######
 })
 
+context("Evaluating remaining solutions when threshold restrictions are applied to stability")
 test_that("we can evaluate the percentage of forcetrials that settled under an arbitrary threshold", {
   force_trials_that_settled_fix_x <- remove_unsettled_force_trials(force_trials_list,
     stabilization_err_99_percentile)
@@ -80,22 +102,4 @@ test_that('we can plot stability_df for 1 posture', {
   settling_time_histogram_for_posture(stability_df, breaks = 20)
   print(summary(stability_df))
   dev.off()
-})
-
-test_that('we can plot stability_df for all postures in X', {
-  rds_postures <- all_file_paths("~/Resilio Sync/data/ForceTrials_at_each_posture/")
-  stability_df <- do.call('rbind', pblapply(rds_postures, function(rds_path){
-    ForceTrials_to_stability_df(readRDS(rds_path))
-  }))s
-  reasonable_delta_force <- abs(stability_df$delta_force) > 1
-  stability_df_no_small_deltas <- stability_df[reasonable_delta_force, ]
-  pdf("../../../output/posture_stability_df.pdf", width = 10, height = 10)
-  hist(stability_df$amortized_velocity_of_force * 1000, breaks = 200, cex = 0.15, col='black',
-    pch = 19, xlab = "d(tension)/dt  (Newtons/s)", main = "Amortized rate of change in M0 tension across all force trials?")
-  settling_time_histogram_for_posture(stability_df, breaks = 200)
-  tension_settling_scatter(stability_df)
-  abs_value_delta_force_scatter(stability_df)
-  print(summary(stability_df))
-  dev.off()
-
 })

@@ -7,8 +7,15 @@ test_that("a_matrix with fewer than all samples trained on <- forcetrial_list <-
   input_output_data <- converged_colmeans(sample_posture_data, last_n_milliseconds)
 
   A_1 <- find_A_matrix(input_output_data)
+  expect_true(implemented <- FALSE) #TODO
+})
 
-  browser()
+test_that("we can explore many different sample sizes for train/test splits", {
+
+  sample_sizes <- 1:100
+  model_performance <- 1:100 #TODO
+  plot(sample_sizes, model_performance)
+  expect_true(implemented <- FALSE) #TODO
 })
 
 

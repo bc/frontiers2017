@@ -330,12 +330,21 @@ tension_settling_scatter <- function(settling_df, ...) {
     title = "settling_time~delta_force", annot_size = 1, ...)
 }
 
+##' abs_value_delta_force_scatter
 ##' Show settling force for given absolute value of delta force
 ##' @param settling data frame with columns: settling, initial_tension, final_tension, delta_force
-abs_value_delta_force_scatter <- function(stability_df){
+##' @return p ggplot2 plot object
+abs_value_delta_force_scatter <- function(stability_df, pointsize){
   stability_df$abs_delta_force <- abs(stability_df$delta_force)
   stability_df$bigger_than_0 <- stability_df$delta_force > 0
-  ggplot(data=stability_df, aes(abs_delta_force,settling_time, color=bigger_than_0)) + geom_point(size=0.5) + geom_smooth(method = "lm", se = FALSE) + xlab("|delta force_M0| Newtons") + ylab("Settling Time (ms)") + scale_color_manual(values = c("paleturquoise3", "orchid4")) + theme_bw()
+  p <- ggplot(data=stability_df, aes(abs_delta_force,settling_time, color=bigger_than_0))
+  p <- p + geom_point(size=pointsize)
+  p <- p + geom_smooth(method = "lm", se = FALSE)
+  p <- p + xlab("|delta force_M0| Newtons")
+  p <- p + ylab("Settling Time (ms)")
+  p <- p + scale_color_manual(values = c("paleturquoise3", "orchid4"))
+  p <- p + theme_bw()
+  return(p)
 }
 
 ##' delta_tension
