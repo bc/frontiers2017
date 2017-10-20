@@ -326,8 +326,12 @@ rbind_dfs <- function(list_of_dfs) do.call("rbind", list_of_dfs)
 ##' @export
 ##' @importFrom WVPlots ScatterHistC
 tension_settling_scatter <- function(settling_df, ...) {
-  WVPlots::ScatterHist(settling_df, "delta_force", "settling_time", smoothmethod = "lm",
-    title = "settling_time~delta_force", annot_size = 1, ...)
+    p <- ggplot(data = stability_df, aes(delta_force, settling_time, col=initial_reference_force))
+    p <- p + geom_point(size = 0.03)
+    p <- p + xlab("deltaforce_M0 Newtons")
+    p <- p + ylab("Settling Time (ms)")
+    p <- p + theme_bw()
+    return(p)
 }
 
 ##' abs_value_delta_force_scatter
