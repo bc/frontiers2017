@@ -29,7 +29,7 @@ test_that('we can plot stability_df for all postures in X', {
   tension_settling_scatter(stability_df)
   dev.off()
   deltaforce_settling_time <- abs_value_delta_force_scatter(stability_df, pointsize = 0.05)
-  ggsave("stability_df_deltaforce_abs.pdf", deltaforce_settling_time, width=7, height=6, units = "in")
+  ggsave("../../../output/stability_df_deltaforce_abs.pdf", deltaforce_settling_time, width=7, height=6, units = "in")
 })
 
 context("Manipulations based on stablization")
