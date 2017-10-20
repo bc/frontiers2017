@@ -324,8 +324,7 @@ rbind_dfs <- function(list_of_dfs) do.call("rbind", list_of_dfs)
 ##' Then any value 1 < x < Q, where x is stable, implies x:N is also stable.
 ##' bounds = known stability bounds
 ##' @export
-##' @importFrom WVPlots ScatterHistC
-tension_settling_scatter <- function(settling_df, ...) {
+tension_settling_scatter <- function(stability_df, ...) {
     p <- ggplot(data = stability_df, aes(delta_force, settling_time, col=initial_reference_force))
     p <- p + geom_point(size = 0.03)
     p <- p + xlab("deltaforce_M0 Newtons")

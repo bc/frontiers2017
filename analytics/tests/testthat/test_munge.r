@@ -15,22 +15,21 @@ force_trials_list <- lapply(sample_posture_ForceTrials, ft_to_df)
 
 test_that('we can plot stability_df for all postures in X', {
   rds_postures <- all_file_paths("~/Resilio Sync/data/ForceTrials_at_each_posture/")
-  stability_df <- do.call('rbind', pblapply(rds_postures, function(rds_path){
-    ForceTrials_to_stability_df(readRDS(rds_path))
-  }))
+  stability <- rds_paths_to_bound_stability_dfs(rds_postures)
+  plot(ecdf(stability$settling_time), xlab="Settling time (ms)", ylab="Fraction of samples", main="Empirical cumulative distribution function")
 
-  print(summary(stability_df))
-  reasonable_delta_force <- abs(stability_df$delta_force) > 1
-  stability_df_no_small_deltas <- stability_df[reasonable_delta_force, ]
+  print(summary(stability))
+  reasonable_delta_force <- abs(stability$delta_force) > 1
+  stability_df_no_small_deltas <- stability[reasonable_delta_force, ]
   pdf("../../../output/stability_df_histograms.pdf", width = 10, height = 10)
-  hist(stability_df$amortized_velocity_of_force * 1000, breaks = 200, cex = 0.15, col='black',
+  hist(stability$amortized_velocity_of_force * 1000, breaks = 200, cex = 0.15, col='black',
   pch = 19, xlab = "d(tension)/dt  (Newtons/s)", main = "Amortized rate of change in M0 tension across all force trials")
-  settling_time_histogram_for_posture(stability_df, breaks = 200)
+  settling_time_histogram_for_posture(stability, breaks = 200)
   dev.off()
-  p1 <- tension_settling_scatter(stability_df)
+  p1 <- tension_settling_scatter(stability)
   ggsave("../../../output/stability_df_deltaforce.pdf", p1, width=7, height=6, units = "in")
 
-  deltaforce_settling_time <- abs_value_delta_force_scatter(stability_df, pointsize = 0.05)
+  deltaforce_settling_time <- abs_value_delta_force_scatter(stability, pointsize = 0.05)
   ggsave("../../../output/stability_df_deltaforce_abs.pdf", deltaforce_settling_time, width=7, height=6, units = "in")
 })
 
@@ -49,10 +48,7 @@ test_that("one can remove nonstabilized force trials for few postures", {
 test_that("we can create a conglomerate stability_df for 100 forces in a Posture",
   {
     stability_df <- ForceTrials_to_stability_df(sample_posture_ForceTrials)
-    pdf("../../../output/tension_settling_scatter_for_sample_posture_n=100_forcetrials.pdf",
-      width = 10, height = 10)
     tension_settling_scatter(stability_df)
-    dev.off()
   })
 
 test_that("one can remove nonstabilized force trials for 100 postures in y", {

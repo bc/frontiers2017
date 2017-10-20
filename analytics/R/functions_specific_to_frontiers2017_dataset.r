@@ -26,6 +26,22 @@ add_adept_xy_to_indices <- function(idxs, unique_postures) {
   return(new_idxs)
 }
 
+##' RDS paths to bound stability DFS
+##' @param rds_postures list of full string paths to forcetrial rds objects
+##' @return stability_df a dataframe cbind-ed from the stability info and stability df data.
+rds_paths_to_bound_stability_dfs <- function(rds_postures) {
+  message("Extracting StabilityDFs from RDS files")
+  stability_df <- do.call("rbind", pblapply(rds_postures, function(rds_path) {
+    ForceTrials_to_stability_df(readRDS(rds_path))
+  }))
+  message("Extracting StabilityInfo from RDS files")
+  stability_infos <- do.call("rbind", pblapply(rds_postures, function(rds_path) {
+    ForceTrials_to_stability_info_df(readRDS(rds_path))
+  }))
+  stability <- cbind(stability_df, stability_infos)
+  return(stability)
+}
+
 ##' Get AdeptX and AdeptY numeric tuple from first row of dataframe
 ##' @param timeseries_df time series with the adept_x and adept_y columns
 ##' @return vector of adept_x,adept_y numeric values.
