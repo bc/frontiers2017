@@ -22,12 +22,14 @@ test_that('we can plot stability_df for all postures in X', {
   print(summary(stability_df))
   reasonable_delta_force <- abs(stability_df$delta_force) > 1
   stability_df_no_small_deltas <- stability_df[reasonable_delta_force, ]
-  pdf("../../../output/stability_df_deltaforce.pdf", width = 10, height = 10)
+  pdf("../../../output/stability_df_histograms.pdf", width = 10, height = 10)
   hist(stability_df$amortized_velocity_of_force * 1000, breaks = 200, cex = 0.15, col='black',
   pch = 19, xlab = "d(tension)/dt  (Newtons/s)", main = "Amortized rate of change in M0 tension across all force trials")
   settling_time_histogram_for_posture(stability_df, breaks = 200)
-  tension_settling_scatter(stability_df)
   dev.off()
+  p1 <- tension_settling_scatter(stability_df)
+  ggsave("../../../output/stability_df_deltaforce.pdf", p1, width=7, height=6, units = "in")
+
   deltaforce_settling_time <- abs_value_delta_force_scatter(stability_df, pointsize = 0.05)
   ggsave("../../../output/stability_df_deltaforce_abs.pdf", deltaforce_settling_time, width=7, height=6, units = "in")
 })
