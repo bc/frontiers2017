@@ -42,3 +42,9 @@ last_rowname <- function(df) tail(rownames(df), 1)
 all_file_paths <- function(pwd_of_directory){
   simplify2array(lapply(dir(pwd_of_directory), prepend_string, pwd_of_directory))
 }
+
+##' Row-Wise Shuffle a Dataframe
+##' TODO test
+##' @param df dataframe
+##' @return df2 dataframe with rows shuffled
+shuffle_row_wise <- function(df) df[sample(nrow(df)),]
