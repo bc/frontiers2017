@@ -21,22 +21,25 @@ test_that("we can plot stability_df for all postures in X", {
   stability_a <- stability[stability$settling_time < 700, ]
 
 
+##'' Posture path to stability data frame
+##' @param posturepath string full path to RDS
+##' @return the stability df for that postures
+posture_path_to_stability_df <- function(posturepath) {
+  posture <- readRDS(posturepath)
+  max_residuals_and_sd <- lapply(posture, ForceTrial_to_signed_max_residual_and_sd)
+  stability <- cbind(ForceTrials_to_stability_info_df(posture), ForceTrials_to_stability_df(posture))
+  adept_coords <- adept_coordinates_from_ForceTrial(posture[[1]])
+  posture_and_residual_sd <- dcrb(lapply(max_residuals_and_sd, add_posture_to_max_residual_and_sd,
+    adept_coords))
+  d <- merge(stability, posture_and_residual_sd)
+  return(d)
+}
   ##' Get the signed residuals from all postures
   ##' @param rds_postures list of full filepaths to each rds Posture, each with a list of ForceTrials
   ##' @return stability_df data.frame with all stabiliyt information observations at postures. Includes adept xy coordinates
   get_stability_df_for_all_postures <- function(rds_postures){
-    stability_df_list <- pbmclapply(rds_postures, function(posturepath) {
-      posture <- readRDS(posturepath)
-      max_residuals_and_sd <- lapply(posture, ForceTrial_to_signed_max_residual_and_sd)
-      stability <- cbind(ForceTrials_to_stability_info_df(posture), ForceTrials_to_stability_df(posture))
-      adept_coords <- adept_coordinates_from_ForceTrial(posture[[1]])
-      posture_and_residual_sd <- dcrb(lapply(max_residuals_and_sd, add_posture_to_max_residual_and_sd,
-        adept_coords))
-      d <- merge(stability, posture_and_residual_sd)
-      return(d)
-    })
-
-    return(dcrb(stability_df_list))
+    stability_df <- dcrb(pbmclapply(rds_postures, posture_path_to_stability_df))
+    return(stability_df)
   }
 
   #Note these ones include all Force trials, even ones that did not "settle"
