@@ -137,7 +137,6 @@ adept_boxplots <- function(stability_df, adept_dimension_that_changes, response_
   p <- p + theme_bw() + xlab("Adept y postures from 61.02206 to 74.98921") #hardcoded
   p <- p + theme(panel.background = element_rect(fill = "white", colour = "grey50"))
   p <- p +theme(axis.text.x=element_blank(), axis.ticks.x=element_blank(), panel.grid.major=element_blank(), panel.grid.minor=element_blank())
-  p
   return(p)
 }
 
