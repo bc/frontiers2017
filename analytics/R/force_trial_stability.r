@@ -109,28 +109,26 @@ sd_residual_plot_hex <- function(stability_df, size = 0.25) {
 
 ##' sd_residual_plot_scatter_posture
 ##' @param list_of_stability_dfs dataframes with adept_x and adept_y column, sd, and signed_max_residual. first is fix_x_sdres
+##' @param adept_dimension_that_changes either 'adept_x' or 'adept_y', describing the one that is changing
 ##' @return p_list plot object for ggplot scatter plot.
-sd_residual_plot_scatter_posture <- function(list_of_stability_dfs, size = 0.25) {
+sd_residual_plot_scatter_posture <- function(stability_df, adept_dimension_that_changes, size = 0.25) {
   my_breaks = c(1, 10, 100, 1000, 10000, 1e+05)
-  fix_x_p <- ggplot(list_of_stability_dfs$fix_x, aes(sd, signed_max_residual)) +
-    geom_point(size = size) + theme_bw() + xlab("sd of last 100ms_fix_x") + ylab("max(residuals of last 100ms)") +
+  p <- ggplot(stability_df, aes(sd, signed_max_residual)) +
+    geom_point(size = size) + theme_bw() + xlab(paste("sd of last 100ms,", adept_dimension_that_changes)) + ylab("max(residuals of last 100ms)") +
     theme_bw()
-  fix_y_p <- ggplot(list_of_stability_dfs$fix_y, aes(sd, signed_max_residual)) +
-    geom_point(size = size) + theme_bw() + xlab("sd of last 100ms_fix_y") + ylab("max(residuals of last 100ms)") +
-    theme_bw()
-  return(list(fix_x_p = fix_x_p, fix_y_p = fix_y_p))
+  return(p)
 }
 
 ##' Adept Boxplots to show how posture affects some y
 ##' the length of the whiskers =  1.5 the IQR
 ##' @param stability_df dataframe with adept_* and y variable to respond
-##' @param adept_dimension either 'adept_x' or 'adept_y'
+##' @param adept_dimension_that_changes either 'adept_x' or 'adept_y', describing the one that is changing
 ##' @param response_variable e.g. 'sd' or 'signed_max_residual'
 ##' @return p ggplot plot object
-adept_boxplots <- function(stability_df, adept_dimension, response_variable) {
-  min_distance_between_adept_postures <- abs(min(diff(unique(stability_df[[adept_dimension]]))))
-  ggplot(stability_df, aes_string(y = response_variable, group = adept_dimension)) +
-    geom_boxplot(aes_string(cut_width(stability_df[[adept_dimension]], min_distance_between_adept_postures)),
+adept_boxplots <- function(stability_df, adept_dimension_that_changes, response_variable) {
+  min_distance_between_adept_postures <- abs(min(diff(unique(stability_df[[adept_dimension_that_changes]]))))
+  ggplot(stability_df, aes_string(y = response_variable, group = adept_dimension_that_changes)) +
+    geom_boxplot(aes_string(cut_width(stability_df[[adept_dimension_that_changes]], min_distance_between_adept_postures)),
       outlier.alpha = 0.4) + theme_bw() + theme(panel.background = element_rect(fill = "white",
     colour = "grey50"))
 }
