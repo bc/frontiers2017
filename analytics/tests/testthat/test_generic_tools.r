@@ -6,7 +6,15 @@ sample_df_numbers <- data.frame(first = c(1, 5, 4, 2, 5, 2), second = 1:6, row.n
 sample_df_letters <- data.frame(first = c(1, 5, 4, 2, 5, 2), second = 1:6, row.names = LETTERS[1:6])
 sample_df_row <- data.frame(first = c(1), second = 1, row.names = LETTERS[1])
 sample_df_rows <- data.frame(first = c(1, 2, 3, 4, 5, 6), second = 1:6, row.names = LETTERS[1:6])
-shuffled_df_rows <- sample(nrow(sample_df_rows), 6, replace = FALSE, prob = NULL)
+
+#set.seed(1)
+#print(shuffle_row_wise(sample_df_rows))
+#print(shuffle_row_wise(sample_df_rows))
+#print(shuffle_row_wise(sample_df_rows))
+#print(shuffle_row_wise(sample_df_rows))
+shuffled_df_rows <- data.frame(first = c(2, 6, 3, 4, 1, 5), second = c(2, 6, 3, 4, 1, 5), row.names = c("B", "F", "C", "D", "A", "E"))
+shuffled_unreplaced_rows <- data.frame(first = c(6, 4, 3, 1, 5, 2), second = c(6, 4, 3, 1, 5, 2), row.names = c("F", "D", "C", "A", "E", "B"))
+
 
 context("first_rowname")
 test_that("first_rowname works with strings", {
@@ -27,12 +35,13 @@ context("shuffle_row_wise")
 test_that("shuffle_row_wise works with one row", {
   expect_equal(shuffle_row_wise(sample_df_row), sample_df_row)
 })
+set.seed(1) #Sets the seed so that sample produces replicable results
 test_that("shuffle_row_wise works with multiple rows", {
   expect_equal(shuffle_row_wise(sample_df_rows), shuffled_df_rows)
 })
 test_that("shuffle_row_wise does not replace rows", {
-  expect_equal(shuffle_row_wise(sample_df_rows), shuffled_df_rows)
+  expect_equal(shuffle_row_wise(sample_df_rows), shuffled_unreplaced_rows)
 })
-test_that("shuffle_row_wise works without replacement", {
-  expect_equal(shuffle_row_wise(sample_df_rows), shuffled_df_rows)
+test_that("shuffle_row_wise shuffles all rows", {
+  expect_equal(nrow(shuffle_row_wise(sample_df_rows)), 6)
 })
