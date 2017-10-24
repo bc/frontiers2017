@@ -39,28 +39,7 @@ test_that("we can plot stability_df for all postures in X", {
 
 
 
-  ##' Relationship between adept posture and signed max residual in scatter plot form
-  ##' @param stability_df dataframe with adept_x and adept_y column, sd, and signed_max_residual
-  ##' @param adept_dimension_that_changes either 'adept_x' or 'adept_y', describing the one that is changing (the one that's not fixed)
-  ##' @return p ggplot object
-  signed_max_residual_vs_posture <- function(stability_df, adept_dimension_that_changes){
-    p <- ggplot(stability_df, aes_string(adept_dimension_that_changes, "signed_max_residual"))
-    p <- p + geom_point(size=0.1) + theme_bw()
-    return(p)
-  }
 
-  ##' Produce stability plots in list
-  ##' @param stability_df dataframe with adept_x and adept_y column, sd, and signed_max_residual
-  ##' @param adept_dimension_that_changes either 'adept_x' or 'adept_y', describing the one that is changing (the one that's not fixed)
-  ##' @return p_list list of plot objects
-  produce_stability_plots <- function(stability_df, adept_dimension_that_changes){
-    p_sd <- adept_boxplots(stability_df, adept_dimension_that_changes, "sd")
-    browser()
-    p_max_residual <- signed_max_residual_vs_posture(stability_df, adept_dimension_that_changes)
-    p_sdres_adept <- sd_residual_plot_scatter_posture(stability_df, adept_dimension_that_changes)
-    p_sd_residual <- sd_residual_plot_hex(stability_df)
-    return(list(p_sd,p_max_residual, p_sdres_adept, p_sd_residual))
-  }
 
   fix_x <- x_and_y$fix_x
   fix_y <- x_and_y$fix_y
