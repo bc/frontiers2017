@@ -32,6 +32,15 @@ test_that("bound_width", {
   expect_equal(bound_width(c(1, 5)), 4)
 })
 
+
+test_that("Signed max residual val", {
+  expect_equal(signed_max_residual_val(c(-14, 13)),-14)
+  expect_equal(signed_max_residual_val(c(-10, 13)),13)
+  expect_equal(signed_max_residual_val(c(5, 6)),6)
+  expect_equal(signed_max_residual_val(c(6, 6)),6)
+  expect_equal(signed_max_residual_val(c(0, 0)),0)
+})
+
 test_that("first_true_value_idx", {
   expect_equal(first_true_value_idx(FALSE, TRUE, c(6, 7)), 7)
   expect_equal(first_true_value_idx(TRUE, TRUE, c(6, 7)), 6)

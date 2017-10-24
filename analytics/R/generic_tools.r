@@ -25,6 +25,16 @@ save_rds_to_Resilio <- function(object, filename){
   saveRDS(object, filename)
 }
 
+##' Get Mode from vector
+##' if there is no element that is the mode, it returns the first element of the list of equal-occurrence elements.
+##' TODO test getmode(c(1,2,3,2,3)) -> 2
+##' @param v vector of elements
+##' @return mode most common element
+getmode <- function(v) {
+   uniqv <- unique(v)
+   uniqv[which.max(tabulate(match(v, uniqv)))]
+}
+
 ##' @title first_rowname
 ##' @param df data frame with rownames
 ##' @param name string for the first rowname
@@ -48,3 +58,11 @@ all_file_paths <- function(pwd_of_directory){
 ##' @param df dataframe
 ##' @return df2 dataframe with rows shuffled
 shuffle_row_wise <- function(df) df[sample(nrow(df)),]
+
+
+##' Do Call Rbind on list of dataframes
+##' @param list of dataframes
+##' @return df row-bound concatenated dataframe
+dcrb <- function(list_of_dataframes){
+  do.call('rbind', list_of_dataframes)
+}

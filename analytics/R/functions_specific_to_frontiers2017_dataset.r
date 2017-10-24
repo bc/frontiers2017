@@ -117,3 +117,12 @@ frontiers2017_columns_to_ignore <- c("angle_0", "angle_1", "angle_2", "angle_3",
 columns_to_extract_into_attributes <- function() {
   c(unlist(lapply(muscle_names, reference)), "adept_x", "adept_y")
 }
+
+##' Split stability df into two postures (hardcoded for frontiers2017 data)
+##' @param full_stability_df df with adept_x and adept_y column
+##' @return df_list split dataframes
+split_stability_df_into_postures <- function(full_stability_df) {
+  fix_x_max_residual_and_sd <- full_stability_df[full_stability_df$adept_x == -525.0000,]
+  fix_y_max_residual_and_sd <- full_stability_df[full_stability_df$adept_y == 68.00,]
+  return(list(fix_x = fix_x_max_residual_and_sd, fix_y = fix_y_max_residual_and_sd))
+}
