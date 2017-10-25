@@ -96,6 +96,27 @@ posture_start_finish_indices_to_L_of_ForceTrials <- function(df_of_postures, ful
     data_location, full_df, err)
 }
 
+##' Posture path to stability data frame
+##' @param posturepath string full path to RDS
+##' @return the stability df for that postures
+posture_path_to_stability_df <- function(posturepath) {
+  posture <- readRDS(posturepath)
+  max_residuals_and_sd <- lapply(posture, ForceTrial_to_signed_max_residual_and_sd)
+  stability <- cbind(ForceTrials_to_stability_info_df(posture), ForceTrials_to_stability_df(posture))
+  adept_coords <- adept_coordinates_from_ForceTrial(posture[[1]])
+  posture_and_residual_sd <- dcrb(lapply(max_residuals_and_sd, add_posture_to_max_residual_and_sd,
+    adept_coords))
+  d <- merge(stability, posture_and_residual_sd)
+  return(d)
+}
+##' Get the signed residuals from all postures
+##' @param rds_postures list of full filepaths to each rds Posture, each with a list of ForceTrials
+##' @return stability_df data.frame with all stabiliyt information observations at postures. Includes adept xy coordinates
+get_stability_df_for_all_postures <- function(rds_postures) {
+  stability_df <- dcrb(pbmclapply(rds_postures, posture_path_to_stability_df))
+  return(stability_df)
+}
+
 ############ Plotting
 
 ##' sd_residual_plot_hex
@@ -132,11 +153,13 @@ adept_boxplots <- function(stability_df, adept_dimension_that_changes, response_
   min_distance_between_adept_postures <- abs(min(diff(unique(stability_df[[adept_dimension_that_changes]])))) *
     0.9
   p <- ggplot(stability_df, aes_string(y = response_variable, group = adept_dimension_that_changes))
-  p <- p + geom_boxplot(aes_string(cut_width(stability_df[[adept_dimension_that_changes]], min_distance_between_adept_postures)), outlier.alpha = 0.2,
-    outlier.size = 0.1, alpha = 0.7, size=0.5)
-  p <- p + theme_bw() + xlab("Adept y postures from 61.02206 to 74.98921") #hardcoded
+  p <- p + geom_boxplot(aes_string(cut_width(stability_df[[adept_dimension_that_changes]],
+    min_distance_between_adept_postures)), outlier.alpha = 0.2, outlier.size = 0.1,
+    alpha = 0.7, size = 0.5)
+  p <- p + theme_bw() + xlab(paste(adept_dimension_that_changes, "postures from", adept_range[1], "to", adept_range[2]))
   p <- p + theme(panel.background = element_rect(fill = "white", colour = "grey50"))
-  p <- p +theme(axis.text.x=element_blank(), axis.ticks.x=element_blank(), panel.grid.major=element_blank(), panel.grid.minor=element_blank())
+  p <- p + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(),
+    panel.grid.major = element_blank(), panel.grid.minor = element_blank())
   return(p)
 }
 

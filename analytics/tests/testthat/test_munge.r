@@ -9,55 +9,28 @@ source("../../R/force_trial_stability.r")
 pbmclapply <- pblapply
 mclapply <- pblapply
 
+
 sample_posture_ForceTrials <- read_rds_to_package_extdata("force_trial_adept_x_-527.463336_adept_y_68.rds")
 force_trials_list <- lapply(sample_posture_ForceTrials, ft_to_df)
+rds_postures <- all_file_paths("~/Resilio Sync/data/ForceTrials_at_each_posture/")
 
 test_that("we can plot stability_df for all postures in X", {
-  rds_postures <- all_file_paths("~/Resilio Sync/data/ForceTrials_at_each_posture/")
-  stability <- rds_paths_to_bound_stability_dfs(rds_postures)
-
-
-
-  stability_a <- stability[stability$settling_time < 700, ]
-
-
-##'' Posture path to stability data frame
-##' @param posturepath string full path to RDS
-##' @return the stability df for that postures
-posture_path_to_stability_df <- function(posturepath) {
-  posture <- readRDS(posturepath)
-  max_residuals_and_sd <- lapply(posture, ForceTrial_to_signed_max_residual_and_sd)
-  stability <- cbind(ForceTrials_to_stability_info_df(posture), ForceTrials_to_stability_df(posture))
-  adept_coords <- adept_coordinates_from_ForceTrial(posture[[1]])
-  posture_and_residual_sd <- dcrb(lapply(max_residuals_and_sd, add_posture_to_max_residual_and_sd,
-    adept_coords))
-  d <- merge(stability, posture_and_residual_sd)
-  return(d)
-}
-  ##' Get the signed residuals from all postures
-  ##' @param rds_postures list of full filepaths to each rds Posture, each with a list of ForceTrials
-  ##' @return stability_df data.frame with all stabiliyt information observations at postures. Includes adept xy coordinates
-  get_stability_df_for_all_postures <- function(rds_postures){
-    stability_df <- dcrb(pbmclapply(rds_postures, posture_path_to_stability_df))
-    return(stability_df)
-  }
-
   #Note these ones include all Force trials, even ones that did not "settle"
+  print('expect 6 minutes to load & compute all postures into the stability df')
   stability_df_for_both_posture_lines <- get_stability_df_for_all_postures(rds_postures)
   x_and_y <- split_stability_df_into_postures(stability_df_for_both_posture_lines)
-
-
-
-
-
   fix_x <- x_and_y$fix_x
   fix_y <- x_and_y$fix_y
   along_x_stability <- produce_stability_plots(fix_y, adept_dimension_that_changes='adept_x')
   along_y_stability <- produce_stability_plots(fix_x, adept_dimension_that_changes='adept_y')
   g <- arrangeGrob(grobs = c(along_x_stability, along_y_stability), nrow = 2)
-  ggsave("static_motor_control_properties.pdf", g, device = "pdf", width = 8, height = 4,
+  ggsave("../../../output/static_motor_control_properties.pdf", g, device = "pdf", width = 8, height = 4,
     scale = 4, limitsize = FALSE, dpi = 100)
-
+})
+context("delta force")
+test_that("delta force visualizations work", {
+  stability <- rds_paths_to_bound_stability_dfs(rds_postures)
+  stability_a <- stability[stability$settling_time < 700, ]
   print(summary(stability))
   reasonable_delta_force <- abs(stability$delta_force) > 1
   stability_df_no_small_deltas <- stability[reasonable_delta_force, ]
