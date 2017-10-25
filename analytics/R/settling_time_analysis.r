@@ -140,6 +140,21 @@ posture_to_ForceTrials_to_RDS <- function(posture_indices, full_df, column_to_se
 
 }
 
+##' Signed Max Residual Val
+##' @param range_of_vector the range of a vector (min and max)
+##' @return max_residual_val single numeric signed value
+signed_max_residual_val <- function(range_of_vector){
+  min_bigger_than_max <- diff(abs(range_of_vector)) < 0
+  if (min_bigger_than_max > 0) {
+    return(range_of_vector[1])
+  } else {
+    return(range_of_vector[2])
+  }
+}
+
+
+
+
 ##' One list of posture indices to a Posture
 ##' Where a Posture has many ForceTrials
 ##' @param posture_indices tuple, with an initial and final index within full_df to extract as the posture.
@@ -324,10 +339,13 @@ rbind_dfs <- function(list_of_dfs) do.call("rbind", list_of_dfs)
 ##' Then any value 1 < x < Q, where x is stable, implies x:N is also stable.
 ##' bounds = known stability bounds
 ##' @export
-##' @importFrom WVPlots ScatterHistC
-tension_settling_scatter <- function(settling_df, ...) {
-  WVPlots::ScatterHist(settling_df, "delta_force", "settling_time", smoothmethod = "lm",
-    title = "settling_time~delta_force", annot_size = 1, ...)
+tension_settling_scatter <- function(stability_df, ...) {
+    p <- ggplot(data = stability_df, aes(delta_force, settling_time, col=initial_reference_force))
+    p <- p + geom_point(size = 0.03)
+    p <- p + xlab("deltaforce_M0 Newtons")
+    p <- p + ylab("Settling Time (ms)")
+    p <- p + theme_bw()
+    return(p)
 }
 
 ##' abs_value_delta_force_scatter
@@ -403,4 +421,13 @@ plot_remaining_force_trial_fraction_as_function_of_err <- function(different_err
       " Force Trials"))
   abline(h = 0.99)
   abline(v = stabilization_err_99_percentile)
+}
+
+
+##' Add Posture to max residual and SD
+##' @param row_of_max_residual_and_sd df with 2 cols, with numeric values. signed max residual is the maximum deviation from the desired force
+##' @param adept_coords x and y numeric values for posture coordinates
+##' @param df dataframe with the posture adept coordinates added as two new columns
+add_posture_to_max_residual_and_sd <- function(row_of_max_residual_and_sd, adept_coords){
+  cbind(data.frame(adept_x = adept_coords[1], adept_y=adept_coords[2]), row_of_max_residual_and_sd)
 }

@@ -27,3 +27,12 @@ test_that("we can extract the forces from the index dataframes", {
   fts <- many_postures_to_ForceTrials(posture_tuple_list[1:2], full_df, column_to_separate_forces = "reference_M0", err=0.4, last_n_milliseconds = 100)
   expect_equal(length(fts), 2)
 })
+
+
+test_that("df_to_max_signed_residual gets the correct ranges", {
+  one_ft <- readRDS(all_file_paths("~/Resilio Sync/data/ForceTrials_at_each_posture/")[1])[[1]]
+  force_df <- ft_to_df(one_ft)
+  residual <- df_to_max_signed_residual(force_df)
+  expect_equal(residual, -0.144445)
+  expect_equal(abs(residual), attr(one_ft,'stability_info')[['max_residual']])
+})

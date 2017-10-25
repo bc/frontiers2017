@@ -28,6 +28,7 @@ posture_rds_to_A_matrix <- function(rds_file_path, last_n_milliseconds) {
 
 ##' Posture RDS list to a list of A matrix information objects
 ##' Uses all data to train
+##' TODO test
 ##' @param rds_file_path_list list of strings, each connects to a file, each containing a list of ForceTrials
 ##' @param last_n_milliseconds number of samples used to generate column means for static representation in training data
 ##' @importFrom pbapply pblapply
