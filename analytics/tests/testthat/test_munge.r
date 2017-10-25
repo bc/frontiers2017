@@ -14,19 +14,6 @@ sample_posture_ForceTrials <- read_rds_to_package_extdata("force_trial_adept_x_-
 force_trials_list <- lapply(sample_posture_ForceTrials, ft_to_df)
 rds_postures <- all_file_paths("~/Resilio Sync/data/ForceTrials_at_each_posture/")
 
-test_that("we can plot stability_df for all postures in X", {
-  #Note these ones include all Force trials, even ones that did not "settle"
-  print('expect 6 minutes to load & compute all postures into the stability df')
-  stability_df_for_both_posture_lines <- get_stability_df_for_all_postures(rds_postures)
-  x_and_y <- split_stability_df_into_postures(stability_df_for_both_posture_lines)
-  fix_x <- x_and_y$fix_x
-  fix_y <- x_and_y$fix_y
-  along_x_stability <- produce_stability_plots(fix_y, adept_dimension_that_changes='adept_x')
-  along_y_stability <- produce_stability_plots(fix_x, adept_dimension_that_changes='adept_y')
-  g <- arrangeGrob(grobs = c(along_x_stability, along_y_stability), nrow = 2)
-  ggsave("../../../output/static_motor_control_properties.pdf", g, device = "pdf", width = 8, height = 4,
-    scale = 4, limitsize = FALSE, dpi = 100)
-})
 context("delta force")
 test_that("delta force visualizations work", {
   stability <- rds_paths_to_bound_stability_dfs(rds_postures)
@@ -35,6 +22,7 @@ test_that("delta force visualizations work", {
   reasonable_delta_force <- abs(stability$delta_force) > 1
   stability_df_no_small_deltas <- stability[reasonable_delta_force, ]
   pdf("../../../output/stability_df_stats.pdf", width = 10, height = 10)
+  browser()
   hist(c, breaks = 500, col = "black", xlab = "Highest residual observed in last 100ms of force trial (N)",
     ylab = "Number of force trials", main = paste("n =", length(c), "force trials"))
   plot(ecdf(stability$settling_time), xlab = "Settling time (ms)", ylab = "Fraction of samples",
@@ -51,8 +39,21 @@ test_that("delta force visualizations work", {
   ggsave("../../../output/stability_df_deltaforce_abs.pdf", deltaforce_settling_time,
     width = 7, height = 6, units = "in")
 })
-
-context("Manipulations based on stablization")
+context('stability combo plot for both lines')
+test_that("we can plot stability_df for all postures in X", {
+  #Note these ones include all Force trials, even ones that did not "settle"
+  print('expect 6 minutes to load & compute all postures into the stability df')
+  stability_df_for_both_posture_lines <- get_stability_df_for_all_postures(rds_postures)
+  x_and_y <- split_stability_df_into_postures(stability_df_for_both_posture_lines)
+  fix_x <- x_and_y$fix_x
+  fix_y <- x_and_y$fix_y
+  along_x_stability <- produce_stability_plots(fix_y, adept_dimension_that_changes='adept_x')
+  along_y_stability <- produce_stability_plots(fix_x, adept_dimension_that_changes='adept_y')
+  g <- arrangeGrob(grobs = c(along_x_stability, along_y_stability), nrow = 2)
+  ggsave("../../../output/static_motor_control_properties.pdf", g, device = "pdf", width = 8, height = 4,
+  scale = 4, limitsize = FALSE, dpi = 100)
+})
+context("Manipulations based on stabilization")
 
 test_that("one can remove nonstabilized force trials for few postures", {
   test_example_ForceTrial <- ft_to_df(sample_posture_ForceTrials[[1]])

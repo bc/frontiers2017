@@ -31,7 +31,7 @@ add_adept_xy_to_indices <- function(idxs, unique_postures) {
 ##' @return stability_df a dataframe cbind-ed from the stability info and stability df data.
 rds_paths_to_bound_stability_dfs <- function(rds_postures) {
   message("Extracting StabilityDFs from RDS files")
-  stability_df <- do.call("rbind", pblapply(rds_postures, function(rds_path) {
+  stability_df <- do.call("rbind", pbmclapply(rds_postures, function(rds_path) {
     ForceTrials_to_stability_df(readRDS(rds_path))
   }))
   message("Extracting StabilityInfo from RDS files")
