@@ -38,6 +38,13 @@ main <- function() {
   list_of_postures <- split(full_df, list(full_df$adept_x, full_df$adept_y), drop = TRUE)
 }
 
+##' munge posture RDS files into stability df --> rds file
+stability_rds_file <- function(){
+  rds_postures <- all_file_paths("~/Resilio Sync/data/ForceTrials_at_each_posture/")
+  stability <- rds_paths_to_bound_stability_dfs(rds_postures)
+  saveRDS(stability, 'stability_dataframes_for_both_lines.rds')
+}
+
 ##' Munge full_DF into the posture RDS files
 produce_ForceTrial_rds_objects <- function(){
   posture_idxs_per_line <- read_rds_to_package_extdata("index_dataframes_for_two_posture_lines.rds") #hardcoded index dfs

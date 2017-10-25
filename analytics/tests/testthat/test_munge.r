@@ -16,25 +16,41 @@ rds_postures <- all_file_paths("~/Resilio Sync/data/ForceTrials_at_each_posture/
 
 context("delta force")
 test_that("delta force visualizations work", {
-  stability <- rds_paths_to_bound_stability_dfs(rds_postures)
+  stability <- read_rds_to_package_extdata("stability_dataframes_for_both_lines.rds")
   stability_a <- stability[stability$settling_time < 700, ]
   print(summary(stability))
   reasonable_delta_force <- abs(stability$delta_force) > 1
   stability_df_no_small_deltas <- stability[reasonable_delta_force, ]
   pdf("../../../output/stability_df_stats.pdf", width = 10, height = 10)
-  browser()
-  hist(c, breaks = 500, col = "black", xlab = "Highest residual observed in last 100ms of force trial (N)",
+
+  hist(stability[['max_residual']], breaks = 500, col = "black", xlab = "Highest magnitude of residual observed in last 100ms of force trial (N)",
     ylab = "Number of force trials", main = paste("n =", length(c), "force trials"))
+
+
+settling_times <- stability[['settling_time']]
   plot(ecdf(stability$settling_time), xlab = "Settling time (ms)", ylab = "Fraction of samples",
     main = "Empirical cumulative distribution function")
-  hist(stability$amortized_velocity_of_force * 1000, breaks = 200, cex = 0.15,
-    col = "black", pch = 19, xlab = "d(tension)/dt  (Newtons/s)", main = "Amortized rate of change in M0 tension across all force trials")
+    #fn via https://stackoverflow.com/questions/4787332/how-to-remove-outliers-from-a-dataset
+    remove_outliers <- function(x, na.rm = TRUE, ...) {
+      qnt <- quantile(x, probs=c(.25, .75), na.rm = na.rm, ...)
+      H <- 1.5 * IQR(x, na.rm = na.rm)
+      y <- x
+      y[x < (qnt[1] - H)] <- NA
+      y[x > (qnt[2] + H)] <- NA
+      y
+    }
+
+  velocities  <- na.omit(remove_outliers(stability$amortized_velocity_of_force))
+  num_outlier_forcetrials_removed <- length(stability$amortized_velocity_of_force) - length(velocities)
+  hist(velocities * 1000, breaks = 200, cex = 0.08,
+    col = "black", pch = 19, xlab = "d(tension)/dt  (Newtons/s)", main = paste("Amortized M0 tension rate across ",length(velocities)," force trials", num_outlier_forcetrials_removed, "outliers were removed (outlier = beyond 1.5+-IQR."))
   settling_time_histogram_for_posture(stability, breaks = 200)
   dev.off()
   p1 <- tension_settling_scatter(stability)
   ggsave("../../../output/stability_df_deltaforce.pdf", p1, width = 7, height = 6,
     units = "in")
 
+#TODO consider rm'ing samples with post-700 settling time
   deltaforce_settling_time <- abs_value_delta_force_scatter(stability, pointsize = 0.05)
   ggsave("../../../output/stability_df_deltaforce_abs.pdf", deltaforce_settling_time,
     width = 7, height = 6, units = "in")
