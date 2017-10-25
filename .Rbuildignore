@@ -3,4 +3,4 @@
 ^\.travis\.yml$     # Used for continuous integration testing with travis
 output
 references
-*.docx
+coverletter.docx
