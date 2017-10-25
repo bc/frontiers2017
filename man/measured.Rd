@@ -2,7 +2,8 @@
 % Please edit documentation in R/time_series_functions.r
 \name{measured}
 \alias{measured}
-\title{These functions are useful because they prepend measured, reference, or command
+\title{Compose measured_M* string
+These functions are useful because they prepend measured, reference, or command
 in front of an input tendon of interest (e.g. M0, M1)}
 \usage{
 measured(muscle_string)
@@ -14,6 +15,7 @@ measured(muscle_string)
 composed_field_name e.g. 'measured_M0'
 }
 \description{
+Compose measured_M* string
 These functions are useful because they prepend measured, reference, or command
 in front of an input tendon of interest (e.g. M0, M1)
 }

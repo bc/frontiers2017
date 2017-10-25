@@ -2,7 +2,8 @@
 % Please edit documentation in R/time_series_functions.r
 \name{angle}
 \alias{angle}
-\title{These functions are useful because they prepend measured, reference, or command
+\title{Compose encoder angle string
+These functions are useful because they prepend measured, reference, or command
 in front of an input tendon of interest (e.g. M0, M1)}
 \usage{
 angle(muscle_number)
@@ -14,6 +15,7 @@ angle(muscle_number)
 composed_field_name e.g. 'angle_0'
 }
 \description{
+Compose encoder angle string
 These functions are useful because they prepend measured, reference, or command
 in front of an input tendon of interest (e.g. M0, M1)
 }

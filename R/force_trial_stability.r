@@ -23,16 +23,16 @@ force_trial_to_stable_metrics <- function(force_trial, last_n_milliseconds, musc
   ref <- tail(force_trial, 1)[, reference(muscle)]
   measured_tail <- tail(force_trial, last_n_milliseconds)[, measured(muscle)]
   max_residual <- max(abs(range(measured_tail) - ref))
-  vec_row = data.frame(last_n_milliseconds = last_n_milliseconds, reference = ref,
+  vec_row <- data.frame(last_n_milliseconds = last_n_milliseconds, reference = ref,
     sd = sd(measured_tail), max_residual = max_residual)
   return(vec_row)
 }
-##' posture_list_to_stability_metrics_df_rows
+##' ft_list_to_stability_df_rows
 ##' @param list_of_force_trials each a force_trial time series
 ##' @param last_n_milliseconds the number of tail milliseconds from which we should calculate the settled standard deviation.
 ##' @param muscle the muscle of interest in a string e.g. 'M0'
 ##' @return stability_df_rows df with reference (desired) muscle tension, variance, maximum residual
-posture_list_to_stability_metrics_df_rows <- function(list_of_force_trials, last_n_milliseconds,
+ft_list_to_stability_df_rows <- function(list_of_force_trials, last_n_milliseconds,
   muscle) {
   reference_df_rows <- lapply(list_of_force_trials, force_trial_to_stable_metrics,
     last_n_milliseconds, muscle)

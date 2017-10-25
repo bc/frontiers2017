@@ -6,7 +6,12 @@ save_snapshot_for_first_posture <- function(raw_data_timeseries_df, output_filep
   write.csv(first_posture_data, output_filepath, row.names = FALSE)
 }
 stabilization_err_99_percentile <- 0.4
-muscle_names <- c("M0", "M1", "M2", "M3", "M4", "M5", "M6")
+
+##' Muscle Names from Frontiers2017 experiment
+##' @return muscle_names list of strings of names, i.e. "M0, ..."
+muscle_names <- function() c("M0", "M1", "M2", "M3", "M4", "M5", "M6")
+
+
 maximum_tendon_force <- 20
 minimum_tendon_force <- 3
 data_location <- "~/Resilio Sync/data/realTimeData2017_08_16_13_23_42.txt"
@@ -115,7 +120,7 @@ frontiers2017_columns_to_ignore <- c("angle_0", "angle_1", "angle_2", "angle_3",
 
 ##' These are the posture values, which are repeated across every data observation.
 columns_to_extract_into_attributes <- function() {
-  c(unlist(lapply(muscle_names, reference)), "adept_x", "adept_y")
+  c(unlist(lapply(muscle_names(), reference)), "adept_x", "adept_y")
 }
 
 ##' Split stability df into two postures (hardcoded for frontiers2017 data)

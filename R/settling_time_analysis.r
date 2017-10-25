@@ -377,7 +377,7 @@ delta_tension <- function(settling) {
 ##' @param err highest acceptable error residual from desired tension in same units as measured_MX
 ##' @return stability_truth_vector list of true/false logicals indicating which of the muscles did stabilized by the end of the time series.
 which_muscles_stabilized <- function(force_trial, err) {
-  unlist(lapply(muscle_names, function(muscle) {
+  unlist(lapply(muscle_names(), function(muscle) {
     force_trial_does_stabilize(force_trial, muscle, err)
   }))
 }

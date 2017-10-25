@@ -6,6 +6,12 @@ force_rise_time_plots <- function(time_vector, y, ...) {
   return(running_mean_ts)
 }
 force_column_names <- c("JR3.FX", "JR3.FY", "JR3.FZ", "JR3.MX", "JR3.MY", "JR3.MZ")
+
+
+##' Plot Force Smoothed Curves
+##' Creates force rise time plots for a time series of forces
+##' @param time_series_of_forces timeseries_df
+##' @param force_dimensions list of strings for the columns of interest. i.e. "JR3.FX", ...
 plot_force_smoothed_curves <- function(time_series_of_forces, force_dimensions = c("JR3.FX",
   "JR3.FY", "JR3.FZ", "JR3.MX", "JR3.MY", "JR3.MZ"), ...) {
   lapply(force_dimensions, function(x) {
@@ -44,7 +50,8 @@ plot_tendon_rise_time_curves <- function(time_series_of_forces, tendon_of_intere
     lines(time_series_of_forces[[reference(x)]])
   })
 }
-# Compose measured_M* string
+
+##' Compose measured_M* string
 ##' These functions are useful because they prepend measured, reference, or command
 ##' in front of an input tendon of interest (e.g. M0, M1)
 ##' @param muscle_string e.g. 'M0'
@@ -69,7 +76,7 @@ command <- function(muscle_string) {
   paste0("command_", muscle_string)
 }
 
-# Compose encoder angle string
+##' Compose encoder angle string
 ##' These functions are useful because they prepend measured, reference, or command
 ##' in front of an input tendon of interest (e.g. M0, M1)
 ##' @param muscle_number e.g. 0, or 1
@@ -147,9 +154,13 @@ variance_accounted_for_brian <- function(vectorMeasured, vectorPredicted) {
 }
 
 
-# This function calculates the variance accounted for between two vectos. The
-# first argument is the measured vector The second argument is the predicted
-# vector The output is the VAF, a number between 0 and 1
+##' Compute VAF between two vectors
+##' This function calculates the variance accounted for between two vectos. The
+##' first argument is the measured vector The second argument is the predicted
+##' vector The output is the VAF, a number between 0 and 1. If VAF is over 1 or negative it returns 0.
+##' @param vectorMeasured vector of numeric values
+##' @param vectorPredicted vector of numeric values
+##' @return resultVAF 1 - varianceVectorResidual/varianceVectorMeasured
 variance_accounted_for <- function(vectorMeasured, vectorPredicted) {
   vectorResidual <- vectorMeasured[[1]] - vectorPredicted[[1]]
   varianceVectorMeasured <- var(vectorMeasured[[1]])
@@ -279,7 +290,7 @@ find_A_matrix <- function(data) {
   # The regressor matrix is concatenation of tendon forces
   time <- data[[1]]
   numForceChanges <- length(time)
-  measured_muscle_col_names <- simplify2array(lapply(muscle_names, measured))
+  measured_muscle_col_names <- simplify2array(lapply(muscle_names(), measured))
   raw_regressor <- as.matrix(data[measured_muscle_col_names])
   regressor <- rm_mean_for_multiple_columns(raw_regressor)
   raw_endpointForceObservation <- data[force_column_names]
