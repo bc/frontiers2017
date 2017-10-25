@@ -56,7 +56,7 @@ test_that("data for many postures can be used to create a list of A matrices",{
     fix_x <- posture_dependency_plot(fix_x_vaf, "adept_y", "vafs")
     require(gridExtra)
     final <- gridExtra::grid.arrange(fix_y,fix_x, ncol = 2)
-    ggsave("posture_dependency_adept_xy.pdf", final, width = 14, height = 8, dpi=600)
+    ggsave("../../../output/posture_dependency_adept_xy.pdf", final, width = 14, height = 8, dpi=600)
     ## end plot figure
 })
 
