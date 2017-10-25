@@ -2,7 +2,7 @@
 % Please edit documentation in R/force_trial_stability.r
 \name{ft_list_to_stability_df_rows}
 \alias{ft_list_to_stability_df_rows}
-\title{ft_list_to_stability_df_rows}
+\title{ForceTrial list to stability_df rows}
 \usage{
 ft_list_to_stability_df_rows(list_of_force_trials, last_n_milliseconds, muscle)
 }
@@ -17,5 +17,5 @@ ft_list_to_stability_df_rows(list_of_force_trials, last_n_milliseconds, muscle)
 stability_df_rows df with reference (desired) muscle tension, variance, maximum residual
 }
 \description{
-ft_list_to_stability_df_rows
+ForceTrial list to stability_df rows
 }

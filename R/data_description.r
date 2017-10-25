@@ -140,6 +140,7 @@ draw_circle_at_end_of_vector <- function(x, y, diameter) {
   draw.circle(x, y, diameter, border = "black", col = circle_color, lty = 1, lwd = 1)
 }
 
+##' Plot endpoint force vectors
 ##' @param list_of_wrenches list object, each element a list of numeric values of 3 forces in N and 3 torques in Nm
 ##' @param list_of_sd_for_wrenches list object, each element a list of numeric values of 3 forces in N and 3 torques in Nm
 ##' @param xlim limits for the plot
