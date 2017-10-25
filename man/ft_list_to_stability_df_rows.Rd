@@ -4,8 +4,7 @@
 \alias{ft_list_to_stability_df_rows}
 \title{ft_list_to_stability_df_rows}
 \usage{
-ft_list_to_stability_df_rows(list_of_force_trials,
-  last_n_milliseconds, muscle)
+ft_list_to_stability_df_rows(list_of_force_trials, last_n_milliseconds, muscle)
 }
 \arguments{
 \item{list_of_force_trials}{each a force_trial time series}

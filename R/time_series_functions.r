@@ -180,10 +180,12 @@ variance_accounted_for <- function(vectorMeasured, vectorPredicted) {
   return(resultVAF)
 }
 
-
+##' Find the index of first changes in the elements of a vector in r
+##' derived from http://stackoverflow.com/questions/
+##' 20896242/finding-the-index-of-first-changes-in-the-elements-of-a-vector-in-r
+##' @param ts vector of numeric elements (over time)
+##' @return index of first changes of the vector
 change_indices <- function(ts) {
-  # derived from http://stackoverflow.com/questions/
-  # 20896242/finding-the-index-of-first-changes-in-the-elements-of-a-vector-in-r
   return(1 + which(diff(ts) != 0))
 }
 
