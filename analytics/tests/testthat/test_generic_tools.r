@@ -6,12 +6,6 @@ sample_df_numbers <- data.frame(first = c(1, 5, 4, 2, 5, 2), second = 1:6, row.n
 sample_df_letters <- data.frame(first = c(1, 5, 4, 2, 5, 2), second = 1:6, row.names = LETTERS[1:6])
 sample_df_row <- data.frame(first = c(1), second = 1, row.names = LETTERS[1])
 sample_df_rows <- data.frame(first = c(1, 2, 3, 4, 5, 6), second = 1:6, row.names = LETTERS[1:6])
-
-#set.seed(1)
-#print(shuffle_row_wise(sample_df_rows))
-#print(shuffle_row_wise(sample_df_rows))
-#print(shuffle_row_wise(sample_df_rows))
-#print(shuffle_row_wise(sample_df_rows))
 shuffled_df_rows <- data.frame(first = c(2, 6, 3, 4, 1, 5), second = c(2, 6, 3, 4, 1, 5), row.names = c("B", "F", "C", "D", "A", "E"))
 shuffled_unreplaced_rows <- data.frame(first = c(6, 4, 3, 1, 5, 2), second = c(6, 4, 3, 1, 5, 2), row.names = c("F", "D", "C", "A", "E", "B"))
 
