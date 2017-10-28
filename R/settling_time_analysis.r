@@ -163,7 +163,7 @@ signed_max_residual_val <- function(range_of_vector){
 ##' @importFrom pbmcapply pbmclapply
 posture_to_ForceTrials <- function(posture_indices, full_df, column_to_separate_forces, err, last_n_milliseconds){
     posture <- get_forces_list(full_df, posture_indices, column_to_separate_forces)
-    fts <- lapply(posture, ForceTrial, data_location, full_df, err, last_n_milliseconds)
+    fts <- pbmclapply(posture, ForceTrial, data_location, full_df, err, last_n_milliseconds)
   return(fts)
 }
 
