@@ -9,7 +9,7 @@
 ##' @param err max allowable residual from desired reference force.
 ##' @param last_n_milliseconds number of milliseconds to base the stability metrics off.
 ##' @return forcetrial_structure_object the object with all relevant attributes and stability metrics
-ForceTrial <- function(timeseries_df, full_df_path, full_df, err, last_n_milliseconds = 100,
+ForceTrial <- function(timeseries_df, full_df, err, last_n_milliseconds = 100,
   muscle_of_interest = "M0") {
   if (1 %in% timeseries_df$robot_flag) {
     len_before <- nrow(timeseries_df)
@@ -28,8 +28,7 @@ ForceTrial <- function(timeseries_df, full_df_path, full_df, err, last_n_millise
   if (all_muscles_stabilized_by_last_val) {
     setattr(ForceTrialObj, "stability_info", force_trial_to_stable_metrics(timeseries_df,
       last_n_milliseconds, muscle_of_interest))
-    setattr(ForceTrialObj, "stability_df ", list_of_forces_to_stabilized_df(list(timeseries_df),
-      full_df_path, err, full_df, muscle_of_interest))
+    setattr(ForceTrialObj, "stability_df ", list_of_forces_to_stabilized_df(list(timeseries_df), err, full_df, muscle_of_interest))
   }
   class(ForceTrialObj) <- "ForceTrial"
   return(ForceTrialObj)

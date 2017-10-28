@@ -272,8 +272,8 @@ calibrate_forces <- function(time_series, length, angle) {
 ##' @return idx_df A list of dataframes with the adept_x, adept_y, start index, end index.
 postures_to_idx_dfs <- function(postures_grouped_by_line, unique_postures) {
   line_posture_start_indices <- lapply(postures_grouped_by_line, function(line) as.numeric(rownames(line)))
-  idxs <- add_adept_xy_to_indices(lapply(line_posture_start_indices, posture_indices_df),
-    unique_postures)
+  initial_vals <- lapply(line_posture_start_indices, posture_indices_df)
+  idxs <- add_adept_xy_to_indices(initial_vals,unique_postures)
   idxs_clean <- clean_up_posture_indices(idxs)
   return(idxs_clean)
 }

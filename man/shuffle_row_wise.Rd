@@ -2,8 +2,7 @@
 % Please edit documentation in R/generic_tools.r
 \name{shuffle_row_wise}
 \alias{shuffle_row_wise}
-\title{Row-Wise Shuffle a Dataframe
-TODO test}
+\title{Row-Wise Shuffle a Dataframe}
 \usage{
 shuffle_row_wise(df)
 }
@@ -15,5 +14,4 @@ df2 dataframe with rows shuffled
 }
 \description{
 Row-Wise Shuffle a Dataframe
-TODO test
 }

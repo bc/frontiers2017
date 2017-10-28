@@ -90,14 +90,12 @@ get_reference_value <- function(index_target, full_df, muscle_of_interest) {
 
 ##' @title list_of_forces_to_stabilized_df
 ##' @param forces_list list of force trial dataframes
-##' @param full_df_path path to original realTimeData2017_08_16_13_23_42.txt
 ##' @param err acceptable Newton threshold for settling for tendon force.
 ##' @return stabilized_df dataframe representing how the list of forces stabilized.
 ##' @importFrom pbmcapply pbmclapply
-list_of_forces_to_stabilized_df <- function(forces_list, full_df_path, err, full_df,
+list_of_forces_to_stabilized_df <- function(forces_list, err, full_df,
   muscle_of_interest) {
-  list_of_stable_dfs <- lapply(forces_list, force_trial_to_stable_index_df, full_df_path,
-    err)
+  list_of_stable_dfs <- lapply(forces_list, force_trial_to_stable_index_df, err)
   stabilized_df <- sort_by_initial_index(rbind_dfs(list_of_stable_dfs))
   filled_df <- fill_initials_into_stabilization_df(stabilized_df, full_df, muscle_of_interest)
   stabilized_and_filled_df <- fill_force_velocity_metrics(filled_df)
@@ -171,13 +169,12 @@ posture_to_ForceTrials <- function(posture_indices, full_df, column_to_separate_
 
 ##' @title list_of_postures_of_forces_to_stabilized_df
 ##' @param postures list of postures, each containing a list of force trial dataframes
-##' @param full_df_path path to realTimeData2017_08_16_13_23_42.txt
 ##' @param err acceptable residual from reference_M0 for settling time
 ##' @return list_of_stabilized_dfs list of stabilized dataframes.
 ##' @importFrom parallel mclapply
-list_of_postures_of_forces_to_stabilized_df <- function(postures, full_df_path, err,
+list_of_postures_of_forces_to_stabilized_df <- function(postures, err,
   full_df, muscle_of_interest) {
-  lapply(postures, list_of_forces_to_stabilized_df, full_df_path, err, full_df,
+  lapply(postures, list_of_forces_to_stabilized_df, err, full_df,
     muscle_of_interest)
 }
 
@@ -313,7 +310,7 @@ sort_by_initial_index <- function(df) df[order(df$initial_index), ]
 ##' @param force_trial_df dataframe of the force observations at 1Khz.
 ##' @inheritParams stabilized_index
 ##' @return stabilized_index_dataframe cols = idx_i, idx_f, settling_time
-force_trial_to_stable_index_df <- function(force_trial_df, full_df_path, err) {
+force_trial_to_stable_index_df <- function(force_trial_df, err) {
   desired <- tail(force_trial_df$reference_M0, 1)
   stable_idx <- stabilized_index(force_trial_df$measured_M0, desired, err)
   initial_index <- as.integer(first_rowname(force_trial_df))
