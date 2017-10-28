@@ -10,7 +10,7 @@ test_that("a_matrix with fewer than all samples trained on <- forcetrial_list <-
     linear_model <- generate_linear_static_model(input_output_data, fraction_training = 0.8)
     print(paste(median(linear_model$euclidian_errors), "is the median euclidian err"))
     lm_measured <- lm(cbind(JR3.FX + JR3.FY + JR3.FZ) ~ measured_M0+measured_M1+measured_M2+measured_M3+measured_M4+measured_M5+measured_M6, data = input_output_data)
-    cvlm <- cv.lm(input_output_data, lm_measured, m=3) # 3 fold cross-validation
+    cvlm <- cv.lm(input_output_data, lm_measured, m=10) # 3 fold cross-validation
 
     train_test <- df_split_into_training_and_testing(input_output_data, 0.8)
     trained_model <- lm(formula = cbind(JR3.FX, JR3.FY, JR3.FZ) ~ measured_M0 +

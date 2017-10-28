@@ -2,7 +2,7 @@
 ##' @param filename string, for the file within the extdata folder of the analytics package.
 ##' @return object the object yielded from the filepath rds
 read_rds_to_package_extdata <- function(filename){
-  path <- paste0("~/Documents/GitHub/bc/frontiers2017/analytics/inst/extdata/",filename)
+  path <- paste0("~/Documents/GitHub/bc/frontiers2017/inst/extdata/",filename)
   # path <- system.file("extdata", filename, package="analytics")
   readRDS(path)
 }
@@ -17,6 +17,7 @@ save_rds_to_package_extdata <- function(object, filename){
 }
 
 ##' @title Save RDS to resilio sync folder
+##' TODO test
 ##' @param filename string, for the file to place within the extdata folder of the analytics package.
 ##' @return object the object yielded from the filepath rds
 save_rds_to_Resilio <- function(object, filename){
@@ -59,7 +60,6 @@ all_file_paths <- function(pwd_of_directory){
 }
 
 ##' Row-Wise Shuffle a Dataframe
-##' TODO test
 ##' @param df dataframe
 ##' @return df2 dataframe with rows shuffled
 shuffle_row_wise <- function(df) df[sample(nrow(df)),]
@@ -67,6 +67,7 @@ shuffle_row_wise <- function(df) df[sample(nrow(df)),]
 
 ##' Do Call Rbind on list of dataframes
 ##' @param list of dataframes
+##' TODO test
 ##' @return df row-bound concatenated dataframe
 dcrb <- function(list_of_dataframes){
   do.call('rbind', list_of_dataframes)

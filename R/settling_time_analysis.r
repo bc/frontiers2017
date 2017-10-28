@@ -120,7 +120,6 @@ many_postures_to_ForceTrials <- function(list_of_posture_indices, full_df, colum
       fts <- pblapply(list_of_posture_indices, posture_to_ForceTrials, full_df, column_to_separate_forces, err, last_n_milliseconds)
       return(fts)
     }
-
 }
 
 ##' One list of posture indices to a Posture To RDS
