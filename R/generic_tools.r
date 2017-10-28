@@ -1,3 +1,11 @@
+##' hyphens_to_underscores
+##' TODO test
+##' @param str string or list of string to do replacement upon
+##' @return str_prime string with underscores
+hyphens_to_underscores <- function(str){
+  gsub("-", "_", str)
+}
+
 ##' Read RDS from package extdata folder
 ##' @param filename string, for the file within the extdata folder of the analytics package.
 ##' @return object the object yielded from the filepath rds

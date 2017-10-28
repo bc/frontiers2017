@@ -1,11 +1,3 @@
-
-##' hyphens_to_underscores
-##' TODO test
-##' @param str string or list of string to do replacement upon
-##' @return str_prime string with underscores
-hyphens_to_underscores <- function(str){
-  gsub("-", "_", str)
-}
 ##' add last index number to the postures for the fixed post experiment
 ##' indices are hard coded from realTimeData2017_09_24_12_25_56.txt
 ##' @param index_idx_df_without_final_vals dataframe with missing $final column.
