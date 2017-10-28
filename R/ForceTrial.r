@@ -63,12 +63,19 @@ get_df_from_ForceTrial <- function(ForceTrial) {
   data.frame(ForceTrial[names(ForceTrial)])
 }
 
-##' converged_colmeans
+##' list of force trials to converged colmeans
 ##' @param ForceTrial_list a list of ForceTrial objects
 ##' @param last_n_milliseconds the number of tail milliseconds from which we should calculate the settled standard deviation.
 converged_colmeans <- function(ForceTrial_list, last_n_milliseconds) {
-  as.data.frame(do.call("rbind", lapply(lapply(lapply(ForceTrial_list, get_df_from_ForceTrial),
-    tail, last_n_milliseconds), colMeans)))
+  as.data.frame(do.call("rbind",
+  lapply(
+    lapply(
+      lapply(ForceTrial_list, get_df_from_ForceTrial),
+      tail,
+      last_n_milliseconds),
+      colMeans)
+    )
+  )
 }
 
 ##' Coerce ForceTrial into a ForceTrial dataframe

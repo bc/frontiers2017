@@ -24,6 +24,11 @@ save_rds_to_Resilio <- function(object, filename){
   # path <- system.file("extdata", filename, package="analytics")
   saveRDS(object, filename)
 }
+##' Do call concatenate
+##" TODO test
+##' @param input_list input vector or list that will be concatenated
+##' @return output concatenated vector or list.
+dcc<- function(input_list) {do.call('c', input_list)}
 
 ##' Get Mode from vector
 ##' if there is no element that is the mode, it returns the first element of the list of equal-occurrence elements.

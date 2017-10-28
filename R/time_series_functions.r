@@ -153,6 +153,10 @@ variance_accounted_for_brian <- function(vectorMeasured, vectorPredicted) {
   return(resultVAF)
 }
 
+variance_accounted_for_brian <- function(vectorMeasured, vectorPredicted) {
+  distance <- vectorMeasured - vectorPredicted
+}
+
 
 ##' Compute VAF between two vectors
 ##' This function calculates the variance accounted for between two vectos. The
@@ -291,7 +295,6 @@ rm_mean_for_multiple_columns <- function(df) {
 find_A_matrix <- function(data) {
   # The regressor matrix is concatenation of tendon forces
   time <- data[[1]]
-  numForceChanges <- length(time)
   measured_muscle_col_names <- simplify2array(lapply(muscle_names(), measured))
   raw_regressor <- as.matrix(data[measured_muscle_col_names])
   regressor <- rm_mean_for_multiple_columns(raw_regressor)

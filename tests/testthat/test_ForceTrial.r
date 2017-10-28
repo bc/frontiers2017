@@ -3,6 +3,9 @@ context("Test ForceTrial Class Instantiation")
 sample_posture_ForceTrials <- read_rds_to_package_extdata("force_trial_adept_x_-527.463336_adept_y_68.rds")
 force_trials_list <- lapply(sample_posture_ForceTrials, ft_to_df)
 full_df <- readRDS("~/Resilio Sync/data/realTimeData2017_08_16_13_23_42.rds")
+str(full_df)
+summary(full_df)
+nrow(full_df)
 print("Loading full_df. Expect 2'")
 
 test_that("ForceTrial works with one force", {
