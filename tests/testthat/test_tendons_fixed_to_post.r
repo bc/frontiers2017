@@ -9,6 +9,7 @@ test_that('we can extract the forces', {
   message("Identifying indices for the start and end of each posture")
   idx_dfs <- postures_to_idx_dfs_for_post(rev(postures_per_line), unique_postures)
   column_to_separate_forces <- measured("M0")
+  column_to_separate_forces <- reference("M0")
   err <- 0.4
   last_n_milliseconds <- 100
   # to save to RDS: saveRDS(idx_dfs, "index_dataframes_for_two_posture_lines.rds")
