@@ -1,4 +1,4 @@
-# Frontiers2017
+# frontiers2017
 
 # Installation
 
