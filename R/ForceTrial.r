@@ -49,10 +49,10 @@ ForceTrials_which_stabilized <- function(ForceTrial_list) {
 }
 
 ##' Evaluate whether a ForceTrial stabilized'
-##' @param ForceTrial object of type ForceTrial
+##' @param ft object of type ForceTrial
 ##' @return logical, whether all uscles stabilized by the last val
-ForceTrial_stabilized <- function(ForceTrial) {
-  attr(ForceTrial, "all_muscles_stabilized_by_last_val")
+ForceTrial_stabilized <- function(ft) {
+  attr(ft, "all_muscles_stabilized_by_last_val")
 }
 
 ##' Extract observations DF from the ForceTrial

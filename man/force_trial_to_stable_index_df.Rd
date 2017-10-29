@@ -4,7 +4,7 @@
 \alias{force_trial_to_stable_index_df}
 \title{force_trial_to_stable_index_df}
 \usage{
-force_trial_to_stable_index_df(force_trial_df, full_df_path, err)
+force_trial_to_stable_index_df(force_trial_df, err)
 }
 \arguments{
 \item{force_trial_df}{dataframe of the force observations at 1Khz.}

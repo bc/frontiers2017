@@ -4,13 +4,10 @@
 \alias{list_of_forces_to_stabilized_df}
 \title{list_of_forces_to_stabilized_df}
 \usage{
-list_of_forces_to_stabilized_df(forces_list, full_df_path, err, full_df,
-  muscle_of_interest)
+list_of_forces_to_stabilized_df(forces_list, err, full_df, muscle_of_interest)
 }
 \arguments{
 \item{forces_list}{list of force trial dataframes}
-
-\item{full_df_path}{path to original realTimeData2017_08_16_13_23_42.txt}
 
 \item{err}{acceptable Newton threshold for settling for tendon force.}
 }
