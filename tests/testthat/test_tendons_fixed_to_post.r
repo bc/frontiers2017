@@ -8,14 +8,17 @@ test_that("we can extract the forces", {
   postures_per_line <- postures_grouped_by_line(unique_postures, x_fixed_val = -525,
     y_fixed_val = 68)
   message("Identifying indices for the start and end of each posture")
-  idx_dfs <- postures_to_idx_dfs_for_post(rev(postures_per_line), unique_postures)
+  idx_dfs_df <- postures_to_idx_dfs_for_post(rev(postures_per_line), unique_postures)
+  idx_dfs <- df_to_list_of_rows(idx_dfs_df)
+  fix_y_postures <- idx_dfs[[1]]
+  fix_x_postures <- idx_dfs[[2]]
   column_to_separate_forces <- reference("M0")
   err <- 0.4
   last_n_milliseconds <- 100
   # to save to RDS: saveRDS(idx_dfs, 'index_dataframes_for_two_posture_lines.rds')
-  many_postures_to_ForceTrials(posture_idxs_to_index_tuples(fix_x_postures), full_df,
-    column_to_separate_forces = "reference_M0", err = 0.4, last_n_milliseconds,
-    save_rds = TRUE)
+  fts <- many_postures_to_ForceTrials(posture_idxs_to_index_tuples(fix_x_postures), df, column_to_separate_forces, err=0.4, last_n_milliseconds, save_rds=TRUE, prefix="post_experiment")
+
+
   fts <- posture_to_ForceTrials(as.numeric(idx_dfs[1, 1:2]), df, column_to_separate_forces,
     err, last_n_milliseconds)
   message("Splitting by force trials")

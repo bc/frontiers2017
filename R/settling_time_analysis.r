@@ -109,13 +109,14 @@ list_of_forces_to_stabilized_df <- function(forces_list, err, full_df,
 ##' @param err highest acceptable residual from reference force
 ##' @param last_n_milliseconds integer, used to calculate static stability
 ##' @param save_rds by deafult it will return the List of List of ForceTrials. Else it will save each posture as an RDS file.
+##' @param prefix prefix string for the filenames
 ##' @return Postures list of list of ForceTrials
 ##' @importFrom pbapply pblapply
-many_postures_to_ForceTrials <- function(list_of_posture_indices, full_df, column_to_separate_forces, err, last_n_milliseconds, save_rds=FALSE){
+many_postures_to_ForceTrials <- function(list_of_posture_indices, full_df, column_to_separate_forces, err, last_n_milliseconds, save_rds=FALSE, prefix =""){
     if (save_rds){
-      pblapply(list_of_posture_indices, posture_to_ForceTrials_to_RDS, full_df, column_to_separate_forces, err, last_n_milliseconds)
+      pbmclapply(list_of_posture_indices, posture_to_ForceTrials_to_RDS, full_df, column_to_separate_forces, err, last_n_milliseconds, prefix)
     } else {
-      fts <- pblapply(list_of_posture_indices, posture_to_ForceTrials, full_df, column_to_separate_forces, err, last_n_milliseconds)
+      fts <- pbmclapply(list_of_posture_indices, posture_to_ForceTrials, full_df, column_to_separate_forces, err, last_n_milliseconds)
       return(fts)
     }
 }
@@ -127,12 +128,13 @@ many_postures_to_ForceTrials <- function(list_of_posture_indices, full_df, colum
 ##' @param column_to_separate_forces string, i.e. "measured_M0"
 ##' @param err highest acceptable residual from reference force
 ##' @param last_n_milliseconds integer, used to calculate static stability
+##' @param prefix prefix string to filenames
 ##' @importFrom pbmcapply pbmclapply
-posture_to_ForceTrials_to_RDS <- function(posture_indices, full_df, column_to_separate_forces, err, last_n_milliseconds){
+posture_to_ForceTrials_to_RDS <- function(posture_indices, full_df, column_to_separate_forces, err, last_n_milliseconds, prefix = ""){
   ForceTrials_list_for_the_posture <- posture_to_ForceTrials(posture_indices, full_df, column_to_separate_forces, err, last_n_milliseconds)
   first_force_trial <- ForceTrials_list_for_the_posture[[1]]
   adept_coords <- adept_coordinates_from_ForceTrial(first_force_trial)
-  force_trial_file_string_with_posture <- paste0("force_trial_adept_x_",adept_coords[1], "_adept_y_", adept_coords[2], ".rds")
+  force_trial_file_string_with_posture <- paste0(prefix, "force_trial_adept_x_",adept_coords[1], "_adept_y_", adept_coords[2], ".rds")
   save_rds_to_Resilio(ForceTrials_list_for_the_posture, force_trial_file_string_with_posture)
 
 }
