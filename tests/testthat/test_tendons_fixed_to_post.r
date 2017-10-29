@@ -1,6 +1,6 @@
 context("Test tendons fixed to a nonmoving post")
 df <- as.data.frame(fread("/Users/briancohn/Resilio Sync/data/realTimeData2017_09_24_12_25_56.txt"))
-
+colnames(df) <- hyphens_to_dots(colnames(df))
 test_that("we can extract the forces", {
   message("Identifying unique postures. Expect competion in ")
   unique_postures <- tail(unique(df[c("adept_x", "adept_y")]), 2)
@@ -15,8 +15,33 @@ test_that("we can extract the forces", {
   column_to_separate_forces <- reference("M0")
   err <- 0.4
   last_n_milliseconds <- 100
+  fts <- posture_to_ForceTrials(c(784032,800032), df, column_to_separate_forces, err, last_n_milliseconds)
+
+
+  post_tensions_forces_over_time<- function(ft){
+  p <- ggplot(data=ft_to_df(ft))
+  p <- p + geom_line(aes(time-min(time), measured_M0))
+  p <- p + geom_line(aes(time-min(time), measured_M1))
+  p <- p + geom_line(aes(time-min(time), measured_M2))
+  p <- p + geom_line(aes(time-min(time), measured_M3))
+  p <- p + geom_line(aes(time-min(time), measured_M4))
+  p <- p + geom_line(aes(time-min(time), measured_M5))
+  p <- p + geom_line(aes(time-min(time), measured_M6))
+  p <- p + geom_line(aes(time-min(time), JR3.FX))
+  p <- p + geom_line(aes(time-min(time), JR3.FY))
+  p <- p + geom_line(aes(time-min(time), JR3.FZ))
+  return(p)
+}
+grobs <- lapply(fts, post_tensions_forces_over_time)
+g <- arrangeGrob(grobs = grobs, ncol = 3)
+ggsave(g, device="pdf", filename="q.pdf")
+
+  posture_to_ForceTrials(posture_idxs_to_index_tuples(fix_x_postures)[[1]], df, column_to_separate_forces, err, last_n_milliseconds)
+
+
   # to save to RDS: saveRDS(idx_dfs, 'index_dataframes_for_two_posture_lines.rds')
   fts <- many_postures_to_ForceTrials(posture_idxs_to_index_tuples(fix_x_postures), df, column_to_separate_forces, err=0.4, last_n_milliseconds, save_rds=TRUE, prefix="post_experiment")
+
 
 
   fts <- posture_to_ForceTrials(as.numeric(idx_dfs[1, 1:2]), df, column_to_separate_forces,

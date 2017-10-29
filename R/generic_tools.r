@@ -5,6 +5,14 @@
 hyphens_to_underscores <- function(str){
   gsub("-", "_", str)
 }
+##' hyphens_to_dots
+##' TODO test
+##' @param str string or list of string to do replacement upon
+##' @return str_prime string with dot
+hyphens_to_dots <- function(str){
+  gsub("-", ".", str)
+}
+
 
 ##' Read RDS from package extdata folder
 ##' @param filename string, for the file within the extdata folder of the analytics package.
@@ -75,7 +83,6 @@ shuffle_row_wise <- function(df) df[sample(nrow(df)),]
 
 ##' Do Call Rbind on list of dataframes
 ##' @param list of dataframes
-##' TODO test
 ##' @return df row-bound concatenated dataframe
 dcrb <- function(list_of_dataframes){
   do.call('rbind', list_of_dataframes)

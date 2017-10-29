@@ -386,7 +386,8 @@ which_muscles_stabilized <- function(force_trial, err) {
 ##' @return all_muscles_stabilized true or false
 all_muscles_stabilized <- function(force_trial, err) {
   muscle_stabilization_truth_table <- which_muscles_stabilized(force_trial, err)
-  return(sum(muscle_stabilization_truth_table) == length(muscle_stabilization_truth_table))
+  stability_true_for_all <- sum(muscle_stabilization_truth_table) == length(muscle_stabilization_truth_table)
+  return(stability_true_for_all)
 }
 
 ##' mask_settled_force_trials
