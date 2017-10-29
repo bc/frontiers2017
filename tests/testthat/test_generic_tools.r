@@ -1,5 +1,3 @@
-  source("../../R/generic_tools.r")
-require(test_that)
 context("Generic Tools")
 sample_df_numbers <- data.frame(first = c(1, 5, 4, 2, 5, 2), second = 1:6, row.names = c(5,
   2, 4, 3, 888, 827))
@@ -55,13 +53,6 @@ test_that("dcrb works with a list of one dataframe and one empty dataframe",{
 expect_equal(dcrb(list(empty_df, data.frame(a = 1, b = 2))), data.frame(a = 1, b = 2))
 })
 # empty elements are NULL
-
-context("all_file_paths")
-# test directory
-# target a specific directory
-# create vector of target elements
-# all_file_paths('../') working directory
-# expect_equal(all_file_paths('../''), directory_vector)
 
 context("getmode")
 test_that("getmode works with integers",{
