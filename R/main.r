@@ -7,7 +7,7 @@ source("R/linear_fit.r")
 source("R/functions_specific_to_frontiers2017_dataset.r")
 source("R/generic_tools.r")
 source("R/settling_time_analysis.r")
-
+library(gridExtra)
 #Having multicore issues? use this to nullify functions that try to parallelize
 # pbmclapply <- pblapply
 # mclapply <- pblapply

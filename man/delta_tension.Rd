@@ -2,7 +2,8 @@
 % Please edit documentation in R/settling_time_analysis.r
 \name{delta_tension}
 \alias{delta_tension}
-\title{delta_tension}
+\title{delta_tension
+TODO Test}
 \usage{
 delta_tension(settling)
 }
@@ -14,4 +15,5 @@ numric vector of signed differences between prior and initial tensions
 }
 \description{
 delta_tension
+TODO Test
 }

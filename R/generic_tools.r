@@ -13,7 +13,6 @@ hyphens_to_dots <- function(str){
   gsub("-", ".", str)
 }
 
-
 ##' Read RDS from package extdata folder
 ##' @param filename string, for the file within the extdata folder of the analytics package.
 ##' @return object the object yielded from the filepath rds
@@ -86,4 +85,13 @@ shuffle_row_wise <- function(df) df[sample(nrow(df)),]
 ##' @return df row-bound concatenated dataframe
 dcrb <- function(list_of_dataframes){
   do.call('rbind', list_of_dataframes)
+}
+
+##' Prepend String
+##' This is like paste0, but the arguments are reversed. This way you can use it with lapply.
+##' @param b string to put in back
+##' @param a string to put in front
+##' @return a_and_b string concatenated
+prepend_string <- function(b, a) {
+  paste0(a, b)
 }

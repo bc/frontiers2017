@@ -2,16 +2,18 @@
 % Please edit documentation in R/settling_time_analysis.r
 \name{discrete_diff}
 \alias{discrete_diff}
-\title{discrete_diff}
+\title{discrete_diff
+TODO test}
 \usage{
 discrete_diff(vector)
 }
 \arguments{
-\item{vector}{numeric vector of values'}
+\item{vector}{numeric vector of values}
 }
 \value{
 differentiated vector of values, with a displacement of 1 index. length 1 less than input.
 }
 \description{
 discrete_diff
+TODO test
 }

@@ -2,10 +2,17 @@
 % Please edit documentation in R/settling_time_analysis.r
 \name{no_bounds}
 \alias{no_bounds}
-\title{Are there no bounds?}
+\title{Are there no bounds?
+TODO test}
 \usage{
 no_bounds(idx_bounds)
 }
+\arguments{
+\item{idx_bounds}{must be a tuple vector of lower and upper bounds @param ts_df time series of $value and $index}
+}
+\value{
+true if both elements of bounds are equivalent.
+}
 \description{
-Are there no bounds?
+True when the bounds have converged to a single index.
 }

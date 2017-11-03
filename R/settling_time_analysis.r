@@ -53,18 +53,7 @@ settling_time_histogram_for_posture <- function(stabilized_df,...) {
     ylab = "Number of Force Trials", main = paste0("Settling time. n_ForceTrials = ",numrows),
     col = "black",...)
 }
-##' Add inital and final reference values
-##' @description get the a_i and a_f for each of 100 forces within each of K postures
-##' @param stabilization_dataframe datafrme of the initial final stabilization indices, etc.
-##' @param full_df full dataframe of all observations, via .rds file
-##' @param muscle_of_interest string for muscle of interest
 
-add_initial_and_final_reference_values <- function(stabilization_dataframe, full_df,
-  muscle_of_interest) {
-  final_reference_force <- tail(force_trial_df$reference_M0, 1)
-  initial_reference_force <- get_reference_force_from_index(full_df_path, initial_index -
-    1, muscle_of_interest = "M0")
-}
 ##' @title fill_initials_into_stabilization_df
 ##' @param df a stabilization data frame that contains initial_index as a column.
 ##' @param full_df object for full_df from .rds file
@@ -96,9 +85,9 @@ get_reference_value <- function(index_target, full_df, muscle_of_interest) {
 list_of_forces_to_stabilized_df <- function(forces_list, err, full_df,
   muscle_of_interest) {
   list_of_stable_dfs <- lapply(forces_list, force_trial_to_stable_index_df, err)
-  stabilized_df <- sort_by_initial_index(rbind_dfs(list_of_stable_dfs))
+  stabilized_df <- sort_by_initial_index(dcrb(list_of_stable_dfs))
   filled_df <- fill_initials_into_stabilization_df(stabilized_df, full_df, muscle_of_interest)
-  stabilized_and_filled_df <- fill_force_velocity_metrics(filled_df)
+    stabilized_and_filled_df <- fill_force_velocity_metrics(filled_df)
   return(stabilized_and_filled_df)
 }
 ##' Many Postures to a list of Postures
@@ -140,6 +129,7 @@ posture_to_ForceTrials_to_RDS <- function(posture_indices, full_df, column_to_se
 }
 
 ##' Signed Max Residual Val
+##' TODO test
 ##' @param range_of_vector the range of a vector (min and max)
 ##' @return max_residual_val single numeric signed value
 signed_max_residual_val <- function(range_of_vector){
@@ -191,6 +181,7 @@ fill_force_velocity_metrics <- function(df) {
 }
 
 ##' First true value index
+##' TODO test
 ##' @param left Logical; whether the left index is stabilized
 ##' @param right Logical; whether the right index is stabilized
 ##' @param idx_for_l_and_r the index lower and upper bounds (list of 2 integers)
@@ -204,17 +195,19 @@ first_true_value_idx <- function(left, right, idx_for_l_and_r) {
 }
 
 ##' Are there no bounds?
-# @description True when the bounds have converged to a single index.  @param
-# idx_bounds must be a tuple vector of lower and upper bounds @param ts_df time
-# series of $value and $index
+##' TODO test
+##' @description True when the bounds have converged to a single index.
+##' @param idx_bounds must be a tuple vector of lower and upper bounds @param ts_df time series of $value and $index
+##' @return true if both elements of bounds are equivalent.
 no_bounds <- function(idx_bounds) idx_bounds[1] == idx_bounds[2]
 
 ##' Assign new bounds
+##' look left or right for the first stable point.
+##' TODO test
 ##' @param midpoint a index value (integer)
 ##' @param midpoint_is_stable Logical
 ##' @param bounds a tuple of lower and upper bound indices (integers)
 ##' @return updated_bounds fixed bounds to reflect whether we should
-##' look left or right for the first stable point.
 assign_new_bounds <- function(midpoint, midpoint_is_stable, bounds) {
   bounds_copy <- bounds
   if (midpoint_is_stable) {
@@ -226,6 +219,7 @@ assign_new_bounds <- function(midpoint, midpoint_is_stable, bounds) {
 }
 
 ##' Index of first stabilized value
+##' TODO test
 ##' @param ts numeric vector of values over time
 ##' @param bounds a tuple of lower and upper bound indices (integers)
 ##' @param desired numeric the desired stabilized value for the vector, if the vector is 'stabilized'
@@ -238,13 +232,13 @@ index_of_first_stabilized_val <- function(ts, bounds, desired, err) {
 }
 
 ##' stabilized index
+##' If length of a vector V is n, and some q exists s.t. v[q:n] is stable,
+##' Then any value 1 < x < Q, where x is stable, implies x:N is also stable.
+##' bounds = known stability bounds
 ##' @param ts timeseries vector of numeric values
 ##' @param desired numeric the desired stabilized value for the vector, if the vector is 'stabilized'
 ##' @param err numeric the maximum allowable residual for a given value from the desired value.
 ##' @description
-##' if length of a vector V is n, and some q exists s.t. v[q:n] is stable,
-##' Then any value 1 < x < Q, where x is stable, implies x:N is also stable.
-##' bounds = known stability bounds
 stabilized_index <- function(ts, desired, err) {
   bounds <- c(1, length(ts))
   while (bound_width(bounds) != 0) {
@@ -260,7 +254,8 @@ stabilized_index <- function(ts, desired, err) {
   }
 }
 
-##' slow stabilized index
+##' Brute force stabilized index
+##' TODO test, and confirm that it gets the same answer as stabilized_index
 ##' @param ts timeseries vector of numeric values
 ##' @param desired numeric the desired stabilized value for the vector, if the vector is 'stabilized'
 ##' @param err numeric the maximum allowable residual for a given value from the desired value.
@@ -291,7 +286,8 @@ postures_grouped_by_line <- function(unique_postures, x_fixed_value, y_fixed_val
   return(list(postures_x_fixed, postures_y_fixed))
 }
 ##' discrete_diff
-##' @param vector numeric vector of values'
+##' TODO test
+##' @param vector numeric vector of values
 ##' @return differentiated vector of values, with a displacement of 1 index. length 1 less than input.
 discrete_diff <- function(vector) {
   final <- c(vector[-1], 0)
@@ -302,13 +298,15 @@ discrete_diff <- function(vector) {
 
 
 ##' sort_by_initial_index
+##' TODO test
 ##' @param df data.frame that contains a column initial_index
-##' @param df_sorted sorted data.frame by values in initial_index. ascending order.
+##' @param df_sorted sorted data.frame by values in a column named 'initial_index'. ascending order.
 sort_by_initial_index <- function(df) df[order(df$initial_index), ]
 
 
 
 ##' force_trial_to_stable_index_df
+##' TODO test
 ##' @param force_trial_df dataframe of the force observations at 1Khz.
 ##' @inheritParams stabilized_index
 ##' @return stabilized_index_dataframe cols = idx_i, idx_f, settling_time
@@ -321,11 +319,6 @@ force_trial_to_stable_index_df <- function(force_trial_df, err) {
   gc()
   return(df)
 }
-
-##' Rbind multiple dataframes in list
-##' @param list_of_dfs data.frame that contains a column initial_index
-##' @return df combined large dataframe
-rbind_dfs <- function(list_of_dfs) do.call("rbind", list_of_dfs)
 
 ######## functions for figure plotting
 
@@ -364,6 +357,7 @@ abs_value_delta_force_scatter <- function(stability_df, pointsize){
 }
 
 ##' delta_tension
+##' TODO Test
 ##' @param settling data frame with columns: settling, initial_tension, final_tension
 ##' @return numric vector of signed differences between prior and initial tensions
 delta_tension <- function(settling) {
@@ -386,8 +380,8 @@ which_muscles_stabilized <- function(force_trial, err) {
 ##' @return all_muscles_stabilized true or false
 all_muscles_stabilized <- function(force_trial, err) {
   muscle_stabilization_truth_table <- which_muscles_stabilized(force_trial, err)
-  stability_true_for_all <- sum(muscle_stabilization_truth_table) == length(muscle_stabilization_truth_table)
-  return(stability_true_for_all)
+  stability_true_for_muscles <- sum(muscle_stabilization_truth_table) == length(muscle_stabilization_truth_table)
+  return(stability_true_for_muscles)
 }
 
 ##' mask_settled_force_trials

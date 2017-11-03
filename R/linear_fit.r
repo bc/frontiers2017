@@ -1,12 +1,3 @@
-##' Prepend String
-##' This is like paste0, but the arguments are reversed. This way you can use it with lapply.
-##' @param b string to put in back
-##' @param a string to put in front
-##' @return a_and_b string concatenated
-prepend_string <- function(b, a) {
-  paste0(a, b)
-}
-
 
 ##' Posture RDS to Static Training Data
 ##' Compose training data from a posture RDS (a list of ForceTrials)

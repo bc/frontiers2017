@@ -2,7 +2,8 @@
 % Please edit documentation in R/settling_time_analysis.r
 \name{force_trial_to_stable_index_df}
 \alias{force_trial_to_stable_index_df}
-\title{force_trial_to_stable_index_df}
+\title{force_trial_to_stable_index_df
+TODO test}
 \usage{
 force_trial_to_stable_index_df(force_trial_df, err)
 }
@@ -16,4 +17,5 @@ stabilized_index_dataframe cols = idx_i, idx_f, settling_time
 }
 \description{
 force_trial_to_stable_index_df
+TODO test
 }

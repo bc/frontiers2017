@@ -15,41 +15,42 @@ test_that("we can extract the forces", {
   column_to_separate_forces <- reference("M0")
   err <- 0.4
   last_n_milliseconds <- 100
-  fts <- posture_to_ForceTrials(c(784032,800032), df, column_to_separate_forces, err, last_n_milliseconds)
-
-
-  post_tensions_forces_over_time<- function(ft){
-  p <- ggplot(data=ft_to_df(ft))
-  p <- p + geom_line(aes(time-min(time), measured_M0))
-  p <- p + geom_line(aes(time-min(time), measured_M1))
-  p <- p + geom_line(aes(time-min(time), measured_M2))
-  p <- p + geom_line(aes(time-min(time), measured_M3))
-  p <- p + geom_line(aes(time-min(time), measured_M4))
-  p <- p + geom_line(aes(time-min(time), measured_M5))
-  p <- p + geom_line(aes(time-min(time), measured_M6))
-  p <- p + geom_line(aes(time-min(time), JR3.FX))
-  p <- p + geom_line(aes(time-min(time), JR3.FY))
-  p <- p + geom_line(aes(time-min(time), JR3.FZ))
-  return(p)
-}
-grobs <- lapply(fts, post_tensions_forces_over_time)
-g <- arrangeGrob(grobs = grobs, ncol = 3)
-ggsave(g, device="pdf", filename="q.pdf")
-
-  posture_to_ForceTrials(posture_idxs_to_index_tuples(fix_x_postures)[[1]], df, column_to_separate_forces, err, last_n_milliseconds)
-
-
-  # to save to RDS: saveRDS(idx_dfs, 'index_dataframes_for_two_posture_lines.rds')
-  fts <- many_postures_to_ForceTrials(posture_idxs_to_index_tuples(fix_x_postures), df, column_to_separate_forces, err=0.4, last_n_milliseconds, save_rds=TRUE, prefix="post_experiment")
-
-
-
-  fts <- posture_to_ForceTrials(as.numeric(idx_dfs[1, 1:2]), df, column_to_separate_forces,
+  fts <- posture_to_ForceTrials(c(784032, 800032), df, column_to_separate_forces,
     err, last_n_milliseconds)
-  message("Splitting by force trials")
-  list_of_postures <- split(df, list(df$adept_x, df$adept_y), drop = TRUE)
-  saveRDS(fts, "postures_for_static_post_experiment.rds")
+
+  post_tensions_forces_over_time <- function(ft) {
+    p <- ggplot(data = ft_to_df(ft))
+    p <- p + geom_line(aes(time - min(time), measured_M0))
+    p <- p + geom_line(aes(time - min(time), measured_M1))
+    p <- p + geom_line(aes(time - min(time), measured_M2))
+    p <- p + geom_line(aes(time - min(time), measured_M3))
+    p <- p + geom_line(aes(time - min(time), measured_M4))
+    p <- p + geom_line(aes(time - min(time), measured_M5))
+    p <- p + geom_line(aes(time - min(time), measured_M6))
+    p <- p + geom_line(aes(time - min(time), JR3.FX))
+    p <- p + geom_line(aes(time - min(time), JR3.FY))
+    p <- p + geom_line(aes(time - min(time), JR3.FZ))
+    return(p)
+  }
+  grobs <- lapply(fts, post_tensions_forces_over_time)
+  stabilized_muscles <- lapply(fts, function(x) {
+    which_muscles_stabilized(ft_to_df(x), err = 0.4)
+  })
+  g <- gridExtra::arrangeGrob(grobs = grobs, nrow = 6)
+  ggsave(g, dpi = 100, device = "png", filename = "q.png")
+  first_four_muscles <- muscle_names()[1:4]
+  s<- lapply(fts, function(ft){
+    stability_per_muscle(ft_to_df(ft), muscles_of_interest = first_four_muscles, last_n_milliseconds=100)
+  })
 })
+
+stability_per_muscle <- function(ft_df, muscles_of_interest,...){
+  by_muscle_stable_metrics <- lapply(muscles_of_interest, function(x) force_trial_to_stable_metrics(ft_df, 100,x))
+  by_muscle_stable_metrics
+  by_muscle_stable_dfs <- lapply(muscles_of_interest, function(x) list_of_forces_to_stabilized_df(list(ft_df), err, df, x))
+  print('finstabledf')
+  browser()
+}
 
 test_that("actions have no effect upon JR3 Force", {
   names(df) <- hyphens_to_underscores(names(df))

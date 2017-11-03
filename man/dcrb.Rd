@@ -7,8 +7,7 @@
 dcrb(list_of_dataframes)
 }
 \arguments{
-\item{list}{of dataframes
-TODO test}
+\item{list}{of dataframes}
 }
 \value{
 df row-bound concatenated dataframe

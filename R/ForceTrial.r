@@ -28,7 +28,7 @@ ForceTrial <- function(timeseries_df, full_df, err, last_n_milliseconds = 100,
   if (all_muscles_stabilized_by_last_val) {
     setattr(ForceTrialObj, "stability_info", force_trial_to_stable_metrics(timeseries_df,
       last_n_milliseconds, muscle_of_interest))
-    setattr(ForceTrialObj, "stability_df ", list_of_forces_to_stabilized_df(list(timeseries_df), err, full_df, muscle_of_interest))
+    setattr(ForceTrialObj, "stability_df", list_of_forces_to_stabilized_df(list(timeseries_df), err, full_df, muscle_of_interest))
   }
   class(ForceTrialObj) <- "ForceTrial"
   return(ForceTrialObj)
@@ -105,7 +105,7 @@ ForceTrials_to_stability_info_df <- function(list_of_force_trials) {
 ##' @param attribute_to_extract string, of the element that will be called from each element via attr()
 ##' @return attribute_df a data_frame of the combined attributes across all elements of the list.
 extract_and_rbind_attribute <- function(list_of_elements, attribute_to_extract) {
-  rbind_dfs(lapply(list_of_elements, function(x) {
+  dcrb(lapply(list_of_elements, function(x) {
     attr(x, attribute_to_extract)
   }))
 }

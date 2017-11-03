@@ -6,7 +6,8 @@
 Where 1 Posture has many ForceTrials}
 \usage{
 many_postures_to_ForceTrials(list_of_posture_indices, full_df,
-  column_to_separate_forces, err, last_n_milliseconds, save_rds = FALSE)
+  column_to_separate_forces, err, last_n_milliseconds, save_rds = FALSE,
+  prefix = "")
 }
 \arguments{
 \item{list_of_posture_indices}{a list of tuples, each with an initial and final index within full_df to extract as a posture.}
@@ -20,6 +21,8 @@ many_postures_to_ForceTrials(list_of_posture_indices, full_df,
 \item{last_n_milliseconds}{integer, used to calculate static stability}
 
 \item{save_rds}{by deafult it will return the List of List of ForceTrials. Else it will save each posture as an RDS file.}
+
+\item{prefix}{prefix string for the filenames}
 }
 \value{
 Postures list of list of ForceTrials
