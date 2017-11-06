@@ -19,6 +19,7 @@ posture_rds_to_A_matrix <- function(rds_file_path, last_n_milliseconds, fraction
 }
 
 ##' df_split_into_training_and_testing
+##' TODO test
 ##' Does pre-shuffle row-wise randomly before splitting
 ##' @param input_output_data df of row-observations to train on
 ##' @param fraction_training between 0 and 1, a numeric
@@ -57,14 +58,14 @@ generate_linear_static_model <- function(input_output_data, fraction_training){
 }
 
 
-##' Euclidian L1 Norm of a Vector'
+##' L1 Norm of a Vector'
 ##" https://stackoverflow.com/questions/10933945/how-to-calculate-the-euclidean-norm-of-a-vector-in-r
 ##' TODO test
 ##' @param x vector of numeric
 ##' @return magnitude numeric value'
 norm_vec <- function(x) sqrt(sum(x ^ 2))
 
-##' Difference between 2 vectors
+##' Element-wise difference between 2 vectors
 ##' TODO test
 ##' @param known vector
 ##" @param predicted vector
@@ -105,7 +106,6 @@ list_of_xy_to_df <- function(list, xy_colnames) {
   return(df)
 }
 
-
 ##' posture dependency bi plot
 ##' just makes plot of settling~delta_tension
 ##' @param posture_dependency data frame with columns: adepx_x, adept_y, vaf
@@ -122,6 +122,7 @@ posture_dependency_plot <- function(posture_dependency, independent_variable_nam
     annot_size = 1)
   return(p)
 }
+
 ##' Compose a Y~X string for use in titles for linear relationships
 ##' @param x string, independent variable name
 ##' @param y string, response variable name
