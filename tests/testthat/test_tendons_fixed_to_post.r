@@ -17,21 +17,6 @@ test_that("we can extract the forces", {
   last_n_milliseconds <- 100
   fts <- posture_to_ForceTrials(c(784032, 800032), df, column_to_separate_forces,
     err, last_n_milliseconds)
-
-  post_tensions_forces_over_time <- function(ft) {
-    p <- ggplot(data = ft_to_df(ft))
-    p <- p + geom_line(aes(time - min(time), measured_M0))
-    p <- p + geom_line(aes(time - min(time), measured_M1))
-    p <- p + geom_line(aes(time - min(time), measured_M2))
-    p <- p + geom_line(aes(time - min(time), measured_M3))
-    p <- p + geom_line(aes(time - min(time), measured_M4))
-    p <- p + geom_line(aes(time - min(time), measured_M5))
-    p <- p + geom_line(aes(time - min(time), measured_M6))
-    p <- p + geom_line(aes(time - min(time), JR3.FX))
-    p <- p + geom_line(aes(time - min(time), JR3.FY))
-    p <- p + geom_line(aes(time - min(time), JR3.FZ))
-    return(p)
-  }
   grobs <- lapply(fts, post_tensions_forces_over_time)
   stabilized_muscles <- lapply(fts, function(x) {
     which_muscles_stabilized(ft_to_df(x), err = 0.4)

@@ -22,3 +22,21 @@ postures_to_idx_dfs_for_post <- function(posture_list, unique_postures) {
   idx_df <- cbind(indices, unique_postures)
   return(idx_df)
 }
+
+##" Post Tensions and forces over time
+##' @param ft force trial
+##' @return p ggplot object of tensions & forces over time (0 through ~800ms).
+post_tensions_forces_over_time <- function(ft) {
+  p <- ggplot(data = ft_to_df(ft))
+  p <- p + geom_line(aes(time - min(time), measured_M0))
+  p <- p + geom_line(aes(time - min(time), measured_M1))
+  p <- p + geom_line(aes(time - min(time), measured_M2))
+  p <- p + geom_line(aes(time - min(time), measured_M3))
+  p <- p + geom_line(aes(time - min(time), measured_M4))
+  p <- p + geom_line(aes(time - min(time), measured_M5))
+  p <- p + geom_line(aes(time - min(time), measured_M6))
+  p <- p + geom_line(aes(time - min(time), JR3.FX, color="green"))
+  p <- p + geom_line(aes(time - min(time), JR3.FY, color="green"))
+  p <- p + geom_line(aes(time - min(time), JR3.FZ, color="green"))
+  return(p)
+}
