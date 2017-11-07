@@ -19,6 +19,7 @@ Depends:
   microbenchmark,
   data.table,
   pbmcapply,
+  hitandrun,
   pbapply
 License: USC
 Encoding: UTF-8
