@@ -2,10 +2,11 @@
 ##' This function estimates the A matrix from measured tendon forces and output forces. performs 6D linear fit.
 ##' @param data input output data that matches measured_muscle_col_names and force_column_names.
 ##' @return fit_object list of AMatrix, endpointForceObservation, endpointForcePrediction, regressor_means, response_means
-find_A_matrix <- function(data) {
+find_A_matrix <- function(data, muscles_of_interest=muscle_names()) {
   # The regressor matrix is concatenation of tendon forces
   time <- data[[1]]
-  measured_muscle_col_names <- simplify2array(lapply(muscle_names(), measured))
+  num_regressor_columns = length(muscles_of_interest) + 1 #inc regressor
+  measured_muscle_col_names <- simplify2array(lapply(muscles_of_interest, measured))
   regressor <- as.matrix(data[measured_muscle_col_names])
   num_observation <- nrow(regressor)
   vector_one <- as.matrix(rep(1,num_observation),num_observation,1)
@@ -13,7 +14,7 @@ find_A_matrix <- function(data) {
   regressor <- cbind(vector_one,regressor)
   endpointForceObservation <- data[force_column_names]
   AMatrix <- matrix(solve(qr(regressor, LAPACK = TRUE), endpointForceObservation),
-  8, 6)
+  num_regressor_columns, 6)
   endpointForcePrediction <- data.frame(regressor %*% AMatrix)
   colnames(endpointForcePrediction) <- force_column_names
   colnames(AMatrix) <- force_column_names
