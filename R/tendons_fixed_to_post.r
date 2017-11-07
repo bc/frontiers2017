@@ -35,8 +35,9 @@ post_tensions_forces_over_time <- function(ft) {
   p <- p + geom_line(aes(time - min(time), measured_M4))
   p <- p + geom_line(aes(time - min(time), measured_M5))
   p <- p + geom_line(aes(time - min(time), measured_M6))
-  p <- p + geom_line(aes(time - min(time), JR3.FX, color="green"))
-  p <- p + geom_line(aes(time - min(time), JR3.FY, color="green"))
-  p <- p + geom_line(aes(time - min(time), JR3.FZ, color="green"))
+  p <- p + geom_line(aes(time - min(time), JR3.FX), color="red")
+  p <- p + geom_line(aes(time - min(time), JR3.FY), color = "green")
+  p <- p + geom_line(aes(time - min(time), JR3.FZ), color = "blue")
+  p <- p + xlab("Trial time (s)") + ylab("Tendon tension (N)")
   return(p)
 }
