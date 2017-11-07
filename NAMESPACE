@@ -3,6 +3,7 @@
 export(posture_dependency_plot)
 export(tension_settling_scatter)
 importFrom(WVPlots,ScatterHistC)
+importFrom(hitandrun,createSeedPoint)
 importFrom(parallel,mclapply)
 importFrom(pbapply,pblapply)
 importFrom(pbmcapply,pbmclapply)

@@ -4,7 +4,7 @@
 \alias{all_muscles_stabilized}
 \title{all_muscles_stabilized}
 \usage{
-all_muscles_stabilized(force_trial, err)
+all_muscles_stabilized(force_trial, err, muscles_of_interest)
 }
 \arguments{
 \item{force_trial}{df of force trials with cols}

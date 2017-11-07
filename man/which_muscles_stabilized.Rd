@@ -4,7 +4,7 @@
 \alias{which_muscles_stabilized}
 \title{Evaluate which of the muscles stabilized to a desired tension within th error threshold.}
 \usage{
-which_muscles_stabilized(force_trial, err)
+which_muscles_stabilized(force_trial, err, muscles_of_interest)
 }
 \arguments{
 \item{force_trial}{df of force trials with cols including reference_M0, measured_M0}

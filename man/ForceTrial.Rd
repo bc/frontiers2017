@@ -9,7 +9,7 @@ if any observations were recorded when the robot was initalized or moving, those
 we remove the angle and adept columns because they are unused and redundant, respectively}
 \usage{
 ForceTrial(timeseries_df, full_df, err, last_n_milliseconds = 100,
-  muscle_of_interest = "M0")
+  muscle_of_interest = "M0", muscles_of_interest)
 }
 \arguments{
 \item{timeseries_df}{dataframe of the time series with all 39 columns}

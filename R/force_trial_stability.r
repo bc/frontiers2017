@@ -20,7 +20,9 @@ get_reference_to_variance_relationship_df <- function(force_list, last_n_millise
 ##' @param muscle the muscle of interest in a string e.g. 'M0'
 ##' @return vec_row dataframe row with reference, and max residual
 force_trial_to_stable_metrics <- function(force_trial, last_n_milliseconds, muscle) {
-  ref <- tail(force_trial, 1)[, reference(muscle)]
+  browser()
+  last_row <- tail(force_trial, 1)
+  ref <- last_row[, reference(muscle)]
   measured_tail <- tail(force_trial, last_n_milliseconds)[, measured(muscle)]
   max_residual <- max(abs(range(measured_tail) - ref))
   vec_row <- data.frame(last_n_milliseconds = last_n_milliseconds, reference = ref,

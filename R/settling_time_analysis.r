@@ -155,7 +155,7 @@ signed_max_residual_val <- function(range_of_vector){
 ##' @importFrom pbmcapply pbmclapply
 posture_to_ForceTrials <- function(posture_indices, full_df, column_to_separate_forces, err, last_n_milliseconds, muscles_of_interest = muscle_names()){
     posture <- get_forces_list(full_df, posture_indices, column_to_separate_forces)
-    fts <- pbmclapply(posture, ForceTrial, data_location, full_df, err, last_n_milliseconds, muscles_of_interest)
+    fts <- pbmclapply(posture, ForceTrial, full_df, err, last_n_milliseconds, column_to_separate_forces, muscles_of_interest)
   return(fts)
 }
 
@@ -381,8 +381,6 @@ which_muscles_stabilized <- function(force_trial, err, muscles_of_interest) {
 ##' @param err highest acceptable error residual from desired tension
 ##' @return all_muscles_stabilized true or false
 all_muscles_stabilized <- function(force_trial, err, muscles_of_interest) {
-  print('err')
-  print(head(err))
   muscle_stabilization_truth_table <- which_muscles_stabilized(force_trial, err, muscles_of_interest)
   stability_true_for_muscles <- sum(muscle_stabilization_truth_table) == length(muscle_stabilization_truth_table)
   return(stability_true_for_muscles)
