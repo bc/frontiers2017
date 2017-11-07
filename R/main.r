@@ -54,6 +54,7 @@ produce_ForceTrial_rds_objects <- function(){
   last_n_milliseconds = 100
   fix_x_postures <- posture_idxs_per_line[[1]]
   fix_y_postures <- posture_idxs_per_line[[2]]
+  fts <- many_postures_to_ForceTrials(posture_idxs_to_index_tuples(head(fix_x_postures,1)), full_df, column_to_separate_forces = "reference_M0", err=0.4, last_n_milliseconds, save_rds=FALSE)
   many_postures_to_ForceTrials(posture_idxs_to_index_tuples(fix_x_postures), full_df, column_to_separate_forces = "reference_M0", err=0.4, last_n_milliseconds, save_rds=TRUE)
   many_postures_to_ForceTrials(posture_idxs_to_index_tuples(fix_y_postures), full_df, column_to_separate_forces = "reference_M0", err=0.4, last_n_milliseconds, save_rds=TRUE)
 }

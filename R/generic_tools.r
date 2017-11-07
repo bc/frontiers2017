@@ -5,6 +5,7 @@
 hyphens_to_underscores <- function(str){
   gsub("-", "_", str)
 }
+
 ##' hyphens_to_dots
 ##' TODO test
 ##' @param str string or list of string to do replacement upon

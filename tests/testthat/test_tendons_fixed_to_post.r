@@ -1,5 +1,7 @@
 context("Test tendons fixed to a nonmoving post")
-df <- as.data.frame(fread("/Users/briancohn/Resilio Sync/data/realTimeData2017_09_24_12_25_56.txt"))
+# df <- as.data.frame(fread("/Users/briancohn/Resilio Sync/data/realTimeData2017_09_24_12_25_56.txt"))
+# saveRDS(df, 'realTimeData2017_09_24_12_25_56.rds')
+df <- readRDS("~/Resilio Sync/data/realTimeData2017_09_24_12_25_56.rds")
 colnames(df) <- hyphens_to_dots(colnames(df))
 
 
@@ -22,10 +24,10 @@ test_that("we can extract the forces", {
     single_example <- posture_to_ForceTrials(c(784032, 784032 + 804), df, column_to_separate_forces=column_to_separate_forces,
       err=err, last_n_milliseconds=last_n_milliseconds, muscles_of_interest=muscles_of_interest)
     expect_equal(length(ft_to_df(single_example[[1]])[,1]), 803)
-
-
     multiple_force_trials <- posture_to_ForceTrials(c(784032, 800032), df, column_to_separate_forces,
     err, last_n_milliseconds, muscles_of_interest)
+
+
     expect_equal(length(multiple_force_trials), 20)
   grobs <- lapply(fts, post_tensions_forces_over_time)
   stabilized_muscles <- lapply(fts, function(x) {
@@ -44,7 +46,6 @@ stability_per_muscle <- function(ft_df, muscles_of_interest,...){
   by_muscle_stable_metrics
   by_muscle_stable_dfs <- lapply(muscles_of_interest, function(x) list_of_forces_to_stabilized_df(list(ft_df), err, df, x))
   print('finstabledf')
-  browser()
 }
 
 test_that("actions have no effect upon JR3 Force", {
