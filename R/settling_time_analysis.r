@@ -153,7 +153,7 @@ signed_max_residual_val <- function(range_of_vector){
 ##' @param last_n_milliseconds integer, used to calculate static stability
 ##' @return list_of_ForceTrials list of ForceTrials
 ##' @importFrom pbmcapply pbmclapply
-posture_to_ForceTrials <- function(posture_indices, full_df, column_to_separate_forces, err, last_n_milliseconds, muscles_of_interest){
+posture_to_ForceTrials <- function(posture_indices, full_df, column_to_separate_forces, err, last_n_milliseconds, muscles_of_interest = muscle_names()){
     posture <- get_forces_list(full_df, posture_indices, column_to_separate_forces)
     fts <- pbmclapply(posture, ForceTrial, data_location, full_df, err, last_n_milliseconds, muscles_of_interest)
   return(fts)
