@@ -153,9 +153,9 @@ signed_max_residual_val <- function(range_of_vector){
 ##' @param last_n_milliseconds integer, used to calculate static stability
 ##' @return list_of_ForceTrials list of ForceTrials
 ##' @importFrom pbmcapply pbmclapply
-posture_to_ForceTrials <- function(posture_indices, full_df, column_to_separate_forces, err, last_n_milliseconds){
+posture_to_ForceTrials <- function(posture_indices, full_df, column_to_separate_forces, err, last_n_milliseconds, muscles_of_interest){
     posture <- get_forces_list(full_df, posture_indices, column_to_separate_forces)
-    fts <- pbmclapply(posture, ForceTrial, data_location, full_df, err, last_n_milliseconds)
+    fts <- pbmclapply(posture, ForceTrial, data_location, full_df, err, last_n_milliseconds, muscles_of_interest)
   return(fts)
 }
 
@@ -368,18 +368,22 @@ delta_tension <- function(settling) {
 ##' @param force_trial df of force trials with cols including reference_M0, measured_M0
 ##' @param err highest acceptable error residual from desired tension in same units as measured_MX
 ##' @return stability_truth_vector list of true/false logicals indicating which of the muscles did stabilized by the end of the time series.
-which_muscles_stabilized <- function(force_trial, err) {
-  unlist(lapply(muscle_names(), function(muscle) {
+which_muscles_stabilized <- function(force_trial, err, muscles_of_interest) {
+  results <- lapply(muscles_of_interest, function(muscle) {
     force_trial_does_stabilize(force_trial, muscle, err)
-  }))
+  })
+  stability_truth_vector <- unlist(results)
+  return(stability_truth_vector)
 }
 
 ##' all_muscles_stabilized
 ##' @param force_trial df of force trials with cols
 ##' @param err highest acceptable error residual from desired tension
 ##' @return all_muscles_stabilized true or false
-all_muscles_stabilized <- function(force_trial, err) {
-  muscle_stabilization_truth_table <- which_muscles_stabilized(force_trial, err)
+all_muscles_stabilized <- function(force_trial, err, muscles_of_interest) {
+  print('err')
+  print(head(err))
+  muscle_stabilization_truth_table <- which_muscles_stabilized(force_trial, err, muscles_of_interest)
   stability_true_for_muscles <- sum(muscle_stabilization_truth_table) == length(muscle_stabilization_truth_table)
   return(stability_true_for_muscles)
 }

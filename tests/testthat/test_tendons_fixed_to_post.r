@@ -1,6 +1,8 @@
 context("Test tendons fixed to a nonmoving post")
 df <- as.data.frame(fread("/Users/briancohn/Resilio Sync/data/realTimeData2017_09_24_12_25_56.txt"))
 colnames(df) <- hyphens_to_dots(colnames(df))
+
+
 test_that("we can extract the forces", {
   message("Identifying unique postures. Expect competion in ")
   unique_postures <- tail(unique(df[c("adept_x", "adept_y")]), 2)
@@ -15,8 +17,16 @@ test_that("we can extract the forces", {
   column_to_separate_forces <- reference("M0")
   err <- 0.4
   last_n_milliseconds <- 100
-  fts <- posture_to_ForceTrials(c(784032, 800032), df, column_to_separate_forces,
-    err, last_n_milliseconds)
+  muscles_of_interest <- muscle_names()[1:4]
+
+    single_example <- posture_to_ForceTrials(c(784032, 784032 + 804), df, column_to_separate_forces=column_to_separate_forces,
+      err=err, last_n_milliseconds=last_n_milliseconds, muscles_of_interest=muscles_of_interest)
+    expect_equal(length(ft_to_df(single_example[[1]])[,1]), 803)
+
+
+    multiple_force_trials <- posture_to_ForceTrials(c(784032, 800032), df, column_to_separate_forces,
+    err, last_n_milliseconds, muscles_of_interest)
+    expect_equal(length(multiple_force_trials), 20)
   grobs <- lapply(fts, post_tensions_forces_over_time)
   stabilized_muscles <- lapply(fts, function(x) {
     which_muscles_stabilized(ft_to_df(x), err = 0.4)
