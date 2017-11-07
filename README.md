@@ -7,7 +7,7 @@ via https://www.rstudio.com/products/rstudio/download-server/
 ```
 git config --global core.editor "vim"
 sudo apt-get update
-sudo apt-get -y install r-base libssl-dev libcurl4-openssl-dev libxml2-dev libapparmor1 gdebi-core mosh
+sudo apt-get -y install r-base libssl-dev libcurl4-openssl-dev libxml2-dev libapparmor1 gdebi-core mosh libgmp3-dev
 wget https://download2.rstudio.org/rstudio-server-1.0.153-amd64.deb
 yes | sudo gdebi rstudio-server-1.0.153-amd64.deb
 sudo rstudio-server verify-installation
