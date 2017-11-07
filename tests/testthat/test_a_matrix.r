@@ -2,11 +2,11 @@ set.seed(100)
 range_tension <- c(3, 20)
 measured_muscle_col_names <- simplify2array(lapply(muscle_names(), measured))
 
-training_data <- read_rds_to_package_extdata("training_data.rds")
-train_test <- df_split_into_training_and_testing(training_data, fraction_training = 0.8)
-training_data <- train_test[[1]]
-test_data <- train_test[[2]]
-A_fit <- find_A_matrix(training_data)
+sample_input_output_data <- read_rds_to_package_extdata("training_data.rds")
+data <- df_split_into_training_and_testing(sample_input_output_data, fraction_training = 0.8)
+training_data <- data$train
+test_data <- data$test
+A_fit <- find_A_matrix(training_data, muscles_of_interest=muscle_names()[1:3], forces_of_interest=force_column_names[1:3])
 
 
 test_that("eval linear model fit with an offset generator that takes into account the mean observed vals",
