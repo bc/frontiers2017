@@ -18,8 +18,8 @@ hyphens_to_dots <- function(str){
 ##' @param filename string, for the file within the extdata folder of the analytics package.
 ##' @return object the object yielded from the filepath rds
 read_rds_to_package_extdata <- function(filename){
-  path <- paste0("~/Documents/GitHub/bc/frontiers2017/inst/extdata/",filename)
-  # path <- system.file("extdata", filename, package="analytics")
+  # path <- paste0("~/Documents/GitHub/bc/frontiers2017/inst/extdata/",filename)
+  path <- system.file("extdata", filename, package="analytics")
   readRDS(path)
 }
 
