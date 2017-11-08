@@ -71,7 +71,14 @@ predict_output_force <- function(A, x){
 	as.matrix(x %*% A)
 }
 
+##' Fit Summary
+##' Performs summary on the fit residuals and the
+##' @param A_fit object as returned from find_A_matrix
+##' @param ... params passed to subfunctions
 fit_summary <- function(A_fit, ...) {
+  par(mfrow=c(2,2))
+  hist_force_magnitudes(A_fit$endpointForceObservation, "Training data observations")
+  hist_force_magnitudes(A_fit$endpointForcePrediction, "Fit predictions on training data")
   res <- abs(A_fit$endpointForceObservation - A_fit$endpointForcePrediction)
   euclidian_errors_train <- apply(res, 1, function(row) norm_vec(row))
   forces_of_interest <- paste(colnames(A_fit$endpointForcePrediction), collapse=", ")
@@ -79,6 +86,10 @@ fit_summary <- function(A_fit, ...) {
   ylab="Number of responses in training set.",
   main=paste("n = ", length(euclidian_errors_train),", Regressors = ",paste0(rownames(A_fit$AMatrix), collapse=",")), col='black', breaks=12, ...)
   return(summary(euclidian_errors_train))
+}
+
+fit_evaluation <- function(A_fit, test_data, ...){
+  fit_summary(A_fit, )
 }
 ##'' Compute magnitudes for a DF of forces
 ##' @param force_df dataframe with N force columns for N dimensions of the same units'
