@@ -63,12 +63,28 @@ split_H_from_offset <- function(A_matrix){
 	return(list(H=H, offset = offset))
 }
 
-
 ##' Matrix multiply input force by A matrix
 ##' @param A A matrix cols are jr3.fx, etc, rows are offset, measured m0, ...
 ##' @param x input forces where cols are measured_force & offset set to ones()
+##' @return b_vectors matrix of the predicted output forces. as many columns as there are output force dimensionsss
 predict_output_force <- function(A, x){
-	as.matrix(x %*% A)
+	return(as.matrix(x %*% A))
+}
+##' observed_predicted_segments3d
+##' @param A_fit linear A matrix fit element with endpointForceObservation and endpointForcePrediction
+observed_predicted_segments3d <- function(A_fit){
+  endpoints <- interleave_two_dataframes_as_segments(cbind(A_fit$endpointForceObservation, A_fit$endpointForcePrediction))
+  segments3d(endpoints)
+}
+
+##' interleave_two_dataframes_as_segments
+##' @param df dataframe with 3 columns for xyz
+##' @return df_interleaved df with 3 columns, where every other point is the starting endpoint, and the second (rep) are the ending endpoint.
+interleave_two_dataframes_as_segments <- function(df){
+  df_interleaved <- data.frame(x=as.vector(t(markers[,c(1,4)])),
+  y=as.vector(t(markers[,c(2,5)])),
+  z=as.vector(t(markers[,c(3,6)])))
+  return(df_interleaved)
 }
 
 ##' Fit Summary
