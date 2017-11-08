@@ -2,13 +2,12 @@
 ##' This function estimates the A matrix from measured tendon forces and output forces. performs 6D linear fit.
 ##' @param data input output data that matches measured_muscle_col_names and force_column_names.
 ##' @return fit_object list of AMatrix, endpointForceObservation, endpointForcePrediction, regressor_means, response_means
-find_A_matrix <- function(data, muscles_of_interest=muscle_names(), forces_of_interest=force_column_names) {
+find_A_matrix <- function(data, regressor_names = simplify2array(lapply(muscle_names(), measured)), forces_of_interest=force_column_names) {
   # The regressor matrix is concatenation of tendon forces
   time <- data[[1]]
-  num_regressor_columns = length(muscles_of_interest) + 1 #inc regressor
+  num_regressor_columns = length(regressor_names) + 1 #inc regressor
   num_response_columns = length(forces_of_interest)
-  measured_muscle_col_names <- simplify2array(lapply(muscles_of_interest, measured))
-  regressor <- as.matrix(data[measured_muscle_col_names])
+  regressor <- as.matrix(data[regressor_names])
   regressor <- add_offset_vector_to_regressor(regressor)
   endpointForceObservation <- data[forces_of_interest]
   AMatrix <- lin_qr_solve(regressor, endpointForceObservation)
@@ -70,4 +69,14 @@ split_H_from_offset <- function(A_matrix){
 ##' @param x input forces where cols are measured_force & offset set to ones()
 predict_output_force <- function(A, x){
 	as.matrix(x %*% A)
+}
+
+fit_summary <- function(A_fit, ...) {
+  res <- abs(A_fit$endpointForceObservation - A_fit$endpointForcePrediction)
+  euclidian_errors_train <- apply(res, 1, function(row) norm_vec(row))
+  forces_of_interest <- do.call('paste', list(colnames(A_fit$endpointForcePrediction)))
+  hist(euclidian_errors_train, xlab=paste('Euclidian error in N across F_',forces_of_interest),
+  ylab="Number of responses in training set.",
+  main=paste("n = ", length(euclidian_errors_train),", Regressors = ",paste0(rownames(A_fit$AMatrix), collapse=",")), col='black', breaks=12, ...)
+  return(summary(euclidian_errors_train))
 }

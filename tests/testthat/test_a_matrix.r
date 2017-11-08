@@ -8,10 +8,29 @@ training_data <- data$train
 test_data <- data$test
 
 
-test_that("produce A matrices for 1 muscle and 1 output force",
+test_that("produce A matrices for different numbers of muscles or output force dimensions",
   {
-    A_fit <- find_A_matrix(training_data, muscles_of_interest=muscle_names()[1:7], forces_of_interest=force_column_names[1:3])
+    pdf("../../../output/A_matrix_fit_tests.pdf", width=15, height = 10*7)
+    par(mfrow=c(7,2))
+    fits <- list(
+      find_A_matrix(training_data, regressor_names = measured(muscle_names()[1]), forces_of_interest=force_column_names[1]),
+      find_A_matrix(training_data, regressor_names = measured(muscle_names()[1:2]),forces_of_interest=force_column_names[1]),
+      find_A_matrix(training_data, regressor_names = measured(muscle_names()[1:3]),forces_of_interest=force_column_names[1]),
+      find_A_matrix(training_data, regressor_names = measured(muscle_names()[1:4]),forces_of_interest=force_column_names[1]),
+      find_A_matrix(training_data, regressor_names = measured(muscle_names()[1:5]),forces_of_interest=force_column_names[1]),
+      find_A_matrix(training_data, regressor_names = measured(muscle_names()[1:6]),forces_of_interest=force_column_names[1]),
+      find_A_matrix(training_data, regressor_names = measured(muscle_names()[1:7]),forces_of_interest=force_column_names[1]),
+      find_A_matrix(training_data, regressor_names = measured(muscle_names()[1:7]),forces_of_interest=force_column_names[1]),
+      find_A_matrix(training_data, regressor_names = measured(muscle_names()[1:7]),forces_of_interest=force_column_names[1:2]),
+      find_A_matrix(training_data, regressor_names = measured(muscle_names()[1:7]),forces_of_interest=force_column_names[1:3]),
+      find_A_matrix(training_data, regressor_names = measured(muscle_names()[1:7]),forces_of_interest=force_column_names[1:4]),
+      find_A_matrix(training_data, regressor_names = measured(muscle_names()[1:7]),forces_of_interest=force_column_names[1:5]),
+      find_A_matrix(training_data, regressor_names = measured(muscle_names()[1:7]),forces_of_interest=force_column_names[1:6])
+  )
+  lapply(fits, fit_summary, cex =0.2)
+  dev.off()
 
+A_fit <- find_A_matrix(training_data, muscles_of_interest=muscle_names()[1], forces_of_interest=force_column_names[1:3])
   })
 
 test_that("we can calculate cond of an A matrix", {
@@ -28,11 +47,7 @@ test_predicted_response <- predict_output_force(A_fit$AMatrix, test_input)
 test_observed_response <- test_data[force_column_names]
 
 test_that("residuals from fitted data are appropriate for sample linear fit.", {
-	res <- abs(A_fit$endpointForceObservation - A_fit$endpointForcePrediction)
-  euclidian_errors_train <- apply(res[, 1:3], 1, function(row) norm_vec(row))
-	hist(euclidian_errors_train, xlab='Euclidian error in N across F_xyz',
-	 ylab="Number of responses in training set",
-	  main=paste("n = ", length(euclidian_errors_train)), col='black', breaks=12)
+
 
 	res_test <- test_observed_response - test_predicted_response
 	euclidian_errors_test <- apply(res_test[, 1:3], 1, function(row) norm_vec(row))
