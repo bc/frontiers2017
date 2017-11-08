@@ -74,8 +74,8 @@ predict_output_force <- function(A, x){
 fit_summary <- function(A_fit, ...) {
   res <- abs(A_fit$endpointForceObservation - A_fit$endpointForcePrediction)
   euclidian_errors_train <- apply(res, 1, function(row) norm_vec(row))
-  forces_of_interest <- do.call('paste', list(colnames(A_fit$endpointForcePrediction)))
-  hist(euclidian_errors_train, xlab=paste('Euclidian error in N across F_',forces_of_interest),
+  forces_of_interest <- paste(colnames(A_fit$endpointForcePrediction), collapse=", ")
+  hist(euclidian_errors_train, xlab=paste('Euclidian error in N across F_', forces_of_interest)),
   ylab="Number of responses in training set.",
   main=paste("n = ", length(euclidian_errors_train),", Regressors = ",paste0(rownames(A_fit$AMatrix), collapse=",")), col='black', breaks=12, ...)
   return(summary(euclidian_errors_train))
