@@ -1,4 +1,5 @@
 #load all available material
+source("R/a_matrix.r")
 source("R/time_series_functions.r")
 source("R/data_description.r")
 source("R/force_trial_stability.r")

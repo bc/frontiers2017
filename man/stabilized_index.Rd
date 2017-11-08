@@ -16,3 +16,9 @@ stabilized_index(ts, desired, err)
 
 \item{err}{numeric the maximum allowable residual for a given value from the desired value.}
 }
+\description{
+stabilized index
+If length of a vector V is n, and some q exists s.t. v[q:n] is stable,
+Then any value 1 < x < Q, where x is stable, implies x:N is also stable.
+bounds = known stability bounds
+}

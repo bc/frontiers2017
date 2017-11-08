@@ -11,29 +11,45 @@ find_A_matrix <- function(data, muscles_of_interest=muscle_names(), forces_of_in
   regressor <- as.matrix(data[measured_muscle_col_names])
   regressor <- add_offset_vector_to_regressor(regressor)
   endpointForceObservation <- data[forces_of_interest]
-  lin_qr_solve <- function(regressor, endpointForceObservation){
-    AMatrix <- matrix(solve(qr(regressor, LAPACK = TRUE), endpointForceObservation),
-    num_regressor_columns, num_response_columns)
-    colnames(AMatrix) <- forces_of_interest
-    rownames(AMatrix) <- colnames(regressor)
-  }
+  AMatrix <- lin_qr_solve(regressor, endpointForceObservation)
   endpointForcePrediction <- predict_against_input_data(regressor, AMatrix)
   fit <- list(AMatrix = AMatrix, endpointForceObservation = endpointForceObservation,
     endpointForcePrediction = endpointForcePrediction)
   return(fit)
 }
 
+##' lin_qr_solve
+##' @param x matrix of N independent columns (the regressor), with appropriate colnames
+##' @param b matrix of M dependent variables (with appropriate colnames)
+##' @return A matrix representing linear least squares regression fit for x matrix -> b
+lin_qr_solve <- function(x, b){
+  A <- matrix(solve(qr(x, LAPACK = TRUE), b),
+  ncol(x), ncol(b))
+  colnames(A) <- colnames(b)
+  rownames(A) <- colnames(x)
+  return(A)
+}
+
+
+##' add_offset_vector_to_regressor
+##' userful becuase it keeps track of the mean generator (bias) that is not accounted for by the muscles.
+##' @param regressor matrix with as many rows as observations.
+##' @return regressor_with_col regressor wiht an offset column appended
 add_offset_vector_to_regressor <- function(regressor){
   num_observation <- nrow(regressor)
   vector_one <- as.matrix(rep(1,num_observation),num_observation,1)
   colnames(vector_one) <- 'offset'
-  regressor <- cbind(vector_one,regressor)
+  regressor_with_col <- cbind(vector_one,regressor)
   return(regressor_with_col)
 }
 
-predict_against_input_data <- function(regressor, AMatrix){
-  endpointForcePrediction <- data.frame(regressor %*% AMatrix)
-  colnames(endpointForcePrediction) <- forces_of_interest
+##' lin_qr_solve
+##' @param x matrix of N independent columns (the regressor), with appropriate colnames
+##' @param A matrix representing linear least squares regression fit for x matrix -> b (with colnames for outputs)
+##' @param b matrix of expected output forces of interest. n cols, n force dimensions
+predict_against_input_data <- function(x, A){
+  endpointForcePrediction <- data.frame(x %*% A)
+  colnames(endpointForcePrediction) <- colnames(A)
   return(endpointForcePrediction)
 }
 
