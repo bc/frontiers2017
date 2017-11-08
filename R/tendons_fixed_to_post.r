@@ -23,7 +23,7 @@ postures_to_idx_dfs_for_post <- function(posture_list, unique_postures) {
   return(idx_df)
 }
 
-##" Post Tensions and forces over time
+##' Post Tensions and forces over time
 ##' @param ft force trial
 ##' @return p ggplot object of tensions & forces over time (0 through ~800ms).
 post_tensions_forces_over_time <- function(ft) {

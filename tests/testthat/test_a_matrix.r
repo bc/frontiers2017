@@ -6,11 +6,11 @@ sample_input_output_data <- read_rds_to_package_extdata("training_data.rds")
 data <- df_split_into_training_and_testing(sample_input_output_data, fraction_training = 0.8)
 training_data <- data$train
 test_data <- data$test
-A_fit <- find_A_matrix(training_data, muscles_of_interest=muscle_names()[1:3], forces_of_interest=force_column_names[1:3])
 
 
-test_that("eval linear model fit with an offset generator that takes into account the mean observed vals",
+test_that("produce A matrices for 1 muscle and 1 output force",
   {
+    A_fit <- find_A_matrix(training_data, muscles_of_interest=muscle_names()[1:7], forces_of_interest=force_column_names[1:3])
 
   })
 
@@ -67,7 +67,6 @@ big_b <- c(six_dimensional_task, -six_dimensional_task, 1, 1, rep(range_tension[
   7), rep(range_tension[1], 7))
 
 constr <- list(constr = big_A, dir = rep("<=", nrow(big_A)), rhs = big_b)
-
 constraints_are_feasible(constr)
 
 state <- har.init(constr)

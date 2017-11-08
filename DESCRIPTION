@@ -20,7 +20,9 @@ Depends:
   data.table,
   pbmcapply,
   hitandrun,
-  pbapply
+  pbapply,
+  rgl,
+  geometry
 License: USC
 Encoding: UTF-8
 LazyData: true

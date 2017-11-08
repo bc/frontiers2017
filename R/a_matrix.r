@@ -9,23 +9,32 @@ find_A_matrix <- function(data, muscles_of_interest=muscle_names(), forces_of_in
   num_response_columns = length(forces_of_interest)
   measured_muscle_col_names <- simplify2array(lapply(muscles_of_interest, measured))
   regressor <- as.matrix(data[measured_muscle_col_names])
+  regressor <- add_offset_vector_to_regressor(regressor)
+  endpointForceObservation <- data[forces_of_interest]
+  lin_qr_solve <- function(regressor, endpointForceObservation){
+    AMatrix <- matrix(solve(qr(regressor, LAPACK = TRUE), endpointForceObservation),
+    num_regressor_columns, num_response_columns)
+    colnames(AMatrix) <- forces_of_interest
+    rownames(AMatrix) <- colnames(regressor)
+  }
+  endpointForcePrediction <- predict_against_input_data(regressor, AMatrix)
+  fit <- list(AMatrix = AMatrix, endpointForceObservation = endpointForceObservation,
+    endpointForcePrediction = endpointForcePrediction)
+  return(fit)
+}
+
+add_offset_vector_to_regressor <- function(regressor){
   num_observation <- nrow(regressor)
   vector_one <- as.matrix(rep(1,num_observation),num_observation,1)
   colnames(vector_one) <- 'offset'
   regressor <- cbind(vector_one,regressor)
-  endpointForceObservation <- data[forces_of_interest]
-  AMatrix <- matrix(solve(qr(regressor, LAPACK = TRUE), endpointForceObservation),
-  num_regressor_columns, num_response_columns)
+  return(regressor_with_col)
+}
+
+predict_against_input_data <- function(regressor, AMatrix){
   endpointForcePrediction <- data.frame(regressor %*% AMatrix)
   colnames(endpointForcePrediction) <- forces_of_interest
-  colnames(AMatrix) <- forces_of_interest
-  rownames(AMatrix) <- colnames(regressor)
-  regressor_means <- colMeans(regressor)
-  response_means <- colMeans(endpointForceObservation)
-  fit <- list(AMatrix = AMatrix, endpointForceObservation = endpointForceObservation,
-    endpointForcePrediction = endpointForcePrediction, regressor_means = regressor_means,
-  response_means = response_means)
-  return(fit)
+  return(endpointForcePrediction)
 }
 
 ##' Split H matrix from the offset.
