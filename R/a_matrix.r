@@ -80,3 +80,16 @@ fit_summary <- function(A_fit, ...) {
   main=paste("n = ", length(euclidian_errors_train),", Regressors = ",paste0(rownames(A_fit$AMatrix), collapse=",")), col='black', breaks=12, ...)
   return(summary(euclidian_errors_train))
 }
+##'' Compute magnitudes for a DF of forces
+##' @param force_df dataframe with N force columns for N dimensions of the same units'
+##' @param magnitudes vector of numeric magnitude
+magnitudes <- function(force_df){
+  as.vector(apply(force_df,1, norm_vec))
+}
+
+##' Histogram of force magnitudes for XYZ
+##' @param force_df dataframe with N force columns for N dimensions of the same units'
+hist_force_magnitudes <- function(force_df, condition=""){
+  magnitudes <- magnitudes(force_df)
+  hist(magnitudes, breaks=20, col='black', xlab="Force magnitude in xyz (N)", main=paste("n=", length(magnitudes), ",", condition))
+}
