@@ -115,7 +115,7 @@ fit_summary <- function(A_fit, ...) {
 ##' @param ... params passed to subfunctions
 hist_euclidian_errors <- function(euclidian_errors_vector, forces_of_interest, regressor_names,
   source_of_vals, ...) {
-  hist(euclidian_errors_vector, xlab = paste("Euclidian error in N across F_",
+  hist(euclidian_errors_vector, xlab = paste("Euclidian error in N across",
     forces_of_interest), ylab = paste("Number of responses in ", source_of_vals),
     main = paste("n = ", length(euclidian_errors_vector), ", Regressors = ",
       paste0(regressor_names, collapse = ",")), col = "black", breaks = 12,
@@ -145,12 +145,13 @@ evaluate_fit_wrt_test_data <- function(A_fit, test_data) {
   num_observation <- nrow(test_data)
   regressor_names <- rownames(A_fit$AMatrix)
   regressor_names <- regressor_names[regressor_names!='offset']
-  forces_xyz <- colnames(A_fit$AMatrix)
+  force_col_names <- colnames(A_fit$AMatrix)
+  forces_of_interest <- paste0(force_col_names, collapse=",")
   vector_one <- as.matrix(rep(1, num_observation), num_observation, 1)
   colnames(vector_one) <- "offset"
   test_input <- cbind(vector_one, as.matrix(test_data[regressor_names]))
   test_predicted_response <- predict_output_force(A_fit$AMatrix, test_input)
-  test_observed_response <- test_data[forces_xyz]
+  test_observed_response <- test_data[force_col_names]
   hist_force_magnitudes(test_observed_response, "Force observations from test data ")
   hist_force_magnitudes(test_predicted_response, "Force Predictions from test data")
   res_test <- test_observed_response - test_predicted_response
