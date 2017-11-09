@@ -154,9 +154,8 @@ evaluate_fit_wrt_test_data <- function(A_fit, test_data) {
   hist_force_magnitudes(test_observed_response, "Force observations from test data ")
   hist_force_magnitudes(test_predicted_response, "Force Predictions from test data")
   res_test <- test_observed_response - test_predicted_response
-  hist_euclidian_errors(res_test, forces_xyz, regressor_names,
+  hist_euclidian_errors(magnitudes(res_test), forces_of_interest, regressor_names,
     source_of_vals="test data")
-  hist_force_magnitudes(magnitudes(res_test), condition="test data")
   message('Summary of residuals when predicting model against test set')
   print(summary(res_test))
   print(column_ranges(res_test))
