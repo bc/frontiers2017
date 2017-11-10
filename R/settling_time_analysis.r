@@ -218,6 +218,7 @@ no_bounds <- function(idx_bounds) idx_bounds[1] == idx_bounds[2]
 ##' @return updated_bounds fixed bounds to reflect whether we should
 ##' look left or right for the first stable point.
 assign_new_bounds <- function(midpoint, midpoint_is_stable, bounds) {
+  stop_if_midpoint_out_of_range(midpoint, bounds)
   bounds_copy <- bounds
   if (midpoint_is_stable) {
     bounds_copy[2] <- midpoint  # move right side in a bit
@@ -225,6 +226,16 @@ assign_new_bounds <- function(midpoint, midpoint_is_stable, bounds) {
     bounds_copy[1] <- midpoint  # move left side in a bit
   }
   return(bounds_copy)
+}
+
+##' Stops the program if the  midpoint is out of range
+##' Used in assign_new_bounds
+##' @param midpoint a index value (integer)
+##' @param bounds a tuple of lower and upper bound indices (integers)
+stop_if_midpoint_out_of_range <- function(midpoint, bounds) {
+  if(midpoint < bounds[1] || midpoint > bounds[2]){
+    stop("The midpoint is out of range")
+  }
 }
 
 ##' Index of first stabilized value
