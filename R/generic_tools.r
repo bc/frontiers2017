@@ -96,3 +96,11 @@ dcrb <- function(list_of_dataframes){
 prepend_string <- function(b, a) {
   paste0(a, b)
 }
+
+
+left_pad <- function(mat, val_to_repeat){
+  mat_prime <- cbind(rep(1, nrow(mat)),mat)
+  return(mat_prime)
+}
+left_pad_ones <- function(mat) left_pad(mat, 1)
+left_pad_zeros <- function(mat) left_pad(mat, 0)

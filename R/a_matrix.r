@@ -1,11 +1,10 @@
 
 ##' This function estimates the A matrix from measured tendon forces and output forces. performs 6D linear fit.
+##' The regressor matrix is concatenation of tendon forces
 ##' @param data input output data that matches measured_muscle_col_names and force_column_names.
 ##' @return fit_object list of AMatrix, endpointForceObservation, endpointForcePrediction, regressor_means, response_means
 find_A_matrix <- function(data, regressor_names = simplify2array(lapply(muscle_names(),
   measured)), forces_of_interest = force_column_names) {
-  # The regressor matrix is concatenation of tendon forces
-  time <- data[[1]]
   num_regressor_columns = length(regressor_names) + 1  #inc regressor
   num_response_columns = length(forces_of_interest)
   regressor <- as.matrix(data[regressor_names])
@@ -50,17 +49,6 @@ predict_against_input_data <- function(x, A) {
   endpointForcePrediction <- data.frame(x %*% A)
   colnames(endpointForcePrediction) <- colnames(A)
   return(endpointForcePrediction)
-}
-
-##' Split H matrix from the offset.
-##' Takes in result from find_A_matrix
-##' @param A_matrix matrix with an offset column, and rest are muscle generators
-##' @return H_and_offset
-split_H_from_offset <- function(A_matrix) {
-  H <- as.data.frame(t(A_matrix))
-  offset <- H[, "offset"]
-  H$offset <- NULL
-  return(list(H = H, offset = offset))
 }
 
 ##' Matrix multiply input force by A matrix
@@ -131,6 +119,7 @@ column_ranges <- function(df) {
   colnames(range_df) <- c("min", "max")
   return(range_df)
 }
+##' Fit Evaluation
 ##' @param A_fit object as returned from find_A_matrix
 ##' @param test_data dataset with the input and output columns matching the regressors and outputs of A_fit
 fit_evaluation <- function(A_fit, test_data, ...) {
@@ -144,12 +133,12 @@ fit_evaluation <- function(A_fit, test_data, ...) {
 evaluate_fit_wrt_test_data <- function(A_fit, test_data) {
   num_observation <- nrow(test_data)
   regressor_names <- rownames(A_fit$AMatrix)
-  regressor_names <- regressor_names[regressor_names!='offset']
+  regressor_names_without_offset <- regressor_names[regressor_names!='offset']
   force_col_names <- colnames(A_fit$AMatrix)
   forces_of_interest <- paste0(force_col_names, collapse=",")
   vector_one <- as.matrix(rep(1, num_observation), num_observation, 1)
   colnames(vector_one) <- "offset"
-  test_input <- cbind(vector_one, as.matrix(test_data[regressor_names]))
+  test_input <- cbind(vector_one, as.matrix(test_data[regressor_names_without_offset]))
   test_predicted_response <- predict_output_force(A_fit$AMatrix, test_input)
   test_observed_response <- test_data[force_col_names]
   hist_force_magnitudes(test_observed_response, "Force observations from test data ")
@@ -176,6 +165,49 @@ magnitudes <- function(force_df) {
 ##' @param force_df dataframe with N force columns for N dimensions of the same units'
 hist_force_magnitudes <- function(force_df, condition = "") {
   magnitudes <- magnitudes(force_df)
-  hist(magnitudes, breaks = 20, col = "black", xlab = "Force magnitude in xyz (N)",
+  force_dimensions_xlab <- paste("Force magnitude in", colnames(force_df), "(N)",collapse=",")
+  hist(magnitudes, breaks = 20, col = "black", xlab = force_dimensions_xlab,
     main = paste("n=", length(magnitudes), ",", condition))
+}
+##' N Binary combinations'
+##' https://stackoverflow.com/questions/18705153/generate-list-of-all-possible-combinations-of-elements-of-vector
+##' @param n length of the vector
+##' @return M matrix where each row is a unique combination of 0 and 1
+n_binary_combinations <- function(n) {
+  M <- as.matrix(expand.grid(rep(list(0:1), n)))
+  dimnames(M) <- NULL
+  return(M)
+}
+##' Custom Binary combinations
+##' @param n length of the vector
+##' @param tension_range the range that the inputs can be at
+##' @return M matrix where each row is a unique combination of tension_range[1] min and tension_range[2] max
+custom_binary_combinations <- function(n, tension_range){
+  stop_if_min_equals_max(tension_range)
+  mat <- n_binary_combinations(n)
+  mask_for_ones <- mat == 1
+  mask_for_zeros <- mat == 0
+  mat[,] <- NA
+  mat[mask_for_ones] <- tension_range[1]
+  mat[mask_for_zeros] <- tension_range[2]
+  dimnames(mat) <- NULL
+  return(mat)
+}
+
+##' stop_if_min_equals_max
+##' @param input_range vector of two values indicating c(min,max)
+stop_if_min_equals_max <- function(input_range){
+  if (input_range[1]==input_range[2]){
+    stop(paste("Range provided needs to have different values for max and min. You only gave me ",input_range[1]))
+  }
+}
+
+##' Pass unit cube to A.
+##' useful to see what is achieved when running combinations of minimal and maximal values of all muscles.
+##' @param num_output_dimensions an integer, i.e. 3 if you want to get Fx, Fy and Fz
+##' @param big_A matrix representing translation of tensions into forces. includes offset vector
+pass_unit_cube_to_A <- function(big_A, num_output_dimensions, tension_range){
+  output_b_matrix <- big_A %*% t(left_pad_ones(custom_binary_combinations(ncol(big_A)-1,tension_range)))
+  forces<- t(output_b_matrix[1:num_output_dimensions,])
+  return(forces)
 }
