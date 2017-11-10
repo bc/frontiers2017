@@ -7,6 +7,8 @@ source("sample_datasets.r")
 sample_vec <- c(1, 1, 1, 1, 1, 1, 4, 8, 9, 4, 5, 3, 2, 3, 2, 3, 2, 3, 3, 3, 3, 3, 3, 3)
 sample_vec2 <- c(1, 1, 1, 1, 1, 1, 4, 8, 8, 4, 5, 3, 2, 3, 2, 3, 2, 3, 3, 3, 3, 3, 3, 3)
 fake_ft1 <- c(3.895, 3.443, 2.978, 3.032, 2.895, 2.676, 2.423, 2.332, 2.124, 1.876, 1.698, 1.643, 1.445, 1.554, 1.403, 1.454, 1.467, 1.441)
+fake_ft2 <- c(3, 2, 2, 2, 2)
+fake_ft3 <- c(5, 3, 7, 8, 9)
 
 settling = c(1, 2, 3, 4, 5)
 initial_tension = c(22, 45, 50, 47, 19)
@@ -77,6 +79,10 @@ context("Testing base functions")
 #TEST
 test_that("index_of_first_stabilized_val", {
   expect_equal(index_of_first_stabilized_val(fake_ft1, c(1,18), 1.5, 0.5), 11)
+  expect_equal(index_of_first_stabilized_val(fake_ft2, c(1,5), 2, 1), 1)
+  #expect_equal(index_of_first_stabilized_val(fake_ft3, c(1,5), 3, 1), throws_error())
+  expect_equal(index_of_first_stabilized_val(fake_ft2, c(1,5), 2, 0.1), 2)
+  expect_equal(index_of_first_stabilized_val(fake_ft3, c(1,5), 5, 3), 1)
 })
 
 #TEST

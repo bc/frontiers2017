@@ -239,6 +239,8 @@ stop_if_midpoint_out_of_range <- function(midpoint, bounds) {
 index_of_first_stabilized_val <- function(ts, bounds, desired, err) {
   left <- stabilized(ts[bounds[1]:bounds[2]], desired, err)
   right <- stabilized(ts[bounds[2]:bounds[2]], desired, err)
+  print(left)
+  print(right)
   return(first_true_value_idx(left, right, bounds))
 }
 
