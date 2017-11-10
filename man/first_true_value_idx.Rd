@@ -2,7 +2,8 @@
 % Please edit documentation in R/settling_time_analysis.r
 \name{first_true_value_idx}
 \alias{first_true_value_idx}
-\title{First true value index}
+\title{First true value index
+TODO test}
 \usage{
 first_true_value_idx(left, right, idx_for_l_and_r)
 }
@@ -18,4 +19,5 @@ idx index of the first TRUE in a list of two Logical values.
 }
 \description{
 First true value index
+TODO test
 }

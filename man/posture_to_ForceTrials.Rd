@@ -6,7 +6,7 @@
 Where a Posture has many ForceTrials}
 \usage{
 posture_to_ForceTrials(posture_indices, full_df, column_to_separate_forces, err,
-  last_n_milliseconds)
+  last_n_milliseconds, muscles_of_interest = muscle_names())
 }
 \arguments{
 \item{posture_indices}{tuple, with an initial and final index within full_df to extract as the posture.}

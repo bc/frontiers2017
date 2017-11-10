@@ -53,18 +53,7 @@ settling_time_histogram_for_posture <- function(stabilized_df,...) {
     ylab = "Number of Force Trials", main = paste0("Settling time. n_ForceTrials = ",numrows),
     col = "black",...)
 }
-##' Add inital and final reference values
-##' @description get the a_i and a_f for each of 100 forces within each of K postures
-##' @param stabilization_dataframe datafrme of the initial final stabilization indices, etc.
-##' @param full_df full dataframe of all observations, via .rds file
-##' @param muscle_of_interest string for muscle of interest
 
-add_initial_and_final_reference_values <- function(stabilization_dataframe, full_df,
-  muscle_of_interest) {
-  final_reference_force <- tail(force_trial_df$reference_M0, 1)
-  initial_reference_force <- get_reference_force_from_index(full_df_path, initial_index -
-    1, muscle_of_interest = "M0")
-}
 ##' @title fill_initials_into_stabilization_df
 ##' @param df a stabilization data frame that contains initial_index as a column.
 ##' @param full_df object for full_df from .rds file
@@ -90,17 +79,15 @@ get_reference_value <- function(index_target, full_df, muscle_of_interest) {
 
 ##' @title list_of_forces_to_stabilized_df
 ##' @param forces_list list of force trial dataframes
-##' @param full_df_path path to original realTimeData2017_08_16_13_23_42.txt
 ##' @param err acceptable Newton threshold for settling for tendon force.
 ##' @return stabilized_df dataframe representing how the list of forces stabilized.
 ##' @importFrom pbmcapply pbmclapply
-list_of_forces_to_stabilized_df <- function(forces_list, full_df_path, err, full_df,
+list_of_forces_to_stabilized_df <- function(forces_list, err, full_df,
   muscle_of_interest) {
-  list_of_stable_dfs <- lapply(forces_list, force_trial_to_stable_index_df, full_df_path,
-    err)
-  stabilized_df <- sort_by_initial_index(rbind_dfs(list_of_stable_dfs))
+  list_of_stable_dfs <- lapply(forces_list, force_trial_to_stable_index_df, err)
+  stabilized_df <- sort_by_initial_index(dcrb(list_of_stable_dfs))
   filled_df <- fill_initials_into_stabilization_df(stabilized_df, full_df, muscle_of_interest)
-  stabilized_and_filled_df <- fill_force_velocity_metrics(filled_df)
+    stabilized_and_filled_df <- fill_force_velocity_metrics(filled_df)
   return(stabilized_and_filled_df)
 }
 ##' Many Postures to a list of Postures
@@ -111,16 +98,16 @@ list_of_forces_to_stabilized_df <- function(forces_list, full_df_path, err, full
 ##' @param err highest acceptable residual from reference force
 ##' @param last_n_milliseconds integer, used to calculate static stability
 ##' @param save_rds by deafult it will return the List of List of ForceTrials. Else it will save each posture as an RDS file.
+##' @param prefix prefix string for the filenames
 ##' @return Postures list of list of ForceTrials
 ##' @importFrom pbapply pblapply
-many_postures_to_ForceTrials <- function(list_of_posture_indices, full_df, column_to_separate_forces, err, last_n_milliseconds, save_rds=FALSE){
+many_postures_to_ForceTrials <- function(list_of_posture_indices, full_df, column_to_separate_forces, err, last_n_milliseconds, save_rds=FALSE, prefix =""){
     if (save_rds){
-      pblapply(list_of_posture_indices, posture_to_ForceTrials_to_RDS, full_df, column_to_separate_forces, err, last_n_milliseconds)
+      pbmclapply(list_of_posture_indices, posture_to_ForceTrials_to_RDS, full_df, column_to_separate_forces, err, last_n_milliseconds, prefix)
     } else {
-      fts <- pblapply(list_of_posture_indices, posture_to_ForceTrials, full_df, column_to_separate_forces, err, last_n_milliseconds)
+      fts <- pbmclapply(list_of_posture_indices, posture_to_ForceTrials, full_df, column_to_separate_forces, err, last_n_milliseconds)
       return(fts)
     }
-
 }
 
 ##' One list of posture indices to a Posture To RDS
@@ -130,17 +117,19 @@ many_postures_to_ForceTrials <- function(list_of_posture_indices, full_df, colum
 ##' @param column_to_separate_forces string, i.e. "measured_M0"
 ##' @param err highest acceptable residual from reference force
 ##' @param last_n_milliseconds integer, used to calculate static stability
+##' @param prefix prefix string to filenames
 ##' @importFrom pbmcapply pbmclapply
-posture_to_ForceTrials_to_RDS <- function(posture_indices, full_df, column_to_separate_forces, err, last_n_milliseconds){
+posture_to_ForceTrials_to_RDS <- function(posture_indices, full_df, column_to_separate_forces, err, last_n_milliseconds, prefix = ""){
   ForceTrials_list_for_the_posture <- posture_to_ForceTrials(posture_indices, full_df, column_to_separate_forces, err, last_n_milliseconds)
   first_force_trial <- ForceTrials_list_for_the_posture[[1]]
   adept_coords <- adept_coordinates_from_ForceTrial(first_force_trial)
-  force_trial_file_string_with_posture <- paste0("force_trial_adept_x_",adept_coords[1], "_adept_y_", adept_coords[2], ".rds")
+  force_trial_file_string_with_posture <- paste0(prefix, "force_trial_adept_x_",adept_coords[1], "_adept_y_", adept_coords[2], ".rds")
   save_rds_to_Resilio(ForceTrials_list_for_the_posture, force_trial_file_string_with_posture)
 
 }
 
 ##' Signed Max Residual Val
+##' TODO test
 ##' @param range_of_vector the range of a vector (min and max)
 ##' @return max_residual_val single numeric signed value
 signed_max_residual_val <- function(range_of_vector){
@@ -164,21 +153,20 @@ signed_max_residual_val <- function(range_of_vector){
 ##' @param last_n_milliseconds integer, used to calculate static stability
 ##' @return list_of_ForceTrials list of ForceTrials
 ##' @importFrom pbmcapply pbmclapply
-posture_to_ForceTrials <- function(posture_indices, full_df, column_to_separate_forces, err, last_n_milliseconds){
+posture_to_ForceTrials <- function(posture_indices, full_df, column_to_separate_forces, err, last_n_milliseconds, muscles_of_interest = muscle_names()){
     posture <- get_forces_list(full_df, posture_indices, column_to_separate_forces)
-    fts <- lapply(posture, ForceTrial, data_location, full_df, err, last_n_milliseconds)
+    fts <- pbmclapply(posture, ForceTrial, full_df, err, last_n_milliseconds, column_to_separate_forces, muscles_of_interest)
   return(fts)
 }
 
 ##' @title list_of_postures_of_forces_to_stabilized_df
 ##' @param postures list of postures, each containing a list of force trial dataframes
-##' @param full_df_path path to realTimeData2017_08_16_13_23_42.txt
 ##' @param err acceptable residual from reference_M0 for settling time
 ##' @return list_of_stabilized_dfs list of stabilized dataframes.
 ##' @importFrom parallel mclapply
-list_of_postures_of_forces_to_stabilized_df <- function(postures, full_df_path, err,
+list_of_postures_of_forces_to_stabilized_df <- function(postures, err,
   full_df, muscle_of_interest) {
-  lapply(postures, list_of_forces_to_stabilized_df, full_df_path, err, full_df,
+  lapply(postures, list_of_forces_to_stabilized_df, err, full_df,
     muscle_of_interest)
 }
 
@@ -193,6 +181,7 @@ fill_force_velocity_metrics <- function(df) {
 }
 
 ##' First true value index
+##' TODO test
 ##' @param left Logical; whether the left index is stabilized
 ##' @param right Logical; whether the right index is stabilized
 ##' @param idx_for_l_and_r the index lower and upper bounds (list of 2 integers)
@@ -206,17 +195,19 @@ first_true_value_idx <- function(left, right, idx_for_l_and_r) {
 }
 
 ##' Are there no bounds?
-# @description True when the bounds have converged to a single index.  @param
-# idx_bounds must be a tuple vector of lower and upper bounds @param ts_df time
-# series of $value and $index
+##' TODO test
+##' @description True when the bounds have converged to a single index.
+##' @param idx_bounds must be a tuple vector of lower and upper bounds @param ts_df time series of $value and $index
+##' @return true if both elements of bounds are equivalent.
 no_bounds <- function(idx_bounds) idx_bounds[1] == idx_bounds[2]
 
 ##' Assign new bounds
+##' look left or right for the first stable point.
+##' TODO test
 ##' @param midpoint a index value (integer)
 ##' @param midpoint_is_stable Logical
 ##' @param bounds a tuple of lower and upper bound indices (integers)
 ##' @return updated_bounds fixed bounds to reflect whether we should
-##' look left or right for the first stable point.
 assign_new_bounds <- function(midpoint, midpoint_is_stable, bounds) {
   stop_if_midpoint_out_of_range(midpoint, bounds)
   bounds_copy <- bounds
@@ -239,6 +230,7 @@ stop_if_midpoint_out_of_range <- function(midpoint, bounds) {
 }
 
 ##' Index of first stabilized value
+##' TODO test
 ##' @param ts numeric vector of values over time
 ##' @param bounds a tuple of lower and upper bound indices (integers)
 ##' @param desired numeric the desired stabilized value for the vector, if the vector is 'stabilized'
@@ -251,13 +243,13 @@ index_of_first_stabilized_val <- function(ts, bounds, desired, err) {
 }
 
 ##' stabilized index
+##' If length of a vector V is n, and some q exists s.t. v[q:n] is stable,
+##' Then any value 1 < x < Q, where x is stable, implies x:N is also stable.
+##' bounds = known stability bounds
 ##' @param ts timeseries vector of numeric values
 ##' @param desired numeric the desired stabilized value for the vector, if the vector is 'stabilized'
 ##' @param err numeric the maximum allowable residual for a given value from the desired value.
 ##' @description
-##' if length of a vector V is n, and some q exists s.t. v[q:n] is stable,
-##' Then any value 1 < x < Q, where x is stable, implies x:N is also stable.
-##' bounds = known stability bounds
 stabilized_index <- function(ts, desired, err) {
   bounds <- c(1, length(ts))
   while (bound_width(bounds) != 0) {
@@ -273,7 +265,8 @@ stabilized_index <- function(ts, desired, err) {
   }
 }
 
-##' slow stabilized index
+##' Brute force stabilized index
+##' TODO test, and confirm that it gets the same answer as stabilized_index
 ##' @param ts timeseries vector of numeric values
 ##' @param desired numeric the desired stabilized value for the vector, if the vector is 'stabilized'
 ##' @param err numeric the maximum allowable residual for a given value from the desired value.
@@ -304,7 +297,8 @@ postures_grouped_by_line <- function(unique_postures, x_fixed_value, y_fixed_val
   return(list(postures_x_fixed, postures_y_fixed))
 }
 ##' discrete_diff
-##' @param vector numeric vector of values'
+##' TODO test
+##' @param vector numeric vector of values
 ##' @return differentiated vector of values, with a displacement of 1 index. length 1 less than input.
 discrete_diff <- function(vector) {
   final <- c(vector[-1], 0)
@@ -315,17 +309,19 @@ discrete_diff <- function(vector) {
 
 
 ##' sort_by_initial_index
+##' TODO test
 ##' @param df data.frame that contains a column initial_index
-##' @param df_sorted sorted data.frame by values in initial_index. ascending order.
+##' @param df_sorted sorted data.frame by values in a column named 'initial_index'. ascending order.
 sort_by_initial_index <- function(df) df[order(df$initial_index), ]
 
 
 
 ##' force_trial_to_stable_index_df
+##' TODO test
 ##' @param force_trial_df dataframe of the force observations at 1Khz.
 ##' @inheritParams stabilized_index
 ##' @return stabilized_index_dataframe cols = idx_i, idx_f, settling_time
-force_trial_to_stable_index_df <- function(force_trial_df, full_df_path, err) {
+force_trial_to_stable_index_df <- function(force_trial_df, err) {
   desired <- tail(force_trial_df$reference_M0, 1)
   stable_idx <- stabilized_index(force_trial_df$measured_M0, desired, err)
   initial_index <- as.integer(first_rowname(force_trial_df))
@@ -334,11 +330,6 @@ force_trial_to_stable_index_df <- function(force_trial_df, full_df_path, err) {
   gc()
   return(df)
 }
-
-##' Rbind multiple dataframes in list
-##' @param list_of_dfs data.frame that contains a column initial_index
-##' @return df combined large dataframe
-rbind_dfs <- function(list_of_dfs) do.call("rbind", list_of_dfs)
 
 ######## functions for figure plotting
 
@@ -377,6 +368,7 @@ abs_value_delta_force_scatter <- function(stability_df, pointsize){
 }
 
 ##' delta_tension
+##' TODO Test
 ##' @param settling data frame with columns: settling, initial_tension, final_tension
 ##' @return numric vector of signed differences between prior and initial tensions
 delta_tension <- function(settling) {
@@ -387,19 +379,22 @@ delta_tension <- function(settling) {
 ##' @param force_trial df of force trials with cols including reference_M0, measured_M0
 ##' @param err highest acceptable error residual from desired tension in same units as measured_MX
 ##' @return stability_truth_vector list of true/false logicals indicating which of the muscles did stabilized by the end of the time series.
-which_muscles_stabilized <- function(force_trial, err) {
-  unlist(lapply(muscle_names(), function(muscle) {
+which_muscles_stabilized <- function(force_trial, err, muscles_of_interest) {
+  results <- lapply(muscles_of_interest, function(muscle) {
     force_trial_does_stabilize(force_trial, muscle, err)
-  }))
+  })
+  stability_truth_vector <- unlist(results)
+  return(stability_truth_vector)
 }
 
 ##' all_muscles_stabilized
 ##' @param force_trial df of force trials with cols
 ##' @param err highest acceptable error residual from desired tension
 ##' @return all_muscles_stabilized true or false
-all_muscles_stabilized <- function(force_trial, err) {
-  muscle_stabilization_truth_table <- which_muscles_stabilized(force_trial, err)
-  return(sum(muscle_stabilization_truth_table) == length(muscle_stabilization_truth_table))
+all_muscles_stabilized <- function(force_trial, err, muscles_of_interest) {
+  muscle_stabilization_truth_table <- which_muscles_stabilized(force_trial, err, muscles_of_interest)
+  stability_true_for_muscles <- sum(muscle_stabilization_truth_table) == length(muscle_stabilization_truth_table)
+  return(stability_true_for_muscles)
 }
 
 ##' mask_settled_force_trials

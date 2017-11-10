@@ -92,21 +92,6 @@ generate_parcoord_plot <- function(dataframe_of_observations) {
   return(p)
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-norm_vec <- function(x) sqrt(sum(x ^ 2))
-
 plot_output_wrench_fx_fy <- function(wrench, wrench_sd, xlim, ylim) {
   plot(NA, xlim = xlim, ylim = ylim, main = paste("Norm of w = ", norm_vec(wrench)),
     xlab = paste("Fx is ", wrench[1]), ylab = paste("Fy is ", wrench[2]), asp = 1)
@@ -205,7 +190,7 @@ plot_porcupine_of_endpoint_wrenches <- function(forces) {
 
 
 
-  gradient_colors < c("blue", "yellow")
+  gradient_colors <- c("blue", "yellow")
   z_colors <- color_gradient(wrench_observation_df[, 3], gradient_colors)
   z_range <- range(wrench_observation_df[, 3])
   z_range_distance <- z_range[2] - z_range[1]

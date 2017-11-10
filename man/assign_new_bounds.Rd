@@ -2,7 +2,9 @@
 % Please edit documentation in R/settling_time_analysis.r
 \name{assign_new_bounds}
 \alias{assign_new_bounds}
-\title{Assign new bounds}
+\title{Assign new bounds
+look left or right for the first stable point.
+TODO test}
 \usage{
 assign_new_bounds(midpoint, midpoint_is_stable, bounds)
 }
@@ -15,8 +17,9 @@ assign_new_bounds(midpoint, midpoint_is_stable, bounds)
 }
 \value{
 updated_bounds fixed bounds to reflect whether we should
-look left or right for the first stable point.
 }
 \description{
 Assign new bounds
+look left or right for the first stable point.
+TODO test
 }

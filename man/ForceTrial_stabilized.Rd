@@ -4,10 +4,10 @@
 \alias{ForceTrial_stabilized}
 \title{Evaluate whether a ForceTrial stabilized'}
 \usage{
-ForceTrial_stabilized(ForceTrial)
+ForceTrial_stabilized(ft)
 }
 \arguments{
-\item{ForceTrial}{object of type ForceTrial}
+\item{ft}{object of type ForceTrial}
 }
 \value{
 logical, whether all uscles stabilized by the last val

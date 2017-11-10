@@ -7,10 +7,12 @@ source("R/linear_fit.r")
 source("R/functions_specific_to_frontiers2017_dataset.r")
 source("R/generic_tools.r")
 source("R/settling_time_analysis.r")
-
-#nullify functions that try to parallelize
-pbmclapply <- pblapply
-mclapply <- pblapply
+source("R/feasible_force_set.r")
+source("R/feasible_activation_set.r")
+library(gridExtra)
+#Having multicore issues? use this to nullify functions that try to parallelize
+# pbmclapply <- pblapply
+# mclapply <- pblapply
 
 
 options(error = NULL)
@@ -20,7 +22,6 @@ main <- function() {
   source("R/time_series_functions.r")
   source("R/functions_specific_to_frontiers2017_dataset.r")
   source("R/settling_time_analysis.r")
-
   message("Pulling full dataset. Expect completion in 2'")
   require(microbenchmark)
   data_load_mbm <- microbenchmark(full_df <- readRDS("~/Resilio Sync/data/realTimeData2017_08_16_13_23_42.rds"),
@@ -48,12 +49,13 @@ stability_rds_file <- function(){
 ##' Munge full_DF into the posture RDS files
 produce_ForceTrial_rds_objects <- function(){
   posture_idxs_per_line <- read_rds_to_package_extdata("index_dataframes_for_two_posture_lines.rds") #hardcoded index dfs
-  full_df <- readRDS("~/Resilio Sync/data/realTimeData2017_08_16_13_23_42.rds")
   print("Loading full_df. Expect 2'")
+  full_df <- readRDS("~/Resilio Sync/data/realTimeData2017_08_16_13_23_42.rds")
   err = 0.4
   last_n_milliseconds = 100
   fix_x_postures <- posture_idxs_per_line[[1]]
   fix_y_postures <- posture_idxs_per_line[[2]]
+  fts <- many_postures_to_ForceTrials(posture_idxs_to_index_tuples(head(fix_x_postures,1)), full_df, column_to_separate_forces = "reference_M0", err=0.4, last_n_milliseconds, save_rds=FALSE)
   many_postures_to_ForceTrials(posture_idxs_to_index_tuples(fix_x_postures), full_df, column_to_separate_forces = "reference_M0", err=0.4, last_n_milliseconds, save_rds=TRUE)
   many_postures_to_ForceTrials(posture_idxs_to_index_tuples(fix_y_postures), full_df, column_to_separate_forces = "reference_M0", err=0.4, last_n_milliseconds, save_rds=TRUE)
 }

@@ -7,12 +7,13 @@ via https://www.rstudio.com/products/rstudio/download-server/
 ```
 git config --global core.editor "vim"
 sudo apt-get update
-sudo apt-get -y install r-base libssl-dev libcurl4-openssl-dev libxml2-dev libapparmor1 gdebi-core mosh
+sudo apt-get -y install r-base libssl-dev libcurl4-openssl-dev libxml2-dev libapparmor1 gdebi-core mosh libgmp3-dev
 wget https://download2.rstudio.org/rstudio-server-1.0.153-amd64.deb
 yes | sudo gdebi rstudio-server-1.0.153-amd64.deb
 sudo rstudio-server verify-installation
 sudo rstudio-server license-manager status
 sudo apt-get install -y awscli
+
 ```
 
 ### Data Acquisition
@@ -23,23 +24,24 @@ sudo adduser brian
 sudo mkdir -p /home/brian/Resilio\ Sync/data
 sudo aws s3 cp s3://bc-frontiers-2017/realTimeData2017_08_16_13_23_42.rds /home/brian/Resilio\ Sync/data/realTimeData2017_08_16_13_23_42.rds
 sudo aws s3 cp s3://bc-frontiers-2017/realTimeData2017_08_16_13_23_42.txt /home/brian/Resilio\ Sync/data/realTimeData2017_08_16_13_23_42.txt
+sudo aws s3 cp s3://bc-frontiers-2017/realTimeData2017_09_24_12_25_56.rds /home/brian/Resilio\ Sync/data/realTimeData2017_09_24_12_25_56.rds
 sudo su - brian
-git clone git@github.com:bc/frontiers2017.git && cd frontiers2017/analytics
+git clone git@github.com:bc/frontiers2017.git && cd frontiers2017/
 ```
 
 ### Now in $R
 ```
-install.packages('devtools')
+install.packages('devtools', quiet=TRUE)
 library(devtools)
-install()
+install(quiet=TRUE)
 test()
 ```
 
 # MBP->S3 disk
 ```
-aws s3 cp ~/Resilio Sync/data/realTimeData2017_08_16_13_23_42.rds s3://bc-frontiers-2017/
+aws s3 cp ~/Resilio\ Sync/data/realTimeData2017_08_16_13_23_42.rds s3://bc-frontiers-2017/
+aws s3 cp ~/Resilio\ Sync/data/realTimeData2017_09_24_12_25_56.rds s3://bc-frontiers-2017/
 ```
-
 
 
 ### EC2 output-->MBP

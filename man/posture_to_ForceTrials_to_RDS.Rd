@@ -6,7 +6,7 @@
 Where a Posture has many ForceTrials. use posture_to_ForceTrials if you want the object returned.}
 \usage{
 posture_to_ForceTrials_to_RDS(posture_indices, full_df,
-  column_to_separate_forces, err, last_n_milliseconds)
+  column_to_separate_forces, err, last_n_milliseconds, prefix = "")
 }
 \arguments{
 \item{posture_indices}{tuple, with an initial and final index within full_df to extract as the posture.}
@@ -18,6 +18,8 @@ posture_to_ForceTrials_to_RDS(posture_indices, full_df,
 \item{err}{highest acceptable residual from reference force}
 
 \item{last_n_milliseconds}{integer, used to calculate static stability}
+
+\item{prefix}{prefix string to filenames}
 }
 \description{
 One list of posture indices to a Posture To RDS
