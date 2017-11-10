@@ -2,7 +2,7 @@
 % Please edit documentation in R/ForceTrial.r
 \name{converged_colmeans}
 \alias{converged_colmeans}
-\title{converged_colmeans}
+\title{list of force trials to converged colmeans}
 \usage{
 converged_colmeans(ForceTrial_list, last_n_milliseconds)
 }
@@ -12,5 +12,5 @@ converged_colmeans(ForceTrial_list, last_n_milliseconds)
 \item{last_n_milliseconds}{the number of tail milliseconds from which we should calculate the settled standard deviation.}
 }
 \description{
-converged_colmeans
+list of force trials to converged colmeans
 }

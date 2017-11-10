@@ -4,13 +4,11 @@
 \alias{list_of_postures_of_forces_to_stabilized_df}
 \title{list_of_postures_of_forces_to_stabilized_df}
 \usage{
-list_of_postures_of_forces_to_stabilized_df(postures, full_df_path, err,
-  full_df, muscle_of_interest)
+list_of_postures_of_forces_to_stabilized_df(postures, err, full_df,
+  muscle_of_interest)
 }
 \arguments{
 \item{postures}{list of postures, each containing a list of force trial dataframes}
-
-\item{full_df_path}{path to realTimeData2017_08_16_13_23_42.txt}
 
 \item{err}{acceptable residual from reference_M0 for settling time}
 }

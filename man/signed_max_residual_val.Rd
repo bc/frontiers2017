@@ -2,7 +2,8 @@
 % Please edit documentation in R/settling_time_analysis.r
 \name{signed_max_residual_val}
 \alias{signed_max_residual_val}
-\title{Signed Max Residual Val}
+\title{Signed Max Residual Val
+TODO test}
 \usage{
 signed_max_residual_val(range_of_vector)
 }
@@ -14,4 +15,5 @@ max_residual_val single numeric signed value
 }
 \description{
 Signed Max Residual Val
+TODO test
 }

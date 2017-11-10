@@ -2,15 +2,17 @@
 % Please edit documentation in R/settling_time_analysis.r
 \name{sort_by_initial_index}
 \alias{sort_by_initial_index}
-\title{sort_by_initial_index}
+\title{sort_by_initial_index
+TODO test}
 \usage{
 sort_by_initial_index(df)
 }
 \arguments{
 \item{df}{data.frame that contains a column initial_index}
 
-\item{df_sorted}{sorted data.frame by values in initial_index. ascending order.}
+\item{df_sorted}{sorted data.frame by values in a column named 'initial_index'. ascending order.}
 }
 \description{
 sort_by_initial_index
+TODO test
 }

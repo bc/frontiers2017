@@ -1,9 +1,25 @@
+##' hyphens_to_underscores
+##' TODO test
+##' @param str string or list of string to do replacement upon
+##' @return str_prime string with underscores
+hyphens_to_underscores <- function(str){
+  gsub("-", "_", str)
+}
+
+##' hyphens_to_dots
+##' TODO test
+##' @param str string or list of string to do replacement upon
+##' @return str_prime string with dot
+hyphens_to_dots <- function(str){
+  gsub("-", ".", str)
+}
+
 ##' Read RDS from package extdata folder
 ##' @param filename string, for the file within the extdata folder of the analytics package.
 ##' @return object the object yielded from the filepath rds
 read_rds_to_package_extdata <- function(filename){
-  path <- paste0("~/Documents/GitHub/bc/frontiers2017/analytics/inst/extdata/",filename)
-  # path <- system.file("extdata", filename, package="analytics")
+  # path <- paste0("~/Documents/GitHub/bc/frontiers2017/inst/extdata/",filename)
+  path <- system.file("extdata", filename, package="analytics")
   readRDS(path)
 }
 
@@ -17,6 +33,7 @@ save_rds_to_package_extdata <- function(object, filename){
 }
 
 ##' @title Save RDS to resilio sync folder
+##' TODO test
 ##' @param filename string, for the file to place within the extdata folder of the analytics package.
 ##' @return object the object yielded from the filepath rds
 save_rds_to_Resilio <- function(object, filename){
@@ -24,6 +41,11 @@ save_rds_to_Resilio <- function(object, filename){
   # path <- system.file("extdata", filename, package="analytics")
   saveRDS(object, filename)
 }
+##' Do call concatenate
+##" TODO test
+##' @param input_list input vector or list that will be concatenated
+##' @return output concatenated vector or list.
+dcc<- function(input_list) {do.call('c', input_list)}
 
 ##' Get Mode from vector
 ##' if there is no element that is the mode, it returns the first element of the list of equal-occurrence elements.
@@ -54,7 +76,6 @@ all_file_paths <- function(pwd_of_directory){
 }
 
 ##' Row-Wise Shuffle a Dataframe
-##' TODO test
 ##' @param df dataframe
 ##' @return df2 dataframe with rows shuffled
 shuffle_row_wise <- function(df) df[sample(nrow(df)),]
@@ -65,4 +86,13 @@ shuffle_row_wise <- function(df) df[sample(nrow(df)),]
 ##' @return df row-bound concatenated dataframe
 dcrb <- function(list_of_dataframes){
   do.call('rbind', list_of_dataframes)
+}
+
+##' Prepend String
+##' This is like paste0, but the arguments are reversed. This way you can use it with lapply.
+##' @param b string to put in back
+##' @param a string to put in front
+##' @return a_and_b string concatenated
+prepend_string <- function(b, a) {
+  paste0(a, b)
 }

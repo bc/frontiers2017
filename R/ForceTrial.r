@@ -9,8 +9,8 @@
 ##' @param err max allowable residual from desired reference force.
 ##' @param last_n_milliseconds number of milliseconds to base the stability metrics off.
 ##' @return forcetrial_structure_object the object with all relevant attributes and stability metrics
-ForceTrial <- function(timeseries_df, full_df_path, full_df, err, last_n_milliseconds = 100,
-  muscle_of_interest = "M0") {
+ForceTrial <- function(timeseries_df, full_df, err, last_n_milliseconds = 100,
+  muscle_of_interest = "M0", muscles_of_interest) {
   if (1 %in% timeseries_df$robot_flag) {
     len_before <- nrow(timeseries_df)
     timeseries_df <- timeseries_df[timeseries_df$robot_flag == 2, ]
@@ -21,15 +21,14 @@ ForceTrial <- function(timeseries_df, full_df_path, full_df, err, last_n_millise
   if (0 %in% timeseries_df$robot_flag) {
     warnings("robot was not initialized correctly during force trial")
   }
-  all_muscles_stabilized_by_last_val <- all_muscles_stabilized(timeseries_df, err)
+  all_muscles_stabilized_by_last_val <- all_muscles_stabilized(timeseries_df, err, muscles_of_interest)
   ForceTrialObj <- structure(rm_encoder_and_adept_cols(timeseries_df), adept_coordinates = adept_coordinates(timeseries_df),
     all_muscles_stabilized_by_last_val = all_muscles_stabilized_by_last_val)
   # Only compute stabilization info if the time series actually stabilized.
   if (all_muscles_stabilized_by_last_val) {
     setattr(ForceTrialObj, "stability_info", force_trial_to_stable_metrics(timeseries_df,
       last_n_milliseconds, muscle_of_interest))
-    setattr(ForceTrialObj, "stability_df ", list_of_forces_to_stabilized_df(list(timeseries_df),
-      full_df_path, err, full_df, muscle_of_interest))
+    setattr(ForceTrialObj, "stability_df", list_of_forces_to_stabilized_df(list(timeseries_df), err, full_df, muscle_of_interest))
   }
   class(ForceTrialObj) <- "ForceTrial"
   return(ForceTrialObj)
@@ -50,10 +49,10 @@ ForceTrials_which_stabilized <- function(ForceTrial_list) {
 }
 
 ##' Evaluate whether a ForceTrial stabilized'
-##' @param ForceTrial object of type ForceTrial
+##' @param ft object of type ForceTrial
 ##' @return logical, whether all uscles stabilized by the last val
-ForceTrial_stabilized <- function(ForceTrial) {
-  attr(ForceTrial, "all_muscles_stabilized_by_last_val")
+ForceTrial_stabilized <- function(ft) {
+  attr(ft, "all_muscles_stabilized_by_last_val")
 }
 
 ##' Extract observations DF from the ForceTrial
@@ -63,12 +62,19 @@ get_df_from_ForceTrial <- function(ForceTrial) {
   data.frame(ForceTrial[names(ForceTrial)])
 }
 
-##' converged_colmeans
+##' list of force trials to converged colmeans
 ##' @param ForceTrial_list a list of ForceTrial objects
 ##' @param last_n_milliseconds the number of tail milliseconds from which we should calculate the settled standard deviation.
 converged_colmeans <- function(ForceTrial_list, last_n_milliseconds) {
-  as.data.frame(do.call("rbind", lapply(lapply(lapply(ForceTrial_list, get_df_from_ForceTrial),
-    tail, last_n_milliseconds), colMeans)))
+  as.data.frame(do.call("rbind",
+  lapply(
+    lapply(
+      lapply(ForceTrial_list, get_df_from_ForceTrial),
+      tail,
+      last_n_milliseconds),
+      colMeans)
+    )
+  )
 }
 
 ##' Coerce ForceTrial into a ForceTrial dataframe
@@ -99,7 +105,7 @@ ForceTrials_to_stability_info_df <- function(list_of_force_trials) {
 ##' @param attribute_to_extract string, of the element that will be called from each element via attr()
 ##' @return attribute_df a data_frame of the combined attributes across all elements of the list.
 extract_and_rbind_attribute <- function(list_of_elements, attribute_to_extract) {
-  rbind_dfs(lapply(list_of_elements, function(x) {
+  dcrb(lapply(list_of_elements, function(x) {
     attr(x, attribute_to_extract)
   }))
 }

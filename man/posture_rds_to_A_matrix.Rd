@@ -5,7 +5,7 @@
 \title{Posture RDS to A matrix information
 Uses all data to train}
 \usage{
-posture_rds_to_A_matrix(rds_file_path, last_n_milliseconds)
+posture_rds_to_A_matrix(rds_file_path, last_n_milliseconds, fraction_training)
 }
 \arguments{
 \item{rds_file_path}{string. object must be a list of ForceTrials}

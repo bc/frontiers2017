@@ -2,7 +2,8 @@
 % Please edit documentation in R/generic_tools.r
 \name{save_rds_to_Resilio}
 \alias{save_rds_to_Resilio}
-\title{Save RDS to resilio sync folder}
+\title{Save RDS to resilio sync folder
+TODO test}
 \usage{
 save_rds_to_Resilio(object, filename)
 }

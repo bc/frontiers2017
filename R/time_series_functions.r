@@ -153,6 +153,10 @@ variance_accounted_for_brian <- function(vectorMeasured, vectorPredicted) {
   return(resultVAF)
 }
 
+variance_accounted_for_brian <- function(vectorMeasured, vectorPredicted) {
+  distance <- vectorMeasured - vectorPredicted
+}
+
 
 ##' Compute VAF between two vectors
 ##' This function calculates the variance accounted for between two vectos. The
@@ -268,8 +272,8 @@ calibrate_forces <- function(time_series, length, angle) {
 ##' @return idx_df A list of dataframes with the adept_x, adept_y, start index, end index.
 postures_to_idx_dfs <- function(postures_grouped_by_line, unique_postures) {
   line_posture_start_indices <- lapply(postures_grouped_by_line, function(line) as.numeric(rownames(line)))
-  idxs <- add_adept_xy_to_indices(lapply(line_posture_start_indices, posture_indices_df),
-    unique_postures)
+  initial_vals <- lapply(line_posture_start_indices, posture_indices_df)
+  idxs <- add_adept_xy_to_indices(initial_vals,unique_postures)
   idxs_clean <- clean_up_posture_indices(idxs)
   return(idxs_clean)
 }
@@ -282,29 +286,6 @@ rm_mean_for_multiple_columns <- function(df) {
     df[, i] <- df[, i] - col_means[[i]]
   }
   return(df)
-}
-
-
-
-# This function estimates the A matrix from the measured tendon force and
-# endpoint forces and torques
-find_A_matrix <- function(data) {
-  # The regressor matrix is concatenation of tendon forces
-  time <- data[[1]]
-  numForceChanges <- length(time)
-  measured_muscle_col_names <- simplify2array(lapply(muscle_names(), measured))
-  raw_regressor <- as.matrix(data[measured_muscle_col_names])
-  regressor <- rm_mean_for_multiple_columns(raw_regressor)
-  raw_endpointForceObservation <- data[force_column_names]
-  endpointForceObservation <- rm_mean_for_multiple_columns(raw_endpointForceObservation)
-  AMatrix <- matrix(solve(qr(regressor, LAPACK = TRUE), endpointForceObservation),
-  7, 6)
-  endpointForcePrediction <- data.frame(regressor %*% AMatrix)
-  colnames(endpointForcePrediction) <- force_column_names
-  colnames(AMatrix) <- force_column_names
-  rownames(AMatrix) <- measured_muscle_col_names
-  return(list(AMatrix = AMatrix, endpointForceObservation = endpointForceObservation,
-    endpointForcePrediction = endpointForcePrediction))
 }
 
 visualize_A_matrix_performance <- function(A_matrix_results) {

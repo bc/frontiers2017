@@ -2,7 +2,8 @@
 % Please edit documentation in R/settling_time_analysis.r
 \name{slow_stabilized_index}
 \alias{slow_stabilized_index}
-\title{slow stabilized index}
+\title{Brute force stabilized index
+TODO test, and confirm that it gets the same answer as stabilized_index}
 \usage{
 slow_stabilized_index(ts, desired, err)
 }
