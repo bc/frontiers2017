@@ -255,6 +255,8 @@ stabilized_index <- function(ts, desired, err) {
 
 ##' Brute force stabilized index
 ##' TODO test, and confirm that it gets the same answer as stabilized_index
+##' each snip to check is the time series starting at x
+##' This algorithm checks for every index, essentially O(n), n=number of samples in the timeseries. Brute force.
 ##' @param ts timeseries vector of numeric values
 ##' @param desired numeric the desired stabilized value for the vector, if the vector is 'stabilized'
 ##' @param err numeric the maximum allowable residual for a given value from the desired value.
