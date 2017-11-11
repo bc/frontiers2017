@@ -34,6 +34,10 @@ test_that('n_binary_combinations gets the right vals for small example', {
   expect_equal(kappa(n_binary_combinations(10)), 4, tol=0.01)
 })
 
+test_that('we can produce binary set of vectors for use with cadaver or robotic 7-muscle systems', {
+  write_binary_combination_csv(7, c(3.12,10.0001), "../../output/map_unit_cube.csv")
+})
+
 test_that('we can produce a binary set of x vectors of size 7', {
   num_muscles <- 7
   A_fit <- find_A_matrix(training_data,  measured(muscle_names())[1:num_muscles], forces_of_interest=force_column_names[1:3])

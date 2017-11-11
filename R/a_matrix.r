@@ -194,6 +194,35 @@ custom_binary_combinations <- function(n, tension_range){
   return(mat)
 }
 
+##' Custom Binary combinations
+##' Creates a set of unique identifiers for when the MAP was created.
+##' use this to see what time the MAP was created in your time zone. E.g.
+##' https://www.wolframalpha.com/input/?i=unixtime+1510379473228.8129883*1e-3+to+PST
+##' @param n length of the vector
+##' @param tension_range the range that the inputs can be at
+##' @return M matrix where each row is a unique combination of tension_range[1] min and tension_range[2] max
+compose_binary_combination_df <- function(n,tension_range){
+  newton_values <- custom_binary_combinations(n, tension_range)
+  id_vec <- format(dcc(lapply(1:nrow(newton_values), function(x) as.numeric(Sys.time())*1000)), digits=16)
+  reference_value_colnames <- paste0("M",0:(n-1))
+  colnames(newton_values) <- reference_value_colnames
+  df <- cbind(map_creation_id = id_vec, newton_values)
+  rownames(df) <- c()
+  return(df)
+}
+##' Custom Binary combinations to CSV, ready for input to NI cpu
+##' Creates a set of unique identifiers for when the MAP was created.
+##' use this to see what time the MAP was created in your time zone. E.g.
+##' https://www.wolframalpha.com/input/?i=unixtime+1510379473228.8129883*1e-3+to+PST
+##' @param n length of the vector
+##' @param tension_range the range that the inputs can be at
+##' @param filename desired output directory filepath
+write_binary_combination_csv <- function(n, tension_range, filename){
+  df <- compose_binary_combination_df(n,tension_range)
+  write.csv(df, filename, row.names=FALSE,quote=FALSE)
+}
+
+
 ##' stop_if_min_equals_max
 ##' @param input_range vector of two values indicating c(min,max)
 stop_if_min_equals_max <- function(input_range){
