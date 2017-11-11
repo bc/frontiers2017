@@ -24,7 +24,7 @@ test_that('no err when fewer than 7 muscles (4) are used to train A matrix',{
 test_that("we can calculate cond of an A matrix that uses 6forces~7tendons", {
   A_fit <- find_A_matrix(training_data,  measured(muscle_names())[1:7], forces_of_interest=force_column_names[1:3])
 	cond_num <- kappa(A_fit$AMatrix, exact = TRUE)
-	expect_true(cond_num > 0 )
+	expect_true(cond_num > 0)
 	expect_is(cond_num, 'numeric')
 })
 
