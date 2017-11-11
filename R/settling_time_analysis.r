@@ -231,6 +231,8 @@ stop_if_midpoint_out_of_range <- function(midpoint, bounds) {
 
 ##' Index of first stabilized value
 ##' TODO test
+##' The internal call to stablized returns TRUE or FALSE.
+##' If left is TRUE, then we should take that one. if right is TRUE we should take that one.
 ##' @param ts numeric vector of values over time
 ##' @param bounds a tuple of lower and upper bound indices (integers)
 ##' @param desired numeric the desired stabilized value for the vector, if the vector is 'stabilized'
