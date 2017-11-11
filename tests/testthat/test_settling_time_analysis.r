@@ -78,11 +78,11 @@ context("Testing base functions")
 #Going up, going down, going pos to neg, neg to pos, integers, numeric(floating point)
 #TEST
 test_that("index_of_first_stabilized_val", {
-  expect_equal(index_of_first_stabilized_val(fake_ft1, c(1,18), 1.5, 0.5), 11)
+  expect_equal(index_of_first_stabilized_val(fake_ft1, c(10,11), 1.5, 0.5), 10)
   expect_equal(index_of_first_stabilized_val(fake_ft2, c(1,5), 2, 1), 1)
-  #expect_equal(index_of_first_stabilized_val(fake_ft3, c(1,5), 3, 1), throws_error())
-  expect_equal(index_of_first_stabilized_val(fake_ft2, c(1,5), 2, 0.1), 2)
-  expect_equal(index_of_first_stabilized_val(fake_ft3, c(1,5), 5, 3), 1)
+  expect_error(index_of_first_stabilized_val(fake_ft3, c(1,5), 3, 1))
+  expect_equal(index_of_first_stabilized_val(fake_ft2, c(1,2), 2, 0.1), 2)
+  expect_equal(index_of_first_stabilized_val(fake_ft3, c(1,2), 5, 3), 1)
 })
 
 #TEST
