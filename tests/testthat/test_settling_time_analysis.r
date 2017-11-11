@@ -59,18 +59,18 @@ test_that("stabilized_index", {
   expect_equal(stabilized_index(sample_measured_M0_force_trial, 4, 0.5), 207)
 })
 
-#test_that("performance of stabilized_index is acceptable", {
-#  library(microbenchmark)
-#  replicates = 1000
-#  res = microbenchmark(slow_stabilized_index(sample_vec, desired = 3, err = 1),
-#    slow_stabilized_index(sample_measured_M0_force_trial, desired = 4, err = 0.5),
-#    stabilized_index(sample_vec, desired = 3, err = 1), stabilized_index(sample_measured_M0_force_trial,
-#      desired = 4, err = 0.5), times = replicates)
-#  pdf("../../../output/settling_time_analysis_performance.pdf", width = 10, height = 10)
-#  plot(res)
-#  dev.off()
-#  expect_equal(1, 1)  #this is here invoke the block & ensure no errors happen in the above code.
-#})
+test_that("performance of stabilized_index is acceptable", {
+  library(microbenchmark)
+  replicates = 10
+  res = microbenchmark(slow_stabilized_index(sample_vec, desired = 3, err = 1),
+    slow_stabilized_index(sample_measured_M0_force_trial, desired = 4, err = 0.5),
+    stabilized_index(sample_vec, desired = 3, err = 1), stabilized_index(sample_measured_M0_force_trial,
+      desired = 4, err = 0.5), times = replicates)
+  pdf("../../output/settling_time_analysis_performance.pdf", width = 10, height = 10)
+  plot(res)
+  dev.off()
+  expect_equal(1, 1)  #this is here invoke the block & ensure no errors happen in the above code.
+})
 
 context("Testing base functions")
 
