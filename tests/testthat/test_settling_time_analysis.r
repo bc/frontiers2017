@@ -122,7 +122,7 @@ test_that("discrete_diff", {
   expect_equal(discrete_diff(c(1, 2, 3)), c(1, 1))
   expect_equal(discrete_diff(c(10, 10, 10, 10)), c(0, 0, 0))
   expect_equal(discrete_diff(c(10, -10, 10, -10)), c(-20, 20, -20))
-  expect_equal(discrete_diff(c(27, 33, 49, 57)), c(6, 16, 8)) 
+  expect_equal(discrete_diff(c(27, 33, 49, 57)), c(6, 16, 8))
   expect_equal(discrete_diff(c(27.5, 33, 49, 57)), c(5.5, 16, 8))
 })
 

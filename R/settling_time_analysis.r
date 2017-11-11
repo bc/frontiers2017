@@ -180,20 +180,39 @@ fill_force_velocity_metrics <- function(df) {
   return(df)
 }
 
-##' First true value index
-##' TODO test
+##' Index of the first value that has stabilized, given two indices.
+##' Take two indices of interest and identify whether the first, second or neither converged.
+##' When we have narrowed the index of stabilization down to two values,
+##' it's got to be one of them (or the time series never stabilized).
+##' In a timeseries that stabilized, there are two situations we have
+##' to account for. First, if the first of the two indices is stable,
+##' then it follows that the second one is also stable.
+##' We would return the index of the first bound.
+##' If we find that the first element is unstable, but the second
+##' element is stable, then we return the upper bound.
+##' Else we throw an error proclaiming that neither of the sample
+##' converged, and by induction the entire time series never
+##' stabilized under the stablization criteria.
 ##' @param left Logical; whether the left index is stabilized
 ##' @param right Logical; whether the right index is stabilized
-##' @param idx_for_l_and_r the index lower and upper bounds (list of 2 integers)
+##' @param idx_for_l_and_r the index lower and upper bounds (list of 2 integers). Essentially the bounds.
 ##' @return idx index of the first TRUE in a list of two Logical values.
 first_true_value_idx <- function(left, right, idx_for_l_and_r) {
-  if (!left & !right) {
-    stop("The time series never stabilized under the maximum allowable error threshold")
-  }
+  stop_if_neither_of_bounds_converged(left,right)
   truth_table <- c(left, right)
   return(idx_for_l_and_r[min(which(truth_table == TRUE))])
 }
 
+##' Stop if neight of the bounds converged
+##' If we've narrowed it down to two final elements of the timeseries,
+##' and there isn't any convergence on either, we respond with an error message.
+##' @param left Logical; whether the left index is stabilized
+##' @param right Logical; whether the right index is stabilized
+stop_if_neither_of_bounds_converged <- function(left,right){
+  if (!left & !right) {
+    stop("The time series never stabilized under the maximum allowable error threshold")
+  }
+}
 ##' Are there no bounds?
 ##' TODO test
 ##' @description True when the bounds have converged to a single index.
@@ -229,19 +248,24 @@ stop_if_midpoint_out_of_range <- function(midpoint, bounds) {
   }
 }
 
-##' Index of first stabilized value
-##' TODO test
+##' Index of first stabilized value of two values of interest
+##' The internal call to stablized returns TRUE or FALSE.
+##' If left is TRUE, then we should take that one. if right is TRUE we should take that one.
 ##' @param ts numeric vector of values over time
 ##' @param bounds a tuple of lower and upper bound indices (integers)
 ##' @param desired numeric the desired stabilized value for the vector, if the vector is 'stabilized'
 ##' @param err numeric the maximum allowable residual for a given value from the desired value.
 ##' @return idx int, index of the first stabilized value within the timeseries ts.
 index_of_first_stabilized_val <- function(ts, bounds, desired, err) {
+  stop_if_bounds_are_not_len_1(bounds)
   left <- stabilized(ts[bounds[1]:bounds[2]], desired, err)
   right <- stabilized(ts[bounds[2]:bounds[2]], desired, err)
-  print(left)
-  print(right)
   return(first_true_value_idx(left, right, bounds))
+}
+stop_if_bounds_are_not_len_1 <- function(bounds){
+  if(bound_width(bounds)!=1){
+    stop("index_of_first_stabilized_val needs to take in a 2-element timeseries, with bounds that are only 1 index away from one another.")
+  }
 }
 
 ##' stabilized index
