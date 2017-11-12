@@ -49,6 +49,7 @@ wrench_vector_to_labeled_vals <- function(wrench_vector) {
 
 
 ##' create muscle activation pattern dataframe from force timeseries_df
+##' WARNING DOES NOT WORK WITH INPTU DATA FROM CSV"
 ##' a Map is a Muscle Activation Pattern, which is, given N muscles, the map is a vector of N tensions.
 ##' @param timeseries_df forces dataframe with $reference_M0 to $reference_M6
 ##' @return muscle_activation_patterns dataframe
