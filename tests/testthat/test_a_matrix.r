@@ -1,3 +1,5 @@
+context("Linearity functions manipulations")
+
 set.seed(100)
 range_tension <- c(3, 20)
 sample_input_output_data <- read_rds_to_package_extdata("training_data.rds")
@@ -5,6 +7,7 @@ data <- df_split_into_training_and_testing(sample_input_output_data, fraction_tr
 training_data <- data$train
 test_data <- data$test
 
+context('Computing A Matrix Fits')
 test_that("produce A matrices for different numbers of muscles or output force dimensions",
   {
     pdf("../../output/a_mat_fit.pdf")
@@ -16,12 +19,12 @@ test_that("produce A matrices for different numbers of muscles or output force d
   dev.off()
   })
 
-test_that('no err when fewer than 7 muscles (4) are used to train A matrix',{
+test_that('We find no error when fewer than 7 muscles (4) are used to train A matrix',{
     A_fit <- find_A_matrix(training_data, measured(muscle_names())[1:4], forces_of_interest=force_column_names[1:3])
     fit_evaluation(A_fit, test_data)
   })
 
-test_that("we can calculate cond of an A matrix that uses 6forces~7tendons", {
+test_that("We can calculate cond of an A matrix that uses 6forces~7tendons", {
   A_fit <- find_A_matrix(training_data,  measured(muscle_names())[1:7], forces_of_interest=force_column_names[1:3])
 	cond_num <- kappa(A_fit$AMatrix, exact = TRUE)
 	expect_true(cond_num > 0)
@@ -36,6 +39,20 @@ test_that('n_binary_combinations gets the right vals for small example', {
 
 test_that('we can produce binary set of vectors for use with cadaver or robotic 7-muscle systems', {
   write_binary_combination_csv(7, c(3.12,10.0001), "../../output/map_unit_cube.csv")
+})
+
+test_that('compose_binary_combination_df creates correct values in place of 0,1', {
+  n_10_df <- compose_binary_combination_df(10,c(0,1))
+  map_ids_are_unique <- nrow(n_10_df) == length(unique(n_10_df[,1]))
+  expect_true(map_ids_are_unique)
+  expect_equal(nrow(n_10_df),1024)
+
+  n_7_df <- compose_binary_combination_df(7,c(0,1))
+  map_ids_are_unique <- nrow(n_7_df) == length(unique(n_7_df[,1]))
+  expect_true(map_ids_are_unique)
+  expect_equal(nrow(n_7_df),128)
+
+
 })
 
 test_that('we can produce a binary set of x vectors of size 7', {
@@ -57,7 +74,7 @@ test_that('we can produce a binary set of x vectors of size 7', {
   constr <- list(constr = big_A, dir = rep("<=", nrow(big_A)), rhs = big_b)
   constraints_are_feasible(constr)
   state <- har.init(constr)
-  result <- har.run(state, n.samples = 10000)
+  result <- har.run(state, n.samples = 100)
   samples <- result$samples
   pass_unit_cube_to_A(big_A, 3, c(3,20))
 
