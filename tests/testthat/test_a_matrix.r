@@ -5,6 +5,18 @@ data <- df_split_into_training_and_testing(sample_input_output_data, fraction_tr
 training_data <- data$train
 test_data <- data$test
 
+## TODO check this test_that
+context("lin_qr_solve")
+test_that("lin_qr_solve creates a matrix A from matrix x and b",
+{
+A <- matrix(c(3,1,2,1),nrow=2,ncol=2)
+b <- matrix(c(8,2),nrow=2,ncol=1)
+x <- solve(A,b)
+expect_true(lin_qr_solve(x,b),A)
+
+})
+
+
 test_that("produce A matrices for different numbers of muscles or output force dimensions",
   {
     pdf("../../output/a_mat_fit.pdf")
@@ -71,4 +83,14 @@ test_that('we can produce a binary set of x vectors of size 7', {
 
   parcoord(samples)
   plot3d(samples)  #show 3d plane
+})
+
+##' TODO check this test_that'
+context("stop_if_min_equals_max")
+test_that("stop_if_min_equals_max will display stop message",
+{
+  input_range <- c(1,50)
+  stop_if_min_equals_max(input_range)
+  input_range <- c(2,2)
+  stop_if_min_equals_max(input_range)
 })
