@@ -1,6 +1,12 @@
 library(ggplot2)
 
-setup_force_plot <- function(forces, ylim, ticks) {
+# Setup for force plots
+# @param forces vector the forces you want to plot versus time
+# @param ylim vector of length 2; the min and max y axis values
+# @param ticks vector break up of the amount of indicies of interest *800 to be every 400
+# @return full boxplot setup with axes for the forces given.
+
+  setup_force_plot <- function(forces, ylim, ticks) {
   plot.new()
   plot.window(xlim = range(ticks), ylim = ylim)
   axis(1, at = ticks)
@@ -13,6 +19,12 @@ setup_force_plot <- function(forces, ylim, ticks) {
 
 }
 
+# Plot of muscle forces over time
+# @param forces vector the forces you want to plot versus time
+# @param minimum_tendon_force int to set the axis limit to 3
+# @param maximum_tendon_force int to set the axis limit to 20
+# @param indices_of_interest int notes the important indicies 2:5???
+# @return 0??? lines plot of the muscle forces with respect to time
 plot_muscle_forces_over_time <- function(forces, minimum_tendon_force, maximum_tendon_force,
   indices_of_interest) {
   ticks <- seq(0, length(indices_of_interest) * 800, by = 400)
@@ -25,6 +37,12 @@ plot_muscle_forces_over_time <- function(forces, minimum_tendon_force, maximum_t
   return(0)
 }
 
+#' Plot of JR3 forces over time
+#' @param forces vector the forces you want to plot versus time
+#' @param minimum_tendon_force int to set the axis limit to 3
+#' @param maximum_tendon_force int to set the axis limit to 20
+#' @param indices_of_interest int notes the important indicies 2:5???
+#' @return 0??? lines plot of the JR3 forces with respect to time
 plot_jr3_force_over_time <- function(forces, minimum_tendon_force, maximum_tendon_force,
   indices_of_interest) {
   # TODO get ts data from data_path instead of economics_long. Color by force +
@@ -81,6 +99,11 @@ plot_wrench_sd_text <- function(wrench_sd_vector, x = -2, y = 5) {
 
 
 library(MASS)
+
+#plot creation of Parcoord
+#@param dataframe_of_observations dataset of the plot of parcoord
+#p-raw is a static parallel coordinate plot
+#@return p ggplot_object??? of  ???
 generate_parcoord_plot <- function(dataframe_of_observations) {
   require(GGally)
   require(ggplot2)
@@ -92,6 +115,12 @@ generate_parcoord_plot <- function(dataframe_of_observations) {
   return(p)
 }
 
+#Plot of the output wrench fx & fy
+#@param wrench
+#@param wrench_sd??? ???
+#@param xlim vector of the max and min x-axis values
+#@param ylim vector of the max and min y-axis values
+#@return plot of output wrench with wrench text
 plot_output_wrench_fx_fy <- function(wrench, wrench_sd, xlim, ylim) {
   plot(NA, xlim = xlim, ylim = ylim, main = paste("Norm of w = ", norm_vec(wrench)),
     xlab = paste("Fx is ", wrench[1]), ylab = paste("Fy is ", wrench[2]), asp = 1)
@@ -169,7 +198,9 @@ sd_of_last_n_observations <- function(forces, indices_of_interest, n = 100, forc
 }
 
 
-
+# Plot of porcupine of endpoint wrenches
+# @param forces vector of the forces used to get the endpoint wrenches
+# @return scatter plot of the endpoint wrenches
 plot_porcupine_of_endpoint_wrenches <- function(forces) {
   wrench_observation_df <- do.call("rbind", forces)  #only grab the first posture
   force_ranges <- apply(wrench_observation_df, 2, range)
