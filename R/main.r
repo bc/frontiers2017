@@ -18,6 +18,13 @@ library(gridExtra)
 
 
 options(error = NULL)
+
+nov12_realTimeDataFormatting <- function(filepath){
+  as.data.frame(fread("filepath"))
+  browser()
+}
+
+
 main <- function() {
 
   source("R/data_description.r")
