@@ -1,6 +1,7 @@
 
 ##' This function estimates the A matrix from measured tendon forces and output forces. performs 6D linear fit.
 ##' The regressor matrix is concatenation of tendon forces
+##' TODO Test Directly
 ##' @param data input output data that matches measured_muscle_col_names and force_column_names.
 ##' @return fit_object list of AMatrix, endpointForceObservation, endpointForcePrediction, regressor_means, response_means
 find_A_matrix <- function(data, regressor_names = simplify2array(lapply(muscle_names(),
@@ -18,6 +19,7 @@ find_A_matrix <- function(data, regressor_names = simplify2array(lapply(muscle_n
 }
 
 ##' lin_qr_solve
+##' TODO Function Title and description
 ##' @param x matrix of N independent columns (the regressor), with appropriate colnames
 ##' @param b matrix of M dependent variables (with appropriate colnames)
 ##' @return A matrix representing linear least squares regression fit for x matrix -> b
