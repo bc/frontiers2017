@@ -8,20 +8,23 @@ sample_vec <- c(1, 1, 1, 1, 1, 1, 4, 8, 9, 4, 5, 3, 2, 3, 2, 3, 2, 3, 3, 3, 3, 3
 sample_vec2 <- c(1, 1, 1, 1, 1, 1, 4, 8, 8, 4, 5, 3, 2, 3, 2, 3, 2, 3, 3, 3, 3, 3, 3, 3)
 fake_ft1 <- c(3.895, 3.443, 2.978, 3.032, 2.895, 2.676, 2.423, 2.332, 2.124, 1.876, 1.698, 1.643, 1.445, 1.554, 1.403, 1.454, 1.467, 1.441)
 fake_ft2 <- c(3, 2, 2, 2, 2)
-fake_ft3 <- c(5, 3, 7, 8, 9)
-
+fake_ft3 <- c(5, 3, 5, 7, 8, 9)
 settling = c(1, 2, 3, 4, 5)
-initial_tension = c(22, 45, 50, 47, 19)
-final_tension = c(12, 55, 32, 60, 12)
-df = data.frame(settling, initial_tension, final_tension)
-
+initial_tension1 = c(22, 45, 50, 47, 19)
+final_tension1 = c(12, 55, 32, 60, 12)
+delta1 = data.frame(settling, initial_tension1, final_tension1)
+initial_tension2 = c(22.5, 45.5, 50, 47.95, 19)
+final_tension2 = c(12.5, 55.6, 32.97, 60.76, 12)
+delta2 = data.frame(settling, initial_tension2, final_tension2)
 initial_index = c(3, 5, 4, 1, 2)
 value = c(3, 5, 4, 1, 2)
 reorder = data.frame(initial_index, value, row.names = initial_index)
 initial_index = c(1, 2, 3, 4, 5)
 value = c(1, 2, 3, 4, 5)
 ordered = data.frame(initial_index, value, row.names = initial_index)
-
+test = readRDS('/home/pavle/Documents/GitHub/frontiers2017/inst/extdata/force_trial_adept_x_-527.463336_adept_y_68.rds') 
+#test = force_trial_to_stable_index_df(sample_measured_M0_force_trial, 0.5)
+#print(test)
 
 context("Evaluators of stability")
 test_that("stabilized", {
@@ -74,50 +77,49 @@ test_that("performance of stabilized_index is acceptable", {
 
 context("Testing base functions")
 
-#How do these work?
-#Going up, going down, going pos to neg, neg to pos, integers, numeric(floating point)
-#TEST
+test_that("force_trial_to_stable_index_df", {
+   #expect_equal(force_trial_to_stable_index_df(sample_measured_M0_force_trial, 0.5), test)
+})
+
+#WORKS EXCEPT ERROR CASES
+test_that("slow_stabilized_index", {
+  expect_true(slow_stabilized_index(c(-3), -3, 1) == stabilized_index(c(-3), -3, 1))
+  expect_true(slow_stabilized_index(c(-2.888), -3, 1) == stabilized_index(c(-2.888), -3, 1))
+  #expect_error(slow_stabilized_index(c(1, 1), -3, 1))
+  #expect_error(slow_stabilized_index(c(-1, -1), -3, 1))
+  expect_true(slow_stabilized_index(sample_vec, 3, 1) == stabilized_index(sample_vec, 3, 1))
+  expect_true(slow_stabilized_index(sample_measured_M0_force_trial, 4, 0.5) == slow_stabilized_index(sample_measured_M0_force_trial, 4, 0.5))
+  expect_equal(slow_stabilized_index(fake_ft1, 1.4, 0.07), 15)
+  expect_true(slow_stabilized_index(fake_ft1, 1.4, 0.07) == stabilized_index(fake_ft1, 1.4, 0.07))
+})
+
 test_that("index_of_first_stabilized_val", {
   expect_equal(index_of_first_stabilized_val(fake_ft1, c(10,11), 1.5, 0.5), 10)
-  expect_equal(index_of_first_stabilized_val(fake_ft2, c(1,5), 2, 1), 1)
-  expect_error(index_of_first_stabilized_val(fake_ft3, c(1,5), 3, 1))
-  expect_equal(index_of_first_stabilized_val(fake_ft2, c(1,2), 2, 0.1), 2)
-  expect_equal(index_of_first_stabilized_val(fake_ft3, c(1,2), 5, 3), 1)
+  expect_equal(index_of_first_stabilized_val(fake_ft1, c(10,11), 1.5, 0.2), 11)
+  expect_error(index_of_first_stabilized_val(fake_ft1, c(10,11), 1.5, 0.1))
+  expect_equal(index_of_first_stabilized_val(fake_ft3, c(4,5), 6, 2), 4)
+  expect_equal(index_of_first_stabilized_val(fake_ft3, c(3,4), 7, 1), 4)
+  expect_error(index_of_first_stabilized_val(fake_ft3, c(2,3), 7, 1))
 })
 
-#TEST
-#test_that("slow_stabilized_index", {
-#   expect_equal(slow_stabilized_index(sample_vec, 5, 2), 9)
-#})
-
-#TEST
-#test_that("force_trial_to_stable_index_df", {
-#   expect_equal(something)
-#})
-#End how do these work?
-
-#These work
-#WORKS
 test_that("delta_tension", {
-   expect_equal(delta_tension(df), c(-10, 10, -18, 13, -7))
+  expect_equal(delta_tension(delta1), c(-10, 10, -18, 13, -7))
+  expect_equal(delta_tension(delta2), c(-10, 10.1, -17.03, 12.81, -7))
 })
 
-#WORKS
 test_that("no_bounds", {
-   expect_equal(no_bounds(c(10, 10)), TRUE)
-   expect_equal(no_bounds(c(10, 11)), FALSE)
-   expect_equal(no_bounds(c(-10, 11)), FALSE)
-   expect_equal(no_bounds(c(-10, -10)), TRUE)
+  expect_equal(no_bounds(c(10, 10)), TRUE)
+  expect_equal(no_bounds(c(10, 11)), FALSE)
+  expect_equal(no_bounds(c(-10, 11)), FALSE)
+  expect_equal(no_bounds(c(-10, -10)), TRUE)
 })
 
-#WORKS
 test_that("assign_new_bounds", {
   expect_equal(assign_new_bounds(45, TRUE, c(-10, 100)), c(-10, 45))
   expect_equal(assign_new_bounds(45, FALSE, c(-10, 100)), c(45, 100))
   expect_error(assign_new_bounds(101, FALSE, c(-10, 100)))
 })
 
-#WORKS
 test_that("discrete_diff", {
   expect_equal(discrete_diff(c(1, 2, 3)), c(1, 1))
   expect_equal(discrete_diff(c(10, 10, 10, 10)), c(0, 0, 0))
@@ -126,7 +128,6 @@ test_that("discrete_diff", {
   expect_equal(discrete_diff(c(27.5, 33, 49, 57)), c(5.5, 16, 8))
 })
 
-#WORKS
 test_that("Signed max residual val", {
   expect_equal(signed_max_residual_val(c(-14, 13)),-14)
   expect_equal(signed_max_residual_val(c(-10, 13)),13)
@@ -136,15 +137,12 @@ test_that("Signed max residual val", {
   expect_equal(signed_max_residual_val(c(0, 0)), 0)
 })
 
-#WORKS
 test_that("first_true_value_idx", {
   expect_equal(first_true_value_idx(FALSE, TRUE, c(6, 9)), 9)
   expect_equal(first_true_value_idx(TRUE, TRUE, c(6, 7)), 6)
   expect_that(first_true_value_idx(FALSE, FALSE, c(6, 7)), throws_error())
 })
 
-#WORKS
 test_that("sort_by_initial_index", {
    expect_equal(sort_by_initial_index(reorder), ordered)
 })
-#End these work
