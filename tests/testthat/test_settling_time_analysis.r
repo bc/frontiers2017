@@ -22,9 +22,15 @@ reorder = data.frame(initial_index, value, row.names = initial_index)
 initial_index = c(1, 2, 3, 4, 5)
 value = c(1, 2, 3, 4, 5)
 ordered = data.frame(initial_index, value, row.names = initial_index)
-test = readRDS('/home/pavle/Documents/GitHub/frontiers2017/inst/extdata/force_trial_adept_x_-527.463336_adept_y_68.rds') 
-#test = force_trial_to_stable_index_df(sample_measured_M0_force_trial, 0.5)
-#print(test)
+list_of_ft = readRDS('/home/pavle/Documents/GitHub/frontiers2017/inst/extdata/force_trial_adept_x_-527.463336_adept_y_68.rds')
+ft = ft_to_df(list_of_ft[[1]])
+print(force_trial_to_stable_index_df(ft, 0.09))
+test_df1 = data.frame(1, 803, 3.170629, 194)
+test_df2 = data.frame(1, 803, 3.170629, 108)
+test_df3 = data.frame(1, 803, 3.170629, 476)
+colnames(test_df1) <- c("initial_index", "final_index", "final_reference_force", "settling_time")
+colnames(test_df2) <- c("initial_index", "final_index", "final_reference_force", "settling_time")
+colnames(test_df3) <- c("initial_index", "final_index", "final_reference_force", "settling_time")
 
 context("Evaluators of stability")
 test_that("stabilized", {
@@ -78,10 +84,13 @@ test_that("performance of stabilized_index is acceptable", {
 context("Testing base functions")
 
 test_that("force_trial_to_stable_index_df", {
-   #expect_equal(force_trial_to_stable_index_df(sample_measured_M0_force_trial, 0.5), test)
+  expect_equal(force_trial_to_stable_index_df(ft, 0.5), test_df1)
+  expect_equal(force_trial_to_stable_index_df(ft, 1.6), test_df2)
+  expect_equal(force_trial_to_stable_index_df(ft, 0.2), test_df3)
+  #expect_error(force_trial_to_stable_index_df(ft, 0.1))
 })
 
-#WORKS EXCEPT ERROR CASES
+#Error cases don't work (expect_error and expect_equal(...throws_error() don't work)
 test_that("slow_stabilized_index", {
   expect_true(slow_stabilized_index(c(-3), -3, 1) == stabilized_index(c(-3), -3, 1))
   expect_true(slow_stabilized_index(c(-2.888), -3, 1) == stabilized_index(c(-2.888), -3, 1))
