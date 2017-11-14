@@ -18,6 +18,19 @@ find_A_matrix <- function(data, regressor_names = simplify2array(lapply(muscle_n
   return(fit)
 }
 
+find_A_matrix_without_offset <- function(data, regressor_names = simplify2array(lapply(muscle_names(),
+  measured)), forces_of_interest = force_column_names) {
+  num_regressor_columns = length(regressor_names)  #inc regressor
+  num_response_columns = length(forces_of_interest)
+  regressor <- as.matrix(data[regressor_names])
+  endpointForceObservation <- data[forces_of_interest]
+  AMatrix <- lin_qr_solve(regressor, endpointForceObservation)
+  endpointForcePrediction <- predict_against_input_data(regressor, AMatrix)
+  fit <- list(AMatrix = AMatrix, endpointForceObservation = endpointForceObservation,
+    endpointForcePrediction = endpointForcePrediction)
+  return(fit)
+}
+
 ##' lin_qr_solve
 ##' TODO Function Title and description
 ##' @param x matrix of N independent columns (the regressor), with appropriate colnames
@@ -129,6 +142,12 @@ fit_evaluation <- function(A_fit, test_data, ...) {
   fit_summary(A_fit)
   evaluate_fit_wrt_test_data(A_fit, test_data)
 }
+
+fit_evaluation_without_offset <- function(A_fit, test_data, ...) {
+  par(mfcol = c(3, 2))
+  fit_summary(A_fit)
+  evaluate_fit_wrt_test_data_without_offset(A_fit, test_data)
+}
 ##' evaluate_fit_wrt_test_data
 ##' @param A_fit result from find_A_matrix
 ##' @param test_data df with same cols as regressors+response variables as in A_fit
@@ -141,6 +160,27 @@ evaluate_fit_wrt_test_data <- function(A_fit, test_data) {
   vector_one <- as.matrix(rep(1, num_observation), num_observation, 1)
   colnames(vector_one) <- "offset"
   test_input <- cbind(vector_one, as.matrix(test_data[regressor_names_without_offset]))
+  test_predicted_response <- predict_output_force(A_fit$AMatrix, test_input)
+  test_observed_response <- test_data[force_col_names]
+  hist_force_magnitudes(test_observed_response, "Force observations from test data ")
+  hist_force_magnitudes(test_predicted_response, "Force Predictions from test data")
+  res_test <- test_observed_response - test_predicted_response
+  hist_euclidian_errors(magnitudes(res_test), forces_of_interest, regressor_names,
+    source_of_vals="test data")
+  message('Summary of residuals when predicting model against test set')
+  print(summary(res_test))
+  print(column_ranges(res_test))
+  message('summary of euclidian magnitudes of residuals in model vs test set ')
+  print(summary(magnitudes(res_test)))
+}
+
+evaluate_fit_wrt_test_data_without_offset <- function(A_fit, test_data) {
+  num_observation <- nrow(test_data)
+  regressor_names <- rownames(A_fit$AMatrix)
+  force_col_names <- colnames(A_fit$AMatrix)
+  forces_of_interest <- paste0(force_col_names, collapse=",")
+  vector_one <- as.matrix(rep(1, num_observation), num_observation, 1)
+  test_input <- as.matrix(test_data[regressor_names])
   test_predicted_response <- predict_output_force(A_fit$AMatrix, test_input)
   test_observed_response <- test_data[force_col_names]
   hist_force_magnitudes(test_observed_response, "Force observations from test data ")
