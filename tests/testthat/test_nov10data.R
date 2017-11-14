@@ -8,6 +8,10 @@ filepaths <- dcc(lapply(filenames, get_Resilio_filepath))
 experiments <- lapply(filepaths, function(file) {
   fread(file)
 })
+
+##' Zero out JR3 sensors
+##' @param df dataframe of raw timeseries data including JR3_FX, etc.
+##' @param JR3_sensor_null vecotr of 6 values representing the mean in the first 100ms
 zero_out_JR3_sensors <- function(df, JR3_sensor_null) {
   for (i in c("JR3_FX", "JR3_FY", "JR3_FZ", "JR3_MX", "JR3_MY", "JR3_MZ")) {
     df[,i] <- df[,i] - JR3_sensor_null[[i]]
