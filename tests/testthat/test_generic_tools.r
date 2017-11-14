@@ -39,3 +39,9 @@ test_that("shuffle_row_wise does not replace rows", {
 test_that("shuffle_row_wise shuffles all rows", {
   expect_equal(nrow(shuffle_row_wise(sample_df_rows)), 6)
 })
+
+context("Resilio filepath composition")
+test_that("get resilio filepath creates correct path", {
+  filepath <- get_Resilio_filepath('noPostureNeutralForceTrials2017_11_12_14_53_25.txt')
+  expect_true(file.exists(filepath))
+})

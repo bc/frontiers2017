@@ -41,6 +41,14 @@ save_rds_to_Resilio <- function(object, filename){
   # path <- system.file("extdata", filename, package="analytics")
   saveRDS(object, filename)
 }
+
+##' Get Resilio File Path
+##' @param filename string of the object of interest, i.e. 'realTimeData2017_08_16_13_23_42.txt'
+##' @param filepath string of the object with the path
+get_Resilio_filepath <- function(filename){
+  paste0("~/Resilio Sync/data/",filename)
+}
+
 ##' Do call concatenate
 ##" TODO test
 ##' @param input_list input vector or list that will be concatenated
