@@ -95,6 +95,8 @@ test_that("slow_stabilized_index", {
   expect_true(slow_stabilized_index(c(-2.888), -3, 1) == stabilized_index(c(-2.888), -3, 1))
   #expect_true(slow_stabilized_index(c(1.1, 1.2), -3.1, 1.1) == stabilized_index(c(1.1, 1.2), -3.1, 1.1))
   #expect_error(slow_stabilized_index(c(-1, -1), -3, 1), "The time series never stabilized under the maximum allowable error threshold")
+  expect_equal(slow_stabilized_index(c(-2,3), 1, 2), 2)
+  expect_equal(slow_stabilized_index(c(1.1,1.2), 1, 0.2), 1)
   expect_true(slow_stabilized_index(sample_vec, 3, 1) == stabilized_index(sample_vec, 3, 1))
   expect_true(slow_stabilized_index(sample_measured_M0_force_trial, 4, 0.5) == slow_stabilized_index(sample_measured_M0_force_trial, 4, 0.5))
   expect_equal(slow_stabilized_index(fake_ft1, 1.4, 0.07), 15)
