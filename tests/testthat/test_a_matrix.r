@@ -1,3 +1,5 @@
+context("Linearity functions manipulations")
+
 set.seed(100)
 range_tension <- c(3, 20)
 sample_input_output_data <- read_rds_from_package_extdata("training_data.rds")
@@ -5,6 +7,7 @@ data <- df_split_into_training_and_testing(sample_input_output_data, fraction_tr
 training_data <- data$train
 test_data <- data$test
 
+context('Computing A Matrix Fits')
 test_that("produce A matrices for different numbers of muscles or output force dimensions",
   {
     pdf("../../output/a_mat_fit.pdf")
@@ -16,12 +19,15 @@ test_that("produce A matrices for different numbers of muscles or output force d
   dev.off()
   })
 
-test_that('no err when fewer than 7 muscles (4) are used to train A matrix',{
+
+
+
+test_that('We find no error when fewer than 7 muscles (4) are used to train A matrix',{
     A_fit <- find_A_matrix(training_data, measured(muscle_names())[1:4], forces_of_interest=force_column_names[1:3])
     fit_evaluation(A_fit, test_data)
   })
 
-test_that("we can calculate cond of an A matrix that uses 6forces~7tendons", {
+test_that("We can calculate cond of an A matrix that uses 6forces~7tendons", {
   A_fit <- find_A_matrix(training_data,  measured(muscle_names())[1:7], forces_of_interest=force_column_names[1:3])
 	cond_num <- kappa(A_fit$AMatrix, exact = TRUE)
 	expect_true(cond_num > 0)
@@ -32,6 +38,24 @@ test_that('n_binary_combinations gets the right vals for small example', {
   expect_equal(n_binary_combinations(1), matrix(c(0,1), ncol=1))
   expect_equal(kappa(n_binary_combinations(2)), kappa(rbind(c(0,0), c(1,0), c(0,1), c(1,1))))
   expect_equal(kappa(n_binary_combinations(10)), 4, tol=0.01)
+})
+
+test_that('we can produce binary set of vectors for use with cadaver or robotic 7-muscle systems', {
+  write_binary_combination_csv(7, c(3.12,10.0001), "../../output/map_unit_cube.csv")
+})
+
+test_that('compose_binary_combination_df creates correct values in place of 0,1', {
+  n_10_df <- compose_binary_combination_df(10,c(0,1))
+  map_ids_are_unique <- nrow(n_10_df) == length(unique(n_10_df[,1]))
+  expect_true(map_ids_are_unique)
+  expect_equal(nrow(n_10_df),1024)
+
+  n_7_df <- compose_binary_combination_df(7,c(0,1))
+  map_ids_are_unique <- nrow(n_7_df) == length(unique(n_7_df[,1]))
+  expect_true(map_ids_are_unique)
+  expect_equal(nrow(n_7_df),128)
+
+
 })
 
 test_that('we can produce a binary set of x vectors of size 7', {
@@ -53,7 +77,7 @@ test_that('we can produce a binary set of x vectors of size 7', {
   constr <- list(constr = big_A, dir = rep("<=", nrow(big_A)), rhs = big_b)
   constraints_are_feasible(constr)
   state <- har.init(constr)
-  result <- har.run(state, n.samples = 10000)
+  result <- har.run(state, n.samples = 100)
   samples <- result$samples
   pass_unit_cube_to_A(big_A, 3, c(3,20))
 
@@ -71,6 +95,29 @@ test_that('we can produce a binary set of x vectors of size 7', {
 
   parcoord(samples)
   plot3d(samples)  #show 3d plane
+})
+
+test_that('can produce new har CSV from 0,1 CSV', {
+  df <- fread('/Users/briancohn/Resilio\ Sync/data/noPostureNeutralForceTrials2017_11_12_14_28_20.txt')
+  concatenated_ft_dfs <- df["map_creation_id"!=0]
+  unique_maps <- unique(concatenated_ft_dfs$map_creation_id)
+  list_of_ft_dfs <- split(concatenated_ft_dfs, concatenated_ft_dfs$map_creation_id)
+  input_output_datatable <- dcrb(lapply(list_of_ft_dfs, function(ts_df){
+    settled_section <- tail(ts_df,100)
+    colMeans(settled_section)
+  }))
+  input_output_data<- data.frame(input_output_datatable)
+
+
+range_tension <- c(3,20)
+  num_muscles <- 7
+  A_fit <- find_A_matrix(input_output_data,  measured(muscle_names())[1:num_muscles], forces_of_interest=c("JR3_FX"))
+  AMatrix_with_offset <- A_fit$AMatrix
+  muscle_diag_ones <- diag(rep(1, num_muscles))
+  muscle_constraints_matrix <- cbind(rep(0, num_muscles), muscle_diag_ones)
+  generator_columns_A_matrix <- t(A_fit$AMatrix)
+
+  #TODO create test to give some examples for usage this pass_unit_cube_to_A(big_A, 3, c(3,20))
 })
 
 ##' TODO check this test_that'

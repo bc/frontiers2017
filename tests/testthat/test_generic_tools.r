@@ -1,4 +1,4 @@
-  source("../../R/generic_tools.r")
+source("../../R/generic_tools.r")
 require(testthat)
 context("Generic Tools")
 sample_df_numbers <- data.frame(first = c(1, 5, 4, 2, 5, 2), second = 1:6, row.names = c(5,
@@ -40,6 +40,11 @@ test_that("shuffle_row_wise shuffles all rows", {
   expect_equal(nrow(shuffle_row_wise(sample_df_rows)), 6)
 })
 
+context("Resilio filepath composition")
+test_that("get resilio filepath creates correct path", {
+  filepath <- get_Resilio_filepath('noPostureNeutralForceTrials2017_11_12_14_53_25.txt')
+  expect_true(file.exists(filepath))
+})
 context("Hyphen underscore string operations")
 test_that('hyphens_to_underscores', {
   expect_equal(1,1)
@@ -67,4 +72,3 @@ test_that('dcc', {
   D = c(1.5, 2.5, 3, 4, 5, "dog")
    expect_equal(dcc(ABC), D)
    expect_equal(do.call('c', lapply(1:5, function(x) x)), dcc(lapply(1:5, function(x) x)))
-})

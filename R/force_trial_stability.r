@@ -14,6 +14,17 @@ get_reference_to_variance_relationship_df <- function(force_list, last_n_millise
   rownames(ref_sd_df) <- NULL
   return(ref_sd_df)
 }
+
+##' Zero out JR3 sensors
+##' @param df dataframe of raw timeseries data including JR3_FX, etc.
+##' @param JR3_sensor_null vecotr of 6 values representing the mean in the first 100ms
+zero_out_JR3_sensors <- function(df, JR3_sensor_null) {
+  for (i in c("JR3_FX", "JR3_FY", "JR3_FZ", "JR3_MX", "JR3_MY", "JR3_MZ")) {
+    df[,i] <- df[,i] - JR3_sensor_null[[i]]
+  }
+    return(df)
+  }
+
 ##' force_trial_to_stable_metrics
 ##' @param force_trial force trial time series
 ##' @param last_n_milliseconds the number of tail milliseconds from which we should calculate the settled standard deviation.

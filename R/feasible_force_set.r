@@ -52,7 +52,7 @@ force3d_matrix <- function(df_with_force_columns, force_dimension_names = force_
 ##' @param cols list of 3 strings for the colors to use
 axes_for_multiple_sets <- function(list_of_3d_matrices, cols = c("red", "green",
   "blue")) {
-  big_mat <- dcrb(list_of_mats)
+  big_mat <- dcrb(list_of_3d_matrices)
   x <- big_mat[, 1]
   y <- big_mat[, 2]
   z <- big_mat[, 3]
