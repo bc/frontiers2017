@@ -89,11 +89,27 @@ sset <- lapply(seq(0.9,2.8, length.out=10), function(i) {
     # summary(res_test)
 
 
-    parcoord(samples)
-    plot3d(samples)  #show 3d plane
-
+    # parcoord(samples)
+    rgl.clear()
+    plot3d(samples, xlim=c(0,11),ylim=c(0,11),zlim=c(0,11))  #show 3d plane
+    Sys.sleep(0.5)
     return(samples)
 })
+    num_tasks <- length(sset)
+    rgl_init(bg = "white")
+    extract_3cols <- lapply(sset[c(1,2,5,8,10)], function(df) df[,5:7])
+    gradient <- colorRampPalette(c("#a6cee3", "#1f78b4", "#b2df8a", "#fc8d62", "#ffffb3",
+      "#bebada"))
+    list_of_mats <- add_gradient_to_attrs(extract_3cols,gradient(length(extract_3cols)))
+
+    axes_for_multiple_sets(list_of_mats)
+    # Add x, y, and z Axes
+    lapply(list_of_mats, function(mat) {
+      xyz_points_with_convhull(mat, col = attr(mat, "color"), points = FALSE)
+    })
+
+
+
 
 
   res <- lapply(sset, function(samples) {
