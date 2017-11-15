@@ -231,7 +231,7 @@ custom_binary_combinations <- function(n, tension_range){
 ##' @param input_range vector of two values indicating c(min,max)
 stop_if_min_equals_max <- function(input_range){
   if (input_range[1]==input_range[2]){
-    stop(paste("Range provided needs to have different values for max and min. You only gave me ",input_range[1]))
+    stop(paste("Range provided needs to have different values for max and min. You only gave me",input_range[1]))
   }
 }
 
