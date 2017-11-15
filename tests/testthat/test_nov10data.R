@@ -9,16 +9,6 @@ experiments <- lapply(filepaths, function(file) {
   fread(file)
 })
 
-##' Zero out JR3 sensors
-##' @param df dataframe of raw timeseries data including JR3_FX, etc.
-##' @param JR3_sensor_null vecotr of 6 values representing the mean in the first 100ms
-zero_out_JR3_sensors <- function(df, JR3_sensor_null) {
-  for (i in c("JR3_FX", "JR3_FY", "JR3_FZ", "JR3_MX", "JR3_MY", "JR3_MZ")) {
-    df[,i] <- df[,i] - JR3_sensor_null[[i]]
-  }
-    return(df)
-  }
-
 
 sample_maps_data <- as.data.frame(experiments[[1]])
 JR3_sensor_null <- colMeans(head(sample_maps_data, 100))
@@ -50,8 +40,7 @@ fit_evaluation_without_offset(A_fit, as.data.frame(test_data))
 range_tension <- c(3.1, 10.1)
 AMatrix_with_offset <- A_fit$AMatrix
 muscle_constraints_matrix <- diag(rep(1, num_muscles))
-generator_columns_A_matrix <- t(A_fit$AMa
-  trix)
+generator_columns_A_matrix <- t(A_fit$AMatrix)
 dim(generator_columns_A_matrix)
 dim(muscle_constraints_matrix)
 
@@ -83,13 +72,29 @@ sset <- lapply(seq(0.9,2.8, length.out=10), function(i) {
       hist(samples[,muscle_num], breaks=10, main =paste("M",i, "at", i, collapse=""), xlab="Tendon force (N)", xlim=c(0,11))
     })
 
+
+    lowest_l1_cost_soln <- samples[which.min(rowSums(samples)), ]
+    highest_l1_cost_soln <- samples[which.max(rowSums(samples)), ]
+
+    message('lowest l1 cost solution:')
+    message( format(lowest_l1_cost_soln,digits=2))
+    message('highest l1 cost solution:')
+    message( format(highest_l1_cost_soln,digits=2) )
+    test_predicted_response <- as.matrix(samples %*% A_fit$AMatrix)
+    boxplot(test_predicted_response, ylab = "Tension N for FX,FY,FZ, Torque Nm for MX,MY,MZ", main="what do most of the FAS-sampled forces product in output space? ")
+    plot3d(test_predicted_response)
+    #TODO get the test data from the actual data collected
+    # test_observed_response <- test_data[force_column_names]
+    # res_test <- test_observed_response - test_predicted_response
+    # summary(res_test)
+
+
+    parcoord(samples)
+    plot3d(samples)  #show 3d plane
+
     return(samples)
 })
 
-
-#Show parcoord of the FAS
-par(mfrow=c(1,1))
-parcoord(head(samples,200))
 
   res <- lapply(sset, function(samples) {
     cbound <- cbind(generate_map_creation_ids(nrow(samples)), as.data.frame(samples))
@@ -135,14 +140,3 @@ a <- merge(scaling_input_output_data,maps_with_target_tasks,by="map_creation_id"
 
 
 ## later, do some more stuff with replicates
-p <- experiments[[1]]
-muscle_names_of_interest <- colnames(map_id_table)[2:ncol(map_id_table)]
-only_muscle_reference_vals <- as.data.frame(map_id_table)[, muscle_names_of_interest]
-initialization_row <- t(data.frame(rep(3, ncol(map_id_table) - 1)))
-colnames(initialization_row) <- dcc(lapply(muscle_names_of_interest, paste0, "_initial"))
-rownames(initialization_row) <- NULL
-cbind(only_muscle_reference_vals)
-
-for (i in 1:nrow(map_id_table)) {
-}
-test_that("load_")
