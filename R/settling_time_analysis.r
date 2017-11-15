@@ -306,8 +306,15 @@ slow_stabilized_index <- function(ts, desired, err) {
     snip_to_check <- ts[x:length(ts)]
     return(stabilized(snip_to_check, desired, err))
   })
-  stabilized_vec <- do.call("c", stabilized_vec)
-  return(min(which(stabilized_vec == TRUE)))
+  stabilized_vec_truth_table <- do.call("c", stabilized_vec)
+  stop_if_no_indices_were_stabilized(stabilized_vec_truth_table)
+  index <- min(which(stabilized_vec_truth_table == TRUE))
+  return(index)
+}
+stop_if_no_indices_were_stabilized <- function(vector_of_true_false){
+  if (sum(vector_of_true_false)==0){
+    stop("The time series never stabilized under the maximum allowable error threshold")
+  }
 }
 ##' postures grouped by line
 ##' This is highly specific to the experimental paradigm of realTimeData2017_08_16_13_23_42.rds.
