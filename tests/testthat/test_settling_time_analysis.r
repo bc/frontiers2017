@@ -105,7 +105,7 @@ test_that("slow_stabilized_index", {
   expect_equal(slow_stabilized_index(fake_ft1, 1.4, 0.07), 15)
   expect_true(slow_stabilized_index(fake_ft1, 1.4, 0.07) == stabilized_index(fake_ft1, 1.4, 0.07))
 })
-context('slow_stabilized_index')
+context('slow_stabilized_index when it never stabilizes')
 test_that('Expect an error message when passing in a vector of length two that never stabilizes', {
   expect_error(stabilized_index(c(1.1, 1.2), -3.1, 1.1), "The time series never stabilized under the maximum allowable error threshold")
   expect_error(slow_stabilized_index(c(1.1, 1.2), -3.1, 1.1), "The time series never stabilized under the maximum allowable error threshold")

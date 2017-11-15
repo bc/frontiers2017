@@ -292,7 +292,6 @@ stabilized_index <- function(ts, desired, err) {
 }
 
 ##' Brute force stabilized index
-##' TODO test, and confirm that it gets the same answer as stabilized_index
 ##' @param ts timeseries vector of numeric values
 ##' @param desired numeric the desired stabilized value for the vector, if the vector is 'stabilized'
 ##' @param err numeric the maximum allowable residual for a given value from the desired value.
@@ -311,6 +310,7 @@ slow_stabilized_index <- function(ts, desired, err) {
   index <- min(which(stabilized_vec_truth_table == TRUE))
   return(index)
 }
+
 stop_if_no_indices_were_stabilized <- function(vector_of_true_false){
   if (sum(vector_of_true_false)==0){
     stop("The time series never stabilized under the maximum allowable error threshold")
