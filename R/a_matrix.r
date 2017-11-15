@@ -1,4 +1,3 @@
-
 ##' This function estimates the A matrix from measured tendon forces and output forces. performs 6D linear fit.
 ##' @param data input output data that matches measured_muscle_col_names and force_column_names.
 ##' @return fit_object list of AMatrix, endpointForceObservation, endpointForcePrediction, regressor_means, response_means

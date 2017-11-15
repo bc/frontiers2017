@@ -23,6 +23,8 @@ Depends:
   pbapply,
   rgl,
   geometry
+Suggests:
+  lintr
 License: USC
 Encoding: UTF-8
 LazyData: true
