@@ -3,7 +3,7 @@ require(testthat)
 source("../../R/settling_time_analysis.r")
 source("../../R/force_trial_stability.r")
 source("../../R/generic_tools.r")
-source("sample_datasets.r")
+
 sample_vec <- c(1, 1, 1, 1, 1, 1, 4, 8, 9, 4, 5, 3, 2, 3, 2, 3, 2, 3, 3, 3, 3, 3, 3, 3)
 sample_vec2 <- c(1, 1, 1, 1, 1, 1, 4, 8, 8, 4, 5, 3, 2, 3, 2, 3, 2, 3, 3, 3, 3, 3, 3, 3)
 fake_ft1 <- c(3.895, 3.443, 2.978, 3.032, 2.895, 2.676, 2.423, 2.332, 2.124, 1.876, 1.698, 1.643, 1.445, 1.554, 1.403, 1.454, 1.467, 1.441)

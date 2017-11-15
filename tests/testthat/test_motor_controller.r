@@ -2,7 +2,6 @@ context("Motor controller")
 require(testthat)
 
 source("../../R/settling_time_analysis.r")
-source("sample_datasets.r")
 
 
 test_that("data separates into 1000 forces for one posture", {
