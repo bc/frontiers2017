@@ -180,20 +180,39 @@ fill_force_velocity_metrics <- function(df) {
   return(df)
 }
 
-##' First true value index
-##' TODO test
+##' Index of the first value that has stabilized, given two indices.
+##' Take two indices of interest and identify whether the first, second or neither converged.
+##' When we have narrowed the index of stabilization down to two values,
+##' it's got to be one of them (or the time series never stabilized).
+##' In a timeseries that stabilized, there are two situations we have
+##' to account for. First, if the first of the two indices is stable,
+##' then it follows that the second one is also stable.
+##' We would return the index of the first bound.
+##' If we find that the first element is unstable, but the second
+##' element is stable, then we return the upper bound.
+##' Else we throw an error proclaiming that neither of the sample
+##' converged, and by induction the entire time series never
+##' stabilized under the stablization criteria.
 ##' @param left Logical; whether the left index is stabilized
 ##' @param right Logical; whether the right index is stabilized
-##' @param idx_for_l_and_r the index lower and upper bounds (list of 2 integers)
+##' @param idx_for_l_and_r the index lower and upper bounds (list of 2 integers). Essentially the bounds.
 ##' @return idx index of the first TRUE in a list of two Logical values.
 first_true_value_idx <- function(left, right, idx_for_l_and_r) {
-  if (!left & !right) {
-    stop("The time series never stabilized under the maximum allowable error threshold")
-  }
+  stop_if_neither_of_bounds_converged(left,right)
   truth_table <- c(left, right)
   return(idx_for_l_and_r[min(which(truth_table == TRUE))])
 }
 
+##' Stop if neight of the bounds converged
+##' If we've narrowed it down to two final elements of the timeseries,
+##' and there isn't any convergence on either, we respond with an error message.
+##' @param left Logical; whether the left index is stabilized
+##' @param right Logical; whether the right index is stabilized
+stop_if_neither_of_bounds_converged <- function(left,right){
+  if (!left & !right) {
+    stop("The time series never stabilized under the maximum allowable error threshold")
+  }
+}
 ##' Are there no bounds?
 ##' TODO test
 ##' @description True when the bounds have converged to a single index.
@@ -209,6 +228,7 @@ no_bounds <- function(idx_bounds) idx_bounds[1] == idx_bounds[2]
 ##' @param bounds a tuple of lower and upper bound indices (integers)
 ##' @return updated_bounds fixed bounds to reflect whether we should
 assign_new_bounds <- function(midpoint, midpoint_is_stable, bounds) {
+  stop_if_midpoint_out_of_range(midpoint, bounds)
   bounds_copy <- bounds
   if (midpoint_is_stable) {
     bounds_copy[2] <- midpoint  # move right side in a bit
@@ -218,17 +238,34 @@ assign_new_bounds <- function(midpoint, midpoint_is_stable, bounds) {
   return(bounds_copy)
 }
 
-##' Index of first stabilized value
-##' TODO test
+##' Stops the program if the  midpoint is out of range
+##' Used in assign_new_bounds
+##' @param midpoint a index value (integer)
+##' @param bounds a tuple of lower and upper bound indices (integers)
+stop_if_midpoint_out_of_range <- function(midpoint, bounds) {
+  if(midpoint < bounds[1] || midpoint > bounds[2]){
+    stop("The midpoint is out of range")
+  }
+}
+
+##' Index of first stabilized value of two values of interest
+##' The internal call to stablized returns TRUE or FALSE.
+##' If left is TRUE, then we should take that one. if right is TRUE we should take that one.
 ##' @param ts numeric vector of values over time
 ##' @param bounds a tuple of lower and upper bound indices (integers)
 ##' @param desired numeric the desired stabilized value for the vector, if the vector is 'stabilized'
 ##' @param err numeric the maximum allowable residual for a given value from the desired value.
 ##' @return idx int, index of the first stabilized value within the timeseries ts.
 index_of_first_stabilized_val <- function(ts, bounds, desired, err) {
+  stop_if_bounds_are_not_len_1(bounds)
   left <- stabilized(ts[bounds[1]:bounds[2]], desired, err)
   right <- stabilized(ts[bounds[2]:bounds[2]], desired, err)
   return(first_true_value_idx(left, right, bounds))
+}
+stop_if_bounds_are_not_len_1 <- function(bounds){
+  if(bound_width(bounds)!=1){
+    stop("index_of_first_stabilized_val needs to take in a 2-element timeseries, with bounds that are only 1 index away from one another.")
+  }
 }
 
 ##' stabilized index
@@ -254,8 +291,7 @@ stabilized_index <- function(ts, desired, err) {
 }
 
 ##' Brute force stabilized index
-##' TODO test, and confirm that it gets the same answer as stabilized_index
-##' each snip to check is the time series starting at x
+##' Each snip to check is the time series starting at x
 ##' This algorithm checks for every index, essentially O(n), n=number of samples in the timeseries. Brute force.
 ##' @param ts timeseries vector of numeric values
 ##' @param desired numeric the desired stabilized value for the vector, if the vector is 'stabilized'
@@ -270,8 +306,16 @@ slow_stabilized_index <- function(ts, desired, err) {
     snip_to_check <- ts[x:length(ts)]
     return(stabilized(snip_to_check, desired, err))
   })
-  stabilized_vec <- do.call("c", stabilized_vec)
-  return(min(which(stabilized_vec == TRUE)))
+  stabilized_vec_truth_table <- do.call("c", stabilized_vec)
+  stop_if_no_indices_were_stabilized(stabilized_vec_truth_table)
+  index <- min(which(stabilized_vec_truth_table == TRUE))
+  return(index)
+}
+
+stop_if_no_indices_were_stabilized <- function(vector_of_true_false){
+  if (sum(vector_of_true_false)==0){
+    stop("The time series never stabilized under the maximum allowable error threshold")
+  }
 }
 ##' postures grouped by line
 ##' This is highly specific to the experimental paradigm of realTimeData2017_08_16_13_23_42.rds.
@@ -287,7 +331,7 @@ postures_grouped_by_line <- function(unique_postures, x_fixed_value, y_fixed_val
   return(list(postures_x_fixed, postures_y_fixed))
 }
 ##' discrete_diff
-##' TODO test
+##' Given an array of values, you take the difference between each pair of values, the you return an array of the same size of the original array but -1.
 ##' @param vector numeric vector of values
 ##' @return differentiated vector of values, with a displacement of 1 index. length 1 less than input.
 discrete_diff <- function(vector) {

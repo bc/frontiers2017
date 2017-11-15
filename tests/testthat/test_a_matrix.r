@@ -2,7 +2,7 @@ context("Linearity functions manipulations")
 
 set.seed(100)
 range_tension <- c(3, 20)
-sample_input_output_data <- read_rds_to_package_extdata("training_data.rds")
+sample_input_output_data <- read_rds_from_package_extdata("training_data.rds")
 data <- df_split_into_training_and_testing(sample_input_output_data, fraction_training = 0.8)
 training_data <- data$train
 test_data <- data$test
@@ -146,4 +146,14 @@ range_tension <- c(3,20)
 
   parcoord(samples)
   plot3d(samples)  #show 3d plane
+})
+
+##' TODO check this test_that'
+context("stop_if_min_equals_max")
+test_that("stop_if_min_equals_max will display stop message",
+{
+  input_range_different <- c(1,50)
+  expect_silent(stop_if_min_equals_max(input_range_different))
+  input_range_same <- c(3,3)
+  expect_error(stop_if_min_equals_max(input_range), paste0("Range provided needs to have different values for max and min. You only gave me ", input_range_same[1]))
 })

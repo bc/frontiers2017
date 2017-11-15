@@ -10,13 +10,13 @@ pbmclapply <- pblapply
 mclapply <- pblapply
 
 
-sample_posture_ForceTrials <- read_rds_to_package_extdata("force_trial_adept_x_-527.463336_adept_y_68.rds")
+sample_posture_ForceTrials <- read_rds_from_package_extdata("force_trial_adept_x_-527.463336_adept_y_68.rds")
 force_trials_list <- lapply(sample_posture_ForceTrials, ft_to_df)
 rds_postures <- all_file_paths("~/Resilio Sync/data/ForceTrials_at_each_posture/")
 
 context("delta force")
 test_that("delta force visualizations work", {
-  stability <- read_rds_to_package_extdata("stability_dataframes_for_both_lines.rds")
+  stability <- read_rds_from_package_extdata("stability_dataframes_for_both_lines.rds")
   stability_a <- stability[stability$settling_time < 700, ]
   print(summary(stability))
   reasonable_delta_force <- abs(stability$delta_force) > 1

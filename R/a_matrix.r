@@ -1,8 +1,8 @@
-
 ##' This function estimates the A matrix from measured tendon forces and output forces. performs 6D linear fit.
 ##' The regressor matrix is concatenation of tendon forces
-##' TODO Test Directly
-##' @param data input output data that matches measured_muscle_col_names and force_column_names.
+##' TODO Test Directly'
+##' @param data vector of input and output data that matches measured_muscle_col_names and force_column_names.
+##' @param regressor_names array of muscle names'
 ##' @return fit_object list of AMatrix, endpointForceObservation, endpointForcePrediction, regressor_means, response_means
 find_A_matrix <- function(data, regressor_names = simplify2array(lapply(muscle_names(),
   measured)), forces_of_interest = force_column_names) {
@@ -32,7 +32,8 @@ find_A_matrix_without_offset <- function(data, regressor_names = simplify2array(
 }
 
 ##' lin_qr_solve
-##' TODO Function Title and description
+##' Creates A matrix from Solving qr decomposition of a matrix'
+##' TODO Create Test or Retire Function'
 ##' @param x matrix of N independent columns (the regressor), with appropriate colnames
 ##' @param b matrix of M dependent variables (with appropriate colnames)
 ##' @return A matrix representing linear least squares regression fit for x matrix -> b
@@ -45,9 +46,10 @@ lin_qr_solve <- function(x, b) {
 
 
 ##' add_offset_vector_to_regressor
-##' userful becuase it keeps track of the mean generator (bias) that is not accounted for by the muscles.
+##' useful becuase it keeps track of the mean generator (bias) that is not accounted for by the muscles.
+##' TODO Create Test or Retire Function'
 ##' @param regressor matrix with as many rows as observations.
-##' @return regressor_with_col regressor wiht an offset column appended
+##' @return regressor_with_col regressor with an offset column appended
 add_offset_vector_to_regressor <- function(regressor) {
   num_observation <- nrow(regressor)
   vector_one <- as.matrix(rep(1, num_observation), num_observation, 1)
@@ -56,24 +58,31 @@ add_offset_vector_to_regressor <- function(regressor) {
   return(regressor_with_col)
 }
 
-##' lin_qr_solve
+##' predict_against_input_data
+##' Creates endpointForcePrediction from input data
+##' TODO Create Test or Retire Function'
 ##' @param x matrix of N independent columns (the regressor), with appropriate colnames
 ##' @param A matrix representing linear least squares regression fit for x matrix -> b (with colnames for outputs)
 ##' @param b matrix of expected output forces of interest. n cols, n force dimensions
+##' @return data table of endpointForcePrediction'
 predict_against_input_data <- function(x, A) {
   endpointForcePrediction <- data.frame(x %*% A)
   colnames(endpointForcePrediction) <- colnames(A)
   return(endpointForcePrediction)
 }
 
+##' predict_output_force
 ##' Matrix multiply input force by A matrix
+##' TODO Test Directly'
 ##' @param A A matrix cols are jr3.fx, etc, rows are offset, measured m0, ...
 ##' @param x input forces where cols are measured_force & offset set to ones()
-##' @return b_vectors matrix of the predicted output forces. as many columns as there are output force dimensionsss
+##' @return b_vectors matrix of the predicted output forces. as many columns as there are output force dimensions
 predict_output_force <- function(A, x) {
   return(as.matrix(x %*% A))
 }
 ##' observed_predicted_segments3d
+##' Adding line segments between endpoints of matrix consisting of interleave of endpointForcePrediction and endpointForceObservation'
+##' TODO Create Test or Retire Function'
 ##' @param A_fit linear A matrix fit element with endpointForceObservation and endpointForcePrediction
 observed_predicted_segments3d <- function(A_fit) {
   endpoints <- interleave_two_dataframes_as_segments(cbind(A_fit$endpointForceObservation,
@@ -82,6 +91,8 @@ observed_predicted_segments3d <- function(A_fit) {
 }
 
 ##' interleave_two_dataframes_as_segments
+##' Interleaves two dataframes as segments and returning the interleaved dataframe
+##' TODO Create Test or Retire Function'
 ##' @param df dataframe with 3 columns for xyz
 ##' @return df_interleaved df with 3 columns, where every other point is the starting endpoint, and the second (rep) are the ending endpoint.
 interleave_two_dataframes_as_segments <- function(df) {
@@ -91,7 +102,8 @@ interleave_two_dataframes_as_segments <- function(df) {
 }
 
 ##' Fit Summary
-##' Performs summary on the fit residuals and the
+##' Performs summary on the fit residuals and returns summary
+##' TODO Create Test or Retire Function'
 ##' @param A_fit object as returned from find_A_matrix
 ##' @param ... params passed to subfunctions
 fit_summary <- function(A_fit, ...) {
@@ -111,6 +123,8 @@ fit_summary <- function(A_fit, ...) {
 }
 
 ##' hist_euclidian_errors
+##' Generates histogram of euclidian errors
+##' TODO Create Test or Retire Function'
 ##' @param forces_of_interest forces used in the fit
 ##' @param regressor_names regressors used in the fit, i.e. c('measured_M0', 'measured_M1', ...)
 ##' @param euclidian_errors_vector vector of strictly positive magnitudes, in N.
@@ -125,8 +139,9 @@ hist_euclidian_errors <- function(euclidian_errors_vector, forces_of_interest, r
     ...)
 }
 
-##' Table of show min max of each column
-##' TODO Test Mayumi
+##' Column Ranges
+##' Table showing min and max of each column
+##' TODO Create Test or Retire Function'
 ##' @param df data frame with n columns
 ##' @return range_df data.frame of the min and max of each column
 column_ranges <- function(df) {
@@ -134,7 +149,10 @@ column_ranges <- function(df) {
   colnames(range_df) <- c("min", "max")
   return(range_df)
 }
+
 ##' Fit Evaluation
+##' Evaluation of fit of A matrix'
+##' TODO Implement or Retire Function'
 ##' @param A_fit object as returned from find_A_matrix
 ##' @param test_data dataset with the input and output columns matching the regressors and outputs of A_fit
 fit_evaluation <- function(A_fit, test_data, ...) {
@@ -142,13 +160,19 @@ fit_evaluation <- function(A_fit, test_data, ...) {
   fit_summary(A_fit)
   evaluate_fit_wrt_test_data(A_fit, test_data)
 }
-
+##' Fit Evaluation without an offset generator
+##' Evaluation of fit of A matrix
+##' TODO Implement or Retire Function'
+##' @param A_fit object as returned from find_A_matrix
+##' @param test_data dataset with the input and output columns matching the regressors and outputs of A_fit
 fit_evaluation_without_offset <- function(A_fit, test_data, ...) {
   par(mfcol = c(3, 2))
   fit_summary(A_fit)
   evaluate_fit_wrt_test_data_without_offset(A_fit, test_data)
 }
 ##' evaluate_fit_wrt_test_data
+##' Evaluation of fit with respect to test data'
+##' TODO Create Test or Retire Function'
 ##' @param A_fit result from find_A_matrix
 ##' @param test_data df with same cols as regressors+response variables as in A_fit
 evaluate_fit_wrt_test_data <- function(A_fit, test_data) {
@@ -196,14 +220,18 @@ evaluate_fit_wrt_test_data_without_offset <- function(A_fit, test_data) {
 }
 
 
-##' Compute magnitudes for a DF of forces
+##' Magnitudes
+##' Computes magnitudes for a DF of forces
+##' TODO Create Test or Retire Function'
 ##' @param force_df dataframe with N force columns for N dimensions of the same units'
 ##' @param magnitudes vector of numeric magnitude, same length as nrow(force_df)
 magnitudes <- function(force_df) {
   as.vector(apply(force_df, 1, norm_vec))
 }
 
+##' hist_force_magnitudes
 ##' Histogram of force magnitudes for XYZ
+##' TODO Create Test or Retire Function'
 ##' @param force_df dataframe with N force columns for N dimensions of the same units'
 hist_force_magnitudes <- function(force_df, condition = "") {
   magnitudes <- magnitudes(force_df)
@@ -211,8 +239,10 @@ hist_force_magnitudes <- function(force_df, condition = "") {
   hist(magnitudes, breaks = 20, col = "black", xlab = force_dimensions_xlab,
     main = paste("n=", length(magnitudes), ",", condition))
 }
+
 ##' N Binary combinations'
 ##' https://stackoverflow.com/questions/18705153/generate-list-of-all-possible-combinations-of-elements-of-vector
+##' Returns data frame matrix of binary combinations from cartesian product of arguments'
 ##' @param n length of the vector
 ##' @return M matrix where each row is a unique combination of 0 and 1
 n_binary_combinations <- function(n) {
@@ -220,7 +250,10 @@ n_binary_combinations <- function(n) {
   dimnames(M) <- NULL
   return(M)
 }
+
 ##' Custom Binary combinations
+##' Returns matrix of unique binary combinations '
+##' TODO Create Test or Retire Function'
 ##' @param n length of the vector
 ##' @param tension_range the range that the inputs can be at
 ##' @return M matrix where each row is a unique combination of tension_range[1] min and tension_range[2] max
@@ -272,17 +305,20 @@ write_binary_combination_csv <- function(n, tension_range, filename){
 
 
 ##' stop_if_min_equals_max
+##' Tells you when function stops if the min equals the max'
 ##' @param input_range vector of two values indicating c(min,max)
 stop_if_min_equals_max <- function(input_range){
   if (input_range[1]==input_range[2]){
-    stop(paste("Range provided needs to have different values for max and min. You only gave me ",input_range[1]))
+    stop(paste("Range provided needs to have different values for max and min. You only gave me",input_range[1]))
   }
 }
 
 ##' Pass unit cube to A.
 ##' useful to see what is achieved when running combinations of minimal and maximal values of all muscles.
+##' TODO Create Test or Retire Function'
 ##' @param num_output_dimensions an integer, i.e. 3 if you want to get Fx, Fy and Fz
 ##' @param big_A matrix representing translation of tensions into forces. includes offset vector
+##' @return forces matrix of endpoint forces'
 pass_unit_cube_to_A <- function(big_A, num_output_dimensions, tension_range){
   output_b_matrix <- big_A %*% t(left_pad_ones(custom_binary_combinations(ncol(big_A)-1,tension_range)))
   forces<- t(output_b_matrix[1:num_output_dimensions,])

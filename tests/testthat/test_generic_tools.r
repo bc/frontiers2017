@@ -1,4 +1,4 @@
-  source("../../R/generic_tools.r")
+source("../../R/generic_tools.r")
 require(testthat)
 context("Generic Tools")
 sample_df_numbers <- data.frame(first = c(1, 5, 4, 2, 5, 2), second = 1:6, row.names = c(5,
@@ -45,3 +45,30 @@ test_that("get resilio filepath creates correct path", {
   filepath <- get_Resilio_filepath('noPostureNeutralForceTrials2017_11_12_14_53_25.txt')
   expect_true(file.exists(filepath))
 })
+context("Hyphen underscore string operations")
+test_that('hyphens_to_underscores', {
+  expect_equal(1,1)
+  expect_false(1==9)
+  expect_equal(hyphens_to_underscores("string1-five"), "string1_five")
+  expect_equal(hyphens_to_underscores(1-1), "0")
+})
+
+context("Hyphen dots string operations")
+test_that('hyphens_to_dots', {
+  expect_equal(1-1,0)
+  expect_false(1-1==2)
+  expect_equal(hyphens_to_dots("-string1-five-"), ".string1.five.")
+  expect_equal(hyphens_to_dots("1-1"), "1.1")
+})
+
+context("concatenation")
+test_that('dcc', {
+  expect_false(1-1==2)
+  expect_equal(1,1)
+  A = c(1.5, 2.5, 3)
+  B = c(4, 5)
+  C = "dog"
+  ABC <- list(A,B,C)
+  D = c(1.5, 2.5, 3, 4, 5, "dog")
+   expect_equal(dcc(ABC), D)
+   expect_equal(do.call('c', lapply(1:5, function(x) x)), dcc(lapply(1:5, function(x) x)))

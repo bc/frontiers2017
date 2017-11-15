@@ -1,6 +1,6 @@
 context("Test ForceTrial Class Instantiation")
 
-sample_posture_ForceTrials <- read_rds_to_package_extdata("force_trial_adept_x_-527.463336_adept_y_68.rds")
+sample_posture_ForceTrials <- read_rds_from_package_extdata("force_trial_adept_x_-527.463336_adept_y_68.rds")
 force_trials_list <- lapply(sample_posture_ForceTrials, ft_to_df)
 print("Loading full_df. Expect 2'")
 full_df <- readRDS("~/Resilio Sync/data/realTimeData2017_08_16_13_23_42.rds")
@@ -22,7 +22,7 @@ test_that("ForceTrial works with one force", {
 
 context('multi-input to forcetrial')
 test_that("we can extract the forces from the index dataframes", {
-  posture_idxs_per_line <- read_rds_to_package_extdata("index_dataframes_for_two_posture_lines.rds")
+  posture_idxs_per_line <- read_rds_from_package_extdata("index_dataframes_for_two_posture_lines.rds")
   err = 0.4
   fix_x_postures <- posture_idxs_per_line[[1]]
   fix_y_postures <- posture_idxs_per_line[[2]]
