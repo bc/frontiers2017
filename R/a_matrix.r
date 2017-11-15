@@ -4,8 +4,7 @@
 ##' @param data vector of input and output data that matches measured_muscle_col_names and force_column_names.
 ##' @param regressor_names array of muscle names'
 ##' @return fit_object list of AMatrix, endpointForceObservation, endpointForcePrediction, regressor_means, response_means
-find_A_matrix <- function(data, regressor_names = simplify2array(lapply(muscle_names(),
-  measured)), forces_of_interest = force_column_names) {
+find_A_matrix <- function(data, regressor_names = measured(muscle_names()), forces_of_interest = force_column_names) {
   num_regressor_columns = length(regressor_names) + 1  #inc regressor
   num_response_columns = length(forces_of_interest)
   regressor <- as.matrix(data[regressor_names])
