@@ -252,6 +252,12 @@ compose_binary_combination_df <- function(n,tension_range){
   rownames(df) <- c()
   return(df)
 }
+##' generate_map_creation_ids
+##' @param n number of ids to create
+##' @return m vector of map_creation_id strings (unixtime in ms with 16 digits)
+generate_map_creation_ids <- function(n){
+  return(format(dcc(lapply(1:n, function(x) as.numeric(Sys.time())*1000)), digits=16))
+}
 ##' Custom Binary combinations to CSV, ready for input to NI cpu
 ##' Creates a set of unique identifiers for when the MAP was created.
 ##' use this to see what time the MAP was created in your time zone. E.g.
