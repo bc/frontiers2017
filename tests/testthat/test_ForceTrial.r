@@ -1,5 +1,14 @@
 context("Test ForceTrial Class Instantiation")
 
+test_that("df_to_max_signed_residual gets the correct ranges", {
+  one_ft <- readRDS(all_file_paths("~/Resilio Sync/data/ForceTrials_at_each_posture/")[1])[[1]]
+  force_df <- ft_to_df(one_ft)
+  residual <- df_to_max_signed_residual(force_df)
+  expect_equal(residual, -0.144445)
+  expect_equal(abs(residual), attr(one_ft,'stability_info')[['max_residual']])
+})
+
+
 sample_posture_ForceTrials <- read_rds_from_package_extdata("force_trial_adept_x_-527.463336_adept_y_68.rds")
 force_trials_list <- lapply(sample_posture_ForceTrials, ft_to_df)
 print("Loading full_df. Expect 2'")
@@ -28,15 +37,7 @@ test_that("we can extract the forces from the index dataframes", {
   fix_y_postures <- posture_idxs_per_line[[2]]
   posture_tuple_list <- posture_idxs_to_index_tuples(fix_x_postures)
   ft_for_1_posture <- posture_to_ForceTrials(fix_x_postures[1:2,1], full_df, column_to_separate_forces = "reference_M0", err=0.4, last_n_milliseconds = 100)
-  expect_equal(length(ft_for_1_posture[[1]][[1]]), 800)
+  expect_true(abs(length(ft_for_1_posture[[1]][[1]])-800) < 10)
   fts <- many_postures_to_ForceTrials(posture_tuple_list[1:2], full_df, column_to_separate_forces = "reference_M0", err=0.4, last_n_milliseconds = 100)
   expect_equal(length(fts), 2)
-})
-
-test_that("df_to_max_signed_residual gets the correct ranges", {
-  one_ft <- readRDS(all_file_paths("~/Resilio Sync/data/ForceTrials_at_each_posture/")[1])[[1]]
-  force_df <- ft_to_df(one_ft)
-  residual <- df_to_max_signed_residual(force_df)
-  expect_equal(residual, -0.144445)
-  expect_equal(abs(residual), attr(one_ft,'stability_info')[['max_residual']])
 })
