@@ -6,13 +6,12 @@ source("../../R/generic_tools.r")
 source("../../R/time_series_functions.r")
 source("../../R/force_trial_stability.r")
 
-pbmclapply <- pblapply
-mclapply <- pblapply
-
-
 sample_posture_ForceTrials <- read_rds_from_package_extdata("force_trial_adept_x_-527.463336_adept_y_68.rds")
 force_trials_list <- lapply(sample_posture_ForceTrials, ft_to_df)
-rds_postures <- all_file_paths("~/Resilio Sync/data/ForceTrials_at_each_posture/")
+
+pbmclapply <- pblapply
+pbmcapply <- pbapply
+mclapply <- pblapply
 
 context("delta force")
 test_that("delta force visualizations work", {
@@ -21,7 +20,7 @@ test_that("delta force visualizations work", {
   print(summary(stability))
   reasonable_delta_force <- abs(stability$delta_force) > 1
   stability_df_no_small_deltas <- stability[reasonable_delta_force, ]
-  pdf("../../../output/stability_df_stats.pdf", width = 10, height = 10)
+  pdf("../../output/stability_df_stats.pdf", width = 10, height = 10)
 
   hist(stability[['max_residual']], breaks = 500, col = "black", xlab = "Highest magnitude of residual observed in last 100ms of force trial (N)",
     ylab = "Number of force trials", main = paste("n =", length(c), "force trials"))
@@ -47,28 +46,15 @@ settling_times <- stability[['settling_time']]
   settling_time_histogram_for_posture(stability, breaks = 200)
   dev.off()
   p1 <- tension_settling_scatter(stability)
-  ggsave("../../../output/stability_df_deltaforce.pdf", p1, width = 7, height = 6,
+  ggsave("../../output/stability_df_deltaforce.pdf", p1, width = 7, height = 6,
     units = "in")
 
 #TODO consider rm'ing samples with post-700 settling time
   deltaforce_settling_time <- abs_value_delta_force_scatter(stability, pointsize = 0.05)
-  ggsave("../../../output/stability_df_deltaforce_abs.pdf", deltaforce_settling_time,
+  ggsave("../../output/stability_df_deltaforce_abs.pdf", deltaforce_settling_time,
     width = 7, height = 6, units = "in")
 })
-context('stability combo plot for both lines')
-test_that("we can plot stability_df for all postures in X", {
-  #Note these ones include all Force trials, even ones that did not "settle"
-  print('expect 6 minutes to load & compute all postures into the stability df')
-  stability_df_for_both_posture_lines <- get_stability_df_for_all_postures(rds_postures)
-  x_and_y <- split_stability_df_into_postures(stability_df_for_both_posture_lines)
-  fix_x <- x_and_y$fix_x
-  fix_y <- x_and_y$fix_y
-  along_x_stability <- produce_stability_plots(fix_y, adept_dimension_that_changes='adept_x')
-  along_y_stability <- produce_stability_plots(fix_x, adept_dimension_that_changes='adept_y')
-  g <- arrangeGrob(grobs = c(along_x_stability, along_y_stability), nrow = 2)
-  ggsave("../../../output/static_motor_control_properties.pdf", g, device = "pdf", width = 8, height = 4,
-  scale = 4, limitsize = FALSE, dpi = 100)
-})
+
 context("Manipulations based on stabilization")
 
 test_that("one can remove nonstabilized force trials for few postures", {
@@ -89,9 +75,9 @@ test_that("we can create a conglomerate stability_df for 100 forces in a Posture
 
 test_that("one can remove nonstabilized force trials for 100 postures in y", {
   ######
-  pdf("../../../output/force_trial_yield_under_settling_time_error_threshold.pdf",
+  pdf("../../output/force_trial_yield_under_settling_time_error_threshold.pdf",
     width = 10, height = 10)
-  try_different_stability_thresholds(force_trials_list, 200)
+  try_different_stability_thresholds(force_trials_list, 200, muscles_of_interest = muscle_names())
   dev.off()
   ######
 })
@@ -119,7 +105,7 @@ test_that("we can plot stability_metrics for 1 posture", {
   # TODO implement with all postures
   stability_metrics <- ForceTrials_to_stability_info_df(sample_posture_ForceTrials)
   ######
-  pdf("../../../output/sample_posture_settling_time_analysis.pdf", width = 10,
+  pdf("../../output/sample_posture_settling_time_analysis.pdf", width = 10,
     height = 10)
   plot(stability_metrics$reference, stability_metrics$max_residual, col = scales::alpha("black",
     0.15), pch = 20, xlab = "Reference force for M0", main = "Sample of 100 postures (fixed-x), n=100 forces per posture.",
@@ -133,7 +119,7 @@ test_that("we can plot stability_df for 1 posture", {
   stability_df <- ForceTrials_to_stability_df(sample_posture_ForceTrials)
   reasonable_delta_force <- abs(stability_df$delta_force) > 1
   stability_df_no_small_deltas <- stability_df[reasonable_delta_force, ]
-  pdf("../../../output/sample_posture_stability_df.pdf", width = 10, height = 10)
+  pdf("../../output/sample_posture_stability_df.pdf", width = 10, height = 10)
   hist(stability_df$amortized_velocity_of_force * 1000, breaks = 20, cex = 0.15,
     col = "black", pch = 19, xlab = "d(tension)/dt  (Newtons/s)", main = "Amortized rate of change in M0 tension across all force trials")
   settling_time_histogram_for_posture(stability_df, breaks = 20)

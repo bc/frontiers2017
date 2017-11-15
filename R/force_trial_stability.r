@@ -58,10 +58,10 @@ ft_list_to_stability_df_rows <- function(list_of_force_trials, last_n_millisecon
 ##' @param force_trials a list of raw force timeseries_DFs. has_settled has not been applied yet
 ##' @param err_lenout integer, the resolution along the X axis by which diff err thresholds will be evaluated
 ##' @importFrom parallel mclapply
-try_different_stability_thresholds <- function(force_trials, err_lenout = 20) {
+try_different_stability_thresholds <- function(force_trials, err_lenout = 20, muscles_of_interest) {
   different_errors <- seq(0.1, 1, length.out = err_lenout)
-  num_remaining_force_trials <- unlist(mclapply(different_errors, function(err) {
-    length(remove_unsettled_force_trials(force_trials, err))
+  num_remaining_force_trials <- unlist(lapply(different_errors, function(err) {
+    length(remove_unsettled_force_trials(force_trials, err, muscles_of_interest))
   }))
   plot_remaining_force_trial_fraction_as_function_of_err(different_errors, num_remaining_force_trials,
     length(force_trials))
