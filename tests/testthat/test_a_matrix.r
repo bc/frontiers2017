@@ -127,5 +127,5 @@ test_that("stop_if_min_equals_max will display stop message",
   input_range_different <- c(1,50)
   expect_silent(stop_if_min_equals_max(input_range_different))
   input_range_same <- c(3,3)
-  expect_error(stop_if_min_equals_max(input_range), paste0("Range provided needs to have different values for max and min. You only gave me ", input_range_same[1]))
+  expect_error(stop_if_min_equals_max(input_range_same), paste0("Range provided needs to have different values for max and min. You only gave me ", input_range_same[1]))
 })
