@@ -1,6 +1,14 @@
 library(ggplot2)
 
-setup_force_plot <- function(forces, ylim, ticks) {
+##' setup_force_plot
+##' Setup for Box plot of forces of adept x and y'
+##' TODO Create Test or Retire Function'
+##' @param forces vector the forces you want to plot versus time
+##' @param ylim vector of length 2; the min and max y axis values
+##' @param ticks vector break up of the amount of indicies of interest *800 to be every 400
+##' @return full boxplot setup with axes for the forces given.
+
+  setup_force_plot <- function(forces, ylim, ticks) {
   plot.new()
   plot.window(xlim = range(ticks), ylim = ylim)
   axis(1, at = ticks)
@@ -13,6 +21,15 @@ setup_force_plot <- function(forces, ylim, ticks) {
 
 }
 
+##'plot_muscle_forces_over_time
+##' Plot of muscle forces over time
+##' TODO Create Test or Retire Function'
+##' TODO Document Thoroughly'
+##' @param forces vector the forces you want to plot versus time
+##' @param minimum_tendon_force int to set the axis limit to 3
+##' @param maximum_tendon_force int to set the axis limit to 20
+##' @param indices_of_interest int notes the important indicies 2:5???
+##' @return 0??? lines plot of the muscle forces with respect to time
 plot_muscle_forces_over_time <- function(forces, minimum_tendon_force, maximum_tendon_force,
   indices_of_interest) {
   ticks <- seq(0, length(indices_of_interest) * 800, by = 400)
@@ -25,6 +42,15 @@ plot_muscle_forces_over_time <- function(forces, minimum_tendon_force, maximum_t
   return(0)
 }
 
+##' plot_jr3_force_over_time
+##' Plot of JR3 forces over time
+##' TODO Document Thoroughly'
+##' TODO Create Test'
+##' @param forces vector the forces you want to plot versus time
+##' @param minimum_tendon_force int to set the axis limit to 3
+##' @param maximum_tendon_force int to set the axis limit to 20
+##' @param indices_of_interest int notes the important indicies 2:5???
+##' @return 0??? lines plot of the JR3 forces with respect to time
 plot_jr3_force_over_time <- function(forces, minimum_tendon_force, maximum_tendon_force,
   indices_of_interest) {
   # TODO get ts data from data_path instead of economics_long. Color by force +
@@ -38,9 +64,12 @@ plot_jr3_force_over_time <- function(forces, minimum_tendon_force, maximum_tendo
   return(0)
 }
 
+##' wrench_vector_to_labeled_vals
+##' Wrench vector to labeled values
+##' TODO Create Test'
 ##' Compose sentence with wrench values
 ##' @param wrench_vector a vector of six forces & torques, as numeric values in N or N*m
-##' @return string written-out string of the values and all of the torques.
+##' @return a written-out string of the values and all of the torques.
 wrench_vector_to_labeled_vals <- function(wrench_vector) {
   return(paste("FX =", wrench_vector[1], ", ", "FY =", wrench_vector[2], ", ",
     "FZ =", wrench_vector[3], ", ", "MX =", wrench_vector[4], ", ", "MY =", wrench_vector[5],
@@ -48,8 +77,10 @@ wrench_vector_to_labeled_vals <- function(wrench_vector) {
 }
 
 
-##' create muscle activation pattern dataframe from force timeseries_df
-##' a Map is a Muscle Activation Pattern, which is, given N muscles, the map is a vector of N tensions.
+##' timeseries_df_to_maps
+##' Create muscle activation pattern dataframe from force timeseries_df
+##' TODO Create Test'
+##' A Map is a Muscle Activation Pattern, which is, given N muscles, the map of a vector of N tensions.
 ##' @param timeseries_df forces dataframe with $reference_M0 to $reference_M6
 ##' @return muscle_activation_patterns dataframe
 timeseries_df_to_maps <- function(timeseries_df) {
@@ -62,7 +93,9 @@ timeseries_df_to_maps <- function(timeseries_df) {
   return(t(muscle_activation_patterns))
 }
 
-##' Plot wrench text for forces & torques
+##' plot_wrench_text
+##' Adds text to plot of wrench values for forces & torques with given x and y locations
+##' TODO Create Test'
 ##' @param wrench six-element vector of numeric values
 ##' @param x x location to plot the composed wrench text
 ##' @param y y location to plot the composed wrench text
@@ -71,7 +104,10 @@ plot_wrench_text <- function(wrench, x = -2, y = -5, prepend_string = "") {
   wrench_text <- wrench_vector_to_labeled_vals(wrench)
   text(x, y, paste(prepend_string, wrench_text), cex = 0.2)
 }
-##' Plot wrench text for SD
+
+##' plot_wrench_sd_text
+##' Plot text for standard deviation of wrench
+##' TODO Create Test'
 ##' @param wrench six-element vector of numeric values
 ##' @param x x location to plot the composed wrench text
 ##' @param y y location to plot the composed wrench text
@@ -81,9 +117,15 @@ plot_wrench_sd_text <- function(wrench_sd_vector, x = -2, y = 5) {
 
 
 library(MASS)
+
+##' generate_parcoord_plot
+##' Plot creation of Parcoord
+##' TODO Create Test'
+##' p_raw is a static parallel coordinate plot
+##' @param dataframe_of_observations dataset of the plot of parcoord
+##' @return p plot of  ggplot_object plus grids, axis, and labels
+##' @importFrom GGally ggparcoord
 generate_parcoord_plot <- function(dataframe_of_observations) {
-  require(GGally)
-  require(ggplot2)
   p_raw <- ggparcoord(dataframe_of_observations, scale = "globalminmax", alpha = 1,
     boxplot = FALSE, mapping = ggplot2::aes(colour = "midnightblue"))
   p <- p_raw + theme_bw() + theme(panel.grid.major.x = element_line(color = "black",
@@ -92,6 +134,14 @@ generate_parcoord_plot <- function(dataframe_of_observations) {
   return(p)
 }
 
+##' plot_output_wrench_fx_fy
+##' Plot of the output wrench fx & fy
+##' TODO Create Test'
+##' @param wrench vector of wrench values
+##' @param wrench_sd standard deviation of wrench
+##' @param xlim vector of the max and min x-axis values
+##' @param ylim vector of the max and min y-axis values
+##' @return plots of output wrench text and output wrench standard deviation text
 plot_output_wrench_fx_fy <- function(wrench, wrench_sd, xlim, ylim) {
   plot(NA, xlim = xlim, ylim = ylim, main = paste("Norm of w = ", norm_vec(wrench)),
     xlab = paste("Fx is ", wrench[1]), ylab = paste("Fy is ", wrench[2]), asp = 1)
@@ -108,12 +158,13 @@ plot_output_wrench_fx_fy <- function(wrench, wrench_sd, xlim, ylim) {
 }
 
 
-##' Draw a circle at a specific location
+##' Draw a circle at end of force vector
 ##' This is used to create a circle at the end of a force vector.
 ##' By default, if the diameter is positive, then the circle_color is made green, but if negative, it will make the circle black.
+##' TODO Create Test'
 ##' @param x coordinates of the center of the circle
 ##' @param y coordinates of the center of the cirlce
-##' @param diameter diameter of the circle in user units.
+##' @param diameter the diameter of the circle in user units.
 ##' @importFrom plotrix draw.circle
 draw_circle_at_end_of_vector <- function(x, y, diameter) {
   if (diameter > 0) {
@@ -126,6 +177,8 @@ draw_circle_at_end_of_vector <- function(x, y, diameter) {
 }
 
 ##' Plot endpoint force vectors
+##' Create multi panneled plot of force vectors '
+##' TODO Create Test'
 ##' @param list_of_wrenches list object, each element a list of numeric values of 3 forces in N and 3 torques in Nm
 ##' @param list_of_sd_for_wrenches list object, each element a list of numeric values of 3 forces in N and 3 torques in Nm
 ##' @param xlim limits for the plot
@@ -142,39 +195,51 @@ plot_endpoint_force_vectors <- function(list_of_wrenches, list_of_sd_for_wrenche
   par(mfrow = c(1, 1))
 }
 
+##' list_of_mean_of_last_n_observations
 ##' Get the mean of the last n force values for each of the force signals, for the
-##' list elements specified by the indices_of_interest forces is a list of
-##' ramp&hold time series dataframes force_column_names is a vecotr of character
-##' strings relating to the columns of forces[[i]] that contain force recordings
+##' list elements specified by the indices_of_interest
+##' forces is a list of ramp&hold time series dataframes
+##' force_column_names is a vector of character strings relating to the columns of forces[[i]] that contain force recordings
+##' TODO Create Test
 ##' @param forces list of timeseries_dfs
 ##' @param indices_of_interest the elements within the forces that will be included in the analysis
-##' @param n number of last observations that will be extracted for this computation
+##' @param last_n_milliseconds the number of tail milliseconds from which we should calculate the settled mean
 ##' @param force_column_names string list
 ##' @return list_of_tail_wrench_means computed means of the last n milliseconds of the force columns
-list_of_mean_of_last_n_observations <- function(forces, indices_of_interest, n, force_column_names) {
+list_of_mean_of_last_n_observations <- function(forces, indices_of_interest, last_n_milliseconds, force_column_names) {
   list_of_tail_wrench_means <- lapply(forces[indices_of_interest], function(x) {
-    colMeans(tail(x[force_column_names], n))
+    colMeans(tail(x[force_column_names], last_n_milliseconds))
   })
   return(list_of_tail_wrench_means)
 }
-# Get the SD of the last n force values for each of the force signals, for the
-# list elements specified by the indices_of_interest forces is a list of
-# ramp&hold time series dataframes force_column_names is a vecotr of character
-# strings relating to the columns of forces[[i]] that contain force recordings
-sd_of_last_n_observations <- function(forces, indices_of_interest, n = 100, force_column_names) {
+
+##' sd_of_last_n_observations
+##' Get the SD of the last n force values for each of the force signals, for the
+##' list elements specified by the indices_of_interest
+##' forces is a list of ramp&hold time series dataframes
+##' force_column_names is a vector of character strings relating to the columns of forces[[i]] that contain force recordings
+##' TODO Create Test'
+##' @param forces list of timeseries_dfs
+##' @param indices_of_interest the elements within the forces that will be included in the analysis
+##' @param last_n_milliseconds the number of tail milliseconds from which we should calculate the settled standard deviation.
+##' @param force_column_names string list
+##' @return sd_for_last_n_obs the standard deviation for the last n observations'
+sd_of_last_n_observations <- function(forces, indices_of_interest, last_n_milliseconds = 100, force_column_names) {
   sd_for_last_n_obs <- lapply(forces[indices_of_interest], function(x) {
-    apply(tail(x[force_column_names], n), 2, sd)
+    apply(tail(x[force_column_names], last_n_milliseconds), 2, sd)
   })
   return(sd_for_last_n_obs)
 }
 
 
-
+##' Plot of porcupine of endpoint wrenches
+##' @param forces vector of the forces used to get the endpoint wrenches
+##' @return scatter plot of the endpoint wrenches
+##' @importFrom scatterplot3d scatterplot3d
 plot_porcupine_of_endpoint_wrenches <- function(forces) {
   wrench_observation_df <- do.call("rbind", forces)  #only grab the first posture
   force_ranges <- apply(wrench_observation_df, 2, range)
   par(mfrow = c(2, 1))
-  require(scatterplot3d)
 
   scatterplot3d(wrench_observation_df[, 1], wrench_observation_df[, 2], wrench_observation_df[,
     3], pch = 16, xlim = force_ranges[, 1], ylim = force_ranges[, 2], zlim = force_ranges[,
@@ -187,9 +252,6 @@ plot_porcupine_of_endpoint_wrenches <- function(forces) {
     main = "Recorded output moments")
 
   par(mfrow = c(1, 1))
-
-
-
   gradient_colors <- c("blue", "yellow")
   z_colors <- color_gradient(wrench_observation_df[, 3], gradient_colors)
   z_range <- range(wrench_observation_df[, 3])

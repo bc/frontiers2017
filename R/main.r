@@ -1,14 +1,16 @@
 #load all available material
-source("R/time_series_functions.r")
+source("R/a_matrix.r")
 source("R/data_description.r")
+source("R/feasible_activation_set.r")
+source("R/feasible_force_set.r")
 source("R/force_trial_stability.r")
 source("R/ForceTrial.r")
-source("R/linear_fit.r")
 source("R/functions_specific_to_frontiers2017_dataset.r")
 source("R/generic_tools.r")
+source("R/hitandrun.r")
+source("R/linear_fit.r")
 source("R/settling_time_analysis.r")
-source("R/feasible_force_set.r")
-source("R/feasible_activation_set.r")
+source("R/time_series_functions.r")
 library(gridExtra)
 #Having multicore issues? use this to nullify functions that try to parallelize
 # pbmclapply <- pblapply

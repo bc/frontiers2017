@@ -275,7 +275,6 @@ stop_if_bounds_are_not_len_1 <- function(bounds){
 ##' @param ts timeseries vector of numeric values
 ##' @param desired numeric the desired stabilized value for the vector, if the vector is 'stabilized'
 ##' @param err numeric the maximum allowable residual for a given value from the desired value.
-##' @description
 stabilized_index <- function(ts, desired, err) {
   bounds <- c(1, length(ts))
   while (bound_width(bounds) != 0) {
@@ -292,6 +291,8 @@ stabilized_index <- function(ts, desired, err) {
 }
 
 ##' Brute force stabilized index
+##' Each snip to check is the time series starting at x
+##' This algorithm checks for every index, essentially O(n), n=number of samples in the timeseries. Brute force.
 ##' @param ts timeseries vector of numeric values
 ##' @param desired numeric the desired stabilized value for the vector, if the vector is 'stabilized'
 ##' @param err numeric the maximum allowable residual for a given value from the desired value.
@@ -330,7 +331,7 @@ postures_grouped_by_line <- function(unique_postures, x_fixed_value, y_fixed_val
   return(list(postures_x_fixed, postures_y_fixed))
 }
 ##' discrete_diff
-##' TODO test
+##' Given an array of values, you take the difference between each pair of values, the you return an array of the same size of the original array but -1.
 ##' @param vector numeric vector of values
 ##' @return differentiated vector of values, with a displacement of 1 index. length 1 less than input.
 discrete_diff <- function(vector) {

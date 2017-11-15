@@ -20,7 +20,7 @@ test_that('no err when fewer than 7 muscles (4) are used to train A matrix',{
     A_fit <- find_A_matrix(training_data, measured(muscle_names())[1:4], forces_of_interest=force_column_names[1:3])
     fit_evaluation(A_fit, test_data)
   })
- 
+
 test_that("we can calculate cond of an A matrix that uses 6forces~7tendons", {
   A_fit <- find_A_matrix(training_data,  measured(muscle_names())[1:7], forces_of_interest=force_column_names[1:3])
 	cond_num <- kappa(A_fit$AMatrix, exact = TRUE)
@@ -71,4 +71,14 @@ test_that('we can produce a binary set of x vectors of size 7', {
 
   parcoord(samples)
   plot3d(samples)  #show 3d plane
+})
+
+##' TODO check this test_that'
+context("stop_if_min_equals_max")
+test_that("stop_if_min_equals_max will display stop message",
+{
+  input_range_different <- c(1,50)
+  expect_silent(stop_if_min_equals_max(input_range_different))
+  input_range_same <- c(3,3)
+  expect_error(stop_if_min_equals_max(input_range), paste0("Range provided needs to have different values for max and min. You only gave me ", input_range_same[1]))
 })
