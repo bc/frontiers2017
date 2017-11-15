@@ -5,6 +5,24 @@ df <- readRDS("~/Resilio Sync/data/realTimeData2017_09_24_12_25_56.rds")
 colnames(df) <- hyphens_to_dots(colnames(df))
 
 
+stability_per_muscle <- function(ft_df, muscles_of_interest,...){
+  by_muscle_stable_metrics <- lapply(muscles_of_interest, function(x) force_trial_to_stable_metrics(ft_df, 100,x))
+  by_muscle_stable_metrics
+  by_muscle_stable_dfs <- lapply(muscles_of_interest, function(x) list_of_forces_to_stabilized_df(list(ft_df), err, df, x))
+  print('finstabledf')
+}
+
+test_that("actions have no effect upon JR3 Force", {
+  names(df) <- hyphens_to_underscores(names(df))
+  downsampled_df <- df[seq(1, nrow(df), by = 100),]
+  p <- ggplot(downsampled_df, aes(x = time))
+  p <- p + geom_line(aes(y = JR3_FX), size = 0.1, color="red")
+  p <- p + geom_line(aes(y = JR3_FY), size = 0.1, color="green")
+  p <- p + geom_line(aes(y = JR3_FZ), size = 0.1, color="blue")
+  # p <- p + geom_point(aes(y = JR3_FY/max(JR3_FY)), size = 0.1)
+  p
+})
+
 test_that("we can extract the forces", {
   message("Identifying unique postures. Expect competion in ")
   unique_postures <- tail(unique(df[c("adept_x", "adept_y")]), 2)
@@ -26,8 +44,6 @@ test_that("we can extract the forces", {
     expect_equal(length(ft_to_df(single_example[[1]])[,1]), 803)
     multiple_force_trials <- posture_to_ForceTrials(c(784032, 800032), df, column_to_separate_forces,
     err, last_n_milliseconds, muscles_of_interest)
-
-
     expect_equal(length(multiple_force_trials), 20)
   grobs <- lapply(fts, post_tensions_forces_over_time)
   stabilized_muscles <- lapply(fts, function(x) {
@@ -39,23 +55,4 @@ test_that("we can extract the forces", {
   s<- lapply(fts, function(ft){
     stability_per_muscle(ft_to_df(ft), muscles_of_interest = first_four_muscles, last_n_milliseconds=100)
   })
-})
-
-stability_per_muscle <- function(ft_df, muscles_of_interest,...){
-  by_muscle_stable_metrics <- lapply(muscles_of_interest, function(x) force_trial_to_stable_metrics(ft_df, 100,x))
-  by_muscle_stable_metrics
-  by_muscle_stable_dfs <- lapply(muscles_of_interest, function(x) list_of_forces_to_stabilized_df(list(ft_df), err, df, x))
-  print('finstabledf')
-}
-
-test_that("actions have no effect upon JR3 Force", {
-  names(df) <- hyphens_to_underscores(names(df))
-  downsampled_df <- df[seq(1, nrow(df), by = 100)]
-  p <- ggplot(downsampled_df, aes(x = time))
-  p <- p + geom_line(aes(y = reference_M0/max(reference_M0), color = measured_M0),
-    size = 0.1)
-  p <- p + geom_line(aes(y = adept_x), size = 0.1)
-  p <- p + geom_line(aes(y = adept_y), size = 0.1)
-  p <- p + geom_point(aes(y = JR3_FY/max(JR3_FY)), size = 0.1)
-  p
 })
