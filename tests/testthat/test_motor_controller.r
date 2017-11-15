@@ -1,4 +1,4 @@
-context("Motor controller")
+context("test_motor_controller.r")
 require(testthat)
 
 source("../../R/settling_time_analysis.r")

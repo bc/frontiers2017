@@ -1,4 +1,4 @@
-context("hit and run functions")
+context("test_hitandrun.r")
 
 canonical_linear_system <- function(task) {
   list(constr = rbind(c(10/3, -53/15, 2),

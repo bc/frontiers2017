@@ -1,3 +1,4 @@
+context('test_feasible_force_set')
 gradient <- colorRampPalette(c("#a6cee3", "#1f78b4", "#b2df8a", "#fc8d62", "#ffffb3",
   "#bebada"))
 input_output_per_posture <- read_rds_from_package_extdata("list_of_input_output_data.rds")

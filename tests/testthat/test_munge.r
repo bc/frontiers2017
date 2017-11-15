@@ -1,4 +1,4 @@
-context("Munging realtimedata files")
+context("test_munge.r")
 require(testthat)
 source("../../R/settling_time_analysis.r")
 source("../../R/functions_specific_to_frontiers2017_dataset.r")

@@ -1,4 +1,5 @@
-context("Test ForceTrial Class Instantiation")
+
+context("test_ForceTrial")
 
 test_that("df_to_max_signed_residual gets the correct ranges", {
   one_ft <- readRDS(all_file_paths("~/Resilio Sync/data/ForceTrials_at_each_posture/")[1])[[1]]

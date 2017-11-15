@@ -1,4 +1,4 @@
-context("Testing Nov 10 Data")
+context("test_nov10data.r")
 map_id_table <- fread(get_Resilio_filepath("map_unit_cube_nov11.csv"))
 filenames <- c("noPostureNeutralForceTrials2017_11_12_14_53_25.txt", "noPostureNeutralForceTrials2017_11_12_14_50_59.txt",
   "noPostureNeutralForceTrials2017_11_12_14_48_27.txt", "noPostureNeutralForceTrials2017_11_12_14_46_00.txt",

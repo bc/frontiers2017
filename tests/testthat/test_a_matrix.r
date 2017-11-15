@@ -1,3 +1,5 @@
+context("test_a_matrix.r")
+
 context("Linearity functions manipulations")
 
 set.seed(100)
