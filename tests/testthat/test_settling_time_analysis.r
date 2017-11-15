@@ -4,6 +4,7 @@ source("../../R/settling_time_analysis.r")
 source("../../R/force_trial_stability.r")
 source("../../R/generic_tools.r")
 
+
 sample_vec <- c(1, 1, 1, 1, 1, 1, 4, 8, 9, 4, 5, 3, 2, 3, 2, 3, 2, 3, 3, 3, 3, 3, 3, 3)
 sample_vec2 <- c(1, 1, 1, 1, 1, 1, 4, 8, 8, 4, 5, 3, 2, 3, 2, 3, 2, 3, 3, 3, 3, 3, 3, 3)
 fake_ft1 <- c(3.895, 3.443, 2.978, 3.032, 2.895, 2.676, 2.423, 2.332, 2.124, 1.876, 1.698, 1.643, 1.445, 1.554, 1.403, 1.454, 1.467, 1.441)
@@ -23,6 +24,7 @@ initial_index  <- c(1, 2, 3, 4, 5)
 value = c(1, 2, 3, 4, 5)
 ordered <- data.frame(initial_index, value, row.names = initial_index)
 list_of_ft = read_rds_from_package_extdata('force_trial_adept_x_-527.463336_adept_y_68.rds')
+sample_measured_M0_force_trial <- read_rds_from_package_extdata('sample_measured_M0_force_trial.rds')
 
 ft = ft_to_df(list_of_ft[[1]])
 test_df1 = data.frame(1, 803, 3.170629, 194)
