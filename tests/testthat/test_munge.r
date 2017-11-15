@@ -8,7 +8,7 @@ source("../../R/force_trial_stability.r")
 
 sample_posture_ForceTrials <- read_rds_from_package_extdata("force_trial_adept_x_-527.463336_adept_y_68.rds")
 force_trials_list <- lapply(sample_posture_ForceTrials, ft_to_df)
-
+muscles_of_interest <- muscle_names() #including all of the muscles for these tests
 pbmclapply <- pblapply
 pbmcapply <- pbapply
 mclapply <- pblapply
@@ -77,7 +77,7 @@ test_that("one can remove nonstabilized force trials for 100 postures in y", {
   ######
   pdf("../../output/force_trial_yield_under_settling_time_error_threshold.pdf",
     width = 10, height = 10)
-  try_different_stability_thresholds(force_trials_list, 200, muscles_of_interest = muscle_names())
+  try_different_stability_thresholds(force_trials_list, 200, muscles_of_interest)
   dev.off()
   ######
 })
@@ -86,7 +86,7 @@ context("Evaluating remaining solutions when threshold restrictions are applied 
 test_that("we can evaluate the percentage of forcetrials that settled under an arbitrary threshold",
   {
     force_trials_that_settled_fix_x <- remove_unsettled_force_trials(force_trials_list,
-      stabilization_err_99_percentile)
+      stabilization_err_99_percentile,muscles_of_interest)
     percentage_of_trials_remaining_with_err_threshold <- length(force_trials_that_settled_fix_x)/100
     expect_true(abs(0.98 - percentage_of_trials_remaining_with_err_threshold) <
       0.01)
@@ -97,7 +97,7 @@ test_that("we can evaluate the percentage of forcetrials that settled under an a
 
 test_that("we can remove unsettled force trials", {
   print("Removing unsettled force trials")
-  settled_forcetrials <- remove_unsettled_force_trials(force_trials_list, 0.4)
+  settled_forcetrials <- remove_unsettled_force_trials(force_trials_list, 0.4, muscles_of_interest)
   expect_true(length(force_trials_list) >= length(settled_forcetrials))
 })
 
