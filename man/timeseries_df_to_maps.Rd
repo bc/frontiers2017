@@ -2,8 +2,10 @@
 % Please edit documentation in R/data_description.r
 \name{timeseries_df_to_maps}
 \alias{timeseries_df_to_maps}
-\title{create muscle activation pattern dataframe from force timeseries_df
-a Map is a Muscle Activation Pattern, which is, given N muscles, the map is a vector of N tensions.}
+\title{timeseries_df_to_maps
+Create muscle activation pattern dataframe from force timeseries_df
+TODO Create Test
+A Map is a Muscle Activation Pattern, which is, given N muscles, the map of a vector of N tensions.}
 \usage{
 timeseries_df_to_maps(timeseries_df)
 }
@@ -14,6 +16,8 @@ timeseries_df_to_maps(timeseries_df)
 muscle_activation_patterns dataframe
 }
 \description{
-create muscle activation pattern dataframe from force timeseries_df
-a Map is a Muscle Activation Pattern, which is, given N muscles, the map is a vector of N tensions.
+timeseries_df_to_maps
+Create muscle activation pattern dataframe from force timeseries_df
+TODO Create Test
+A Map is a Muscle Activation Pattern, which is, given N muscles, the map of a vector of N tensions.
 }

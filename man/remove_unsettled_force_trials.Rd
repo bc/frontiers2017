@@ -4,7 +4,7 @@
 \alias{remove_unsettled_force_trials}
 \title{remove_unsettled_force_trials}
 \usage{
-remove_unsettled_force_trials(list_of_force_trials, err)
+remove_unsettled_force_trials(list_of_force_trials, err, muscles_of_interest)
 }
 \arguments{
 \item{list_of_force_trials}{List of force trials}

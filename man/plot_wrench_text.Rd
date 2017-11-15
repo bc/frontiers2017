@@ -2,7 +2,9 @@
 % Please edit documentation in R/data_description.r
 \name{plot_wrench_text}
 \alias{plot_wrench_text}
-\title{Plot wrench text for forces & torques}
+\title{plot_wrench_text
+Adds text to plot of wrench values for forces & torques with given x and y locations
+TODO Create Test'}
 \usage{
 plot_wrench_text(wrench, x = -2, y = -5, prepend_string = "")
 }
@@ -16,5 +18,7 @@ plot_wrench_text(wrench, x = -2, y = -5, prepend_string = "")
 \item{prepend_string}{empty, by default. Useful when you want to add "SD: " to the front}
 }
 \description{
-Plot wrench text for forces & torques
+plot_wrench_text
+Adds text to plot of wrench values for forces & torques with given x and y locations
+TODO Create Test'
 }
