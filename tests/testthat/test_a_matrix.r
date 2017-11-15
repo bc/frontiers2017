@@ -1,6 +1,6 @@
 set.seed(100)
 range_tension <- c(3, 20)
-sample_input_output_data <- read_rds_to_package_extdata("training_data.rds")
+sample_input_output_data <- read_rds_from_package_extdata("training_data.rds")
 data <- df_split_into_training_and_testing(sample_input_output_data, fraction_training = 0.8)
 training_data <- data$train
 test_data <- data$test

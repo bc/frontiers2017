@@ -48,7 +48,7 @@ stability_rds_file <- function(){
 
 ##' Munge full_DF into the posture RDS files
 produce_ForceTrial_rds_objects <- function(){
-  posture_idxs_per_line <- read_rds_to_package_extdata("index_dataframes_for_two_posture_lines.rds") #hardcoded index dfs
+  posture_idxs_per_line <- read_rds_from_package_extdata("index_dataframes_for_two_posture_lines.rds") #hardcoded index dfs
   print("Loading full_df. Expect 2'")
   full_df <- readRDS("~/Resilio Sync/data/realTimeData2017_08_16_13_23_42.rds")
   err = 0.4
