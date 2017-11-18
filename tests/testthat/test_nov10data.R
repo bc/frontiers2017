@@ -9,7 +9,6 @@ experiments <- lapply(filepaths, function(file) {
   fread(file)
 })
 
-
 sample_maps_data <- as.data.frame(experiments[[1]])
 JR3_sensor_null <- colMeans(head(sample_maps_data, 100))
 sample_maps_data <- zero_out_JR3_sensors(sample_maps_data, JR3_sensor_null)
