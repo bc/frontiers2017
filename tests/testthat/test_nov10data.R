@@ -1,30 +1,31 @@
 context("test_nov10data.r")
-map_id_table <- fread(get_Resilio_filepath("map_unit_cube_nov11.csv"))
-filenames <- c("noPostureNeutralForceTrials2017_11_12_14_53_25.txt", "noPostureNeutralForceTrials2017_11_12_14_50_59.txt",
-  "noPostureNeutralForceTrials2017_11_12_14_48_27.txt", "noPostureNeutralForceTrials2017_11_12_14_46_00.txt",
-  "noPostureNeutralForceTrials2017_11_12_14_43_47.txt")
-filepaths <- dcc(lapply(filenames, get_Resilio_filepath))
-
-experiments <- lapply(filepaths, function(file) {
-  fread(file)
-})
-
-sample_maps_data <- as.data.frame(experiments[[1]])
+# map_id_table <- fread(get_Resilio_filepath("map_unit_cube_nov11.csv"))
+# filenames <- c("noPostureNeutralForceTrials2017_11_12_14_53_25.txt", "noPostureNeutralForceTrials2017_11_12_14_50_59.txt",
+#   "noPostureNeutralForceTrials2017_11_12_14_48_27.txt", "noPostureNeutralForceTrials2017_11_12_14_46_00.txt",
+#   "noPostureNeutralForceTrials2017_11_12_14_43_47.txt")
+# filepaths <- dcc(lapply(filenames, get_Resilio_filepath))
+#
+# experiments <- lapply(filepaths, function(file) {
+#   fread(file)
+# })
+sample_maps_data <- as.data.frame(fread(get_Resilio_filepath('noiseTrial2017_11_18_14_26_37.txt')))
+# sample_maps_data <- as.data.frame(experiments[[1]])
 JR3_sensor_null <- colMeans(head(sample_maps_data, 100))
 sample_maps_data <- zero_out_JR3_sensors(sample_maps_data, JR3_sensor_null)
 p <- ggplot(data = head(sample_maps_data, 100))
 p <- p + geom_line(aes(time, JR3_FX))
 p <- p + geom_line(aes(time, JR3_FY))
 p <- p + geom_line(aes(time, JR3_FZ))
-p <- p + geom_line(aes(time, measured_M0))
+p <- p + geom_line(aes(time, measured_M0)) # this one should be non0 higher.
 p
-
+# Remove pre-experiment and post experiment stuff
+sample_maps_data <- sample_maps_data[sample_maps_data$map_creation_id!=0,]
 dts <- split(sample_maps_data, sample_maps_data$map_creation_id)
 are_correct_length <- dcc(lapply(dts, function(dt) {
   return(nrow(dt) >= 700 && nrow(dt) < 805)
 }))
-
-maps <- dts[are_correct_length]
+maps <- dts #TODO later, split off the replicates
+# maps <- dts[are_correct_length]
 input_output_data <- dcrb(lapply(lapply(maps, tail, 100), colMeans))
 
 data <- df_split_into_training_and_testing(input_output_data, fraction_training = 0.8)
@@ -37,28 +38,25 @@ A_fit <- find_A_matrix_without_offset(as.data.frame(training_data), reference(mu
   force_names_to_predict)
 fit_evaluation_without_offset(A_fit, as.data.frame(test_data))
 
-range_tension <- c(3.1, 10.1)
-AMatrix_with_offset <- A_fit$AMatrix
+range_tension <- c(0.0, 20.0)
 muscle_constraints_matrix <- diag(rep(1, num_muscles))
 generator_columns_A_matrix <- t(A_fit$AMatrix)
 dim(generator_columns_A_matrix)
 dim(muscle_constraints_matrix)
-
-task_force <- c(0.33152926, 0.07102741, 0.22046813)
-task_multiplier_bounds <- c(0.9, 2.8)
+generator_columns_A_matrix %*% c(rep(20,7)) #this is used to get one viable force for the model.
+task_force <- c(-0.5641187,  0.4335497, 0.6873463)
+task_multiplier_bounds <- c(0.0, 1.0) #if c(0.0,0.0) then a null task.
 task_multiplier_list <- seq(task_multiplier_bounds[1], task_multiplier_bounds[2],
-  length.out = 10)
+  length.out = 5)
 task_df <- t(task_force %*% t(task_multiplier_list))
 colnames(task_df) <- force_names_to_predict
 
-
-
-sset <- lapply(df_to_list_of_rows(task_df), function(task_force) {
+sset <- lapply(df_to_list_of_rows(task_df), function(task_i) {
   constr <- task_and_generators_to_constr(generator_columns_A_matrix, muscle_constraints_matrix,
-    range_tension, task_force)
+    range_tension, task_i)
   constraints_are_feasible(constr)
   state <- har.init(constr, thin = 100)
-  result <- har.run(state, n.samples = 1000)
+  result <- har.run(state, n.samples = 100)
   samples <- result$samples
   # Try running those samples back through the A_matrix
   predicted_forces <- predict_output_force(A_fit$AMatrix,samples)
@@ -69,7 +67,7 @@ sset <- lapply(df_to_list_of_rows(task_df), function(task_force) {
   par(mfrow = c(1, 7))
   lapply(1:7, function(muscle_num) {
     hist(samples[, muscle_num], breaks = 10, main = paste("M", muscle_num, "at",
-      format(task_force, digits = 3), collapse = ""), xlab = "Tendon force (N)",
+      format(task_i, digits = 3), collapse = ""), xlab = "Tendon force (N)",
       xlim = c(0, 11))
   })
 
@@ -78,11 +76,13 @@ sset <- lapply(df_to_list_of_rows(task_df), function(task_force) {
 ##' @param v a vector of
   lowest_l1_cost_soln <- function(df) df[which.min(rowSums(df)), ]
   highest_l1_cost_soln <- function(df) df[which.max(rowSums(df)), ]
-
-  message("lowest l1 cost solution:")
+  message(paste("TASK:",task_i))
+  message("-------------------------")
+  message("Lowest l1 cost solution:")
   message(format(lowest_l1_cost_soln(samples), digits = 2))
-  message("highest l1 cost solution:")
+  message("Highest l1 cost solution:")
   message(format(highest_l1_cost_soln(samples), digits = 2))
+  message("===========================")
 
   test_predicted_response <- as.matrix(samples %*% A_fit$AMatrix)
   boxplot(test_predicted_response, ylab = "Tension N for FX,FY,FZ, Torque Nm for MX,MY,MZ",
@@ -108,7 +108,7 @@ list_of_mats <- add_gradient_to_attrs(extract_3cols, gradient(length(extract_3co
 rgl.clear()
 axes_for_multiple_sets(list_of_mats)
 axes_for_defined_xyz_limits(rep(list(c(0,20)),3))
-rgl_convhulls(list_of_mats[c(1,6,10)], points=TRUE)
+rgl_convhulls(list_of_mats, points=TRUE)
 # Add x, y, and z Axes
 
 
@@ -120,7 +120,7 @@ res <- lapply(sset, function(samples) {
 
 big_har_set_to_test_on_finger <- dcrb(res)
 
-write.csv(big_har_set_to_test_on_finger, "scaling_task_n100_per_outputvec_of_interest_10_steps.csv",
+write.csv(big_har_set_to_test_on_finger, "scaling_task_n100_per_outputvec_of_interest_5_steps_no_replicates.csv",
   row.names = FALSE, quote = FALSE)
 # make a little db to remember which map was trying to achieve which task.
 tasklists <- lapply(seq(0.9, 2.8, length.out = 10), function(x) {
