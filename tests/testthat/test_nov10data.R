@@ -54,16 +54,18 @@ colnames(task_df) <- force_names_to_predict
 
 
 
-sset <- apply(task_df, 1, function(task_force) {
-  constr <- task_and_generators_to_constr(generator_columns_A_matrix, muscle_constraints_matrix, 
+sset <- lapply(df_to_list_of_rows(task_df), function(task_force) {
+  constr <- task_and_generators_to_constr(generator_columns_A_matrix, muscle_constraints_matrix,
     range_tension, task_force)
   constraints_are_feasible(constr)
   state <- har.init(constr, thin = 100)
-  result <- har.run(state, n.samples = 100)
+  result <- har.run(state, n.samples = 1000)
   samples <- result$samples
   # Try running those samples back through the A_matrix
-  t(A_fit$AMatrix) %*% t(samples)
-
+  predicted_forces <- predict_output_force(A_fit$AMatrix,samples)
+  maximums <- apply(predicted_forces,2,max)
+  minimums <- apply(predicted_forces,2,min)
+  expect_equal(norm_vec(maximums- minimums), 0, tol=1e-10)
   # Show histograms of the FAS
   par(mfrow = c(1, 7))
   lapply(1:7, function(muscle_num) {
@@ -73,45 +75,42 @@ sset <- apply(task_df, 1, function(task_force) {
   })
 
 
-  lowest_l1_cost_soln <- samples[which.min(rowSums(samples)), ]
-  highest_l1_cost_soln <- samples[which.max(rowSums(samples)), ]
+##' @param df a dataframe where each row is a nrow(df)- dimensional vector
+##' @param v a vector of
+  lowest_l1_cost_soln <- function(df) df[which.min(rowSums(df)), ]
+  highest_l1_cost_soln <- function(df) df[which.max(rowSums(df)), ]
 
   message("lowest l1 cost solution:")
-  message(format(lowest_l1_cost_soln, digits = 2))
+  message(format(lowest_l1_cost_soln(samples), digits = 2))
   message("highest l1 cost solution:")
-  message(format(highest_l1_cost_soln, digits = 2))
+  message(format(highest_l1_cost_soln(samples), digits = 2))
+
   test_predicted_response <- as.matrix(samples %*% A_fit$AMatrix)
   boxplot(test_predicted_response, ylab = "Tension N for FX,FY,FZ, Torque Nm for MX,MY,MZ",
     main = "what do most of the FAS-sampled forces product in output space? ")
   plot3d(test_predicted_response)
-  # TODO get the test data from the actual data collected test_observed_response <-
-  # test_data[force_column_names] res_test <- test_observed_response -
-  # test_predicted_response summary(res_test)
-
-
-  # parcoord(samples)
-  rgl.clear()
-  plot3d(samples, xlim = c(0, 11), ylim = c(0, 11), zlim = c(0, 11))  #show 3d plane
-  Sys.sleep(0.5)
   return(samples)
 })
 
+rgl.clear()
+
+
+# TODO get the test data from the actual data collected test_observed_response <-
+# test_data[force_column_names] res_test <- test_observed_response -
+# test_predicted_response summary(res_test)
+
 num_tasks <- length(sset)
 rgl_init(bg = "white")
-extract_3cols <- sset
+extract_3cols <- lapply(sset, function(x) x[,c(1,2,3)])
 gradient <- colorRampPalette(c("#a6cee3", "#1f78b4", "#b2df8a", "#fc8d62", "#ffffb3",
   "#bebada"))
 list_of_mats <- add_gradient_to_attrs(extract_3cols, gradient(length(extract_3cols)))
 
-browser()
+rgl.clear()
 axes_for_multiple_sets(list_of_mats)
+axes_for_defined_xyz_limits(rep(list(c(0,20)),3))
+rgl_convhulls(list_of_mats[c(1,6,10)], points=TRUE)
 # Add x, y, and z Axes
-lapply(list_of_mats, function(mat) {
-  xyz_points_with_convhull(mat, col = attr(mat, "color"), points = FALSE)
-})
-
-
-
 
 
 res <- lapply(sset, function(samples) {

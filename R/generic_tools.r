@@ -18,6 +18,15 @@ dots_to_underscores <- function(str){
   gsub(".", "_", str, fixed = TRUE)
 }
 
+##' Maximum absolute residual
+##' TODO test
+##' Of all of the absolute residuals from a desired value, this function returns the maximums
+##' This is a good measure of the maximum variance.
+##' @param vector vector of numeric values
+##' @param desired_value numeric, the desired value that all values of the vector should match closely
+##' @return max_abs_diff maximum absolute residual
+maximum_absolute_residual <- function(vector, desired_val) max(abs(vector - desired_val))
+
 ##' Read RDS from package extdata folder
 ##' @param filename string, for the file within the extdata folder of the analytics package.
 ##' @return object the object yielded from the filepath rds
