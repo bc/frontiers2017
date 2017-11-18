@@ -18,6 +18,21 @@ dots_to_underscores <- function(str){
   gsub(".", "_", str, fixed = TRUE)
 }
 
+
+##' All values of a vector are within a desired range
+##' TODO Test example:
+##' > experimental_range
+##' [1]  0.05845569 19.80210853
+##' > tension_range
+##' [1]  0 20
+##' should return true'
+##' @param vector vector of elements
+##' @param bounds 2 element vector
+is_within_range <- function(vector, bounds){
+  truth_vector <- dcc(lapply(vector, function(x) x < bounds[2] || x > bounds[1]))
+  return(all(truth_vector))
+}
+
 ##' Maximum absolute residual
 ##' TODO test
 ##' Of all of the absolute residuals from a desired value, this function returns the maximums

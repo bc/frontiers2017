@@ -158,3 +158,16 @@ a <- merge(scaling_input_output_data, maps_with_target_tasks, by = "map_creation
 
 
 ## later, do some more stuff with replicates
+
+# noPostureNeutralForceTrials2017_11_18_12_22_04.txt
+evaluate_if_length_of_ForceTrials_is_appropriate <- function(raw_df){
+  #trim off nullm
+ ft_lengths <- a[map_creation_id!=0][,.N,'map_creation_id'][,N]
+ a_without_pre_experiment <- a[map_creation_id!=0][,,'map_creation_id']
+ b <- split(a_without_pre_experiment,a_without_pre_experiment$map_creation_id)
+ ft_start_times <- dcc(lapply(b, function(df) head(df$time,1)))
+ means <- list_of_mean_of_last_n_observations(forces=lapply(b,as.data.frame), indices_of_interest=1:10, last_n_milliseconds=100, force_column_names=dots_to_underscores(force_column_names))
+ dcrb(means)
+ cbind(time = ft_start_times, dcrb(means))
+
+}

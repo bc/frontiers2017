@@ -46,6 +46,6 @@ test_that("we can plot stability_df for all postures in X", {
   along_x_stability <- produce_stability_plots(fix_y, adept_dimension_that_changes='adept_x')
   along_y_stability <- produce_stability_plots(fix_x, adept_dimension_that_changes='adept_y')
   g <- arrangeGrob(grobs = c(along_x_stability, along_y_stability), nrow = 2)
-  ggsave("../../../output/static_motor_control_properties.pdf", g, device = "pdf", width = 8, height = 4,
+  ggsave("../../output/static_motor_control_properties.pdf", g, device = "pdf", width = 8, height = 4,
   scale = 4, limitsize = FALSE, dpi = 100)
 })
