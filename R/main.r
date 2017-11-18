@@ -15,7 +15,7 @@ library(gridExtra)
 #Having multicore issues? use this to nullify functions that try to parallelize
 # pbmclapply <- pblapply
 # mclapply <- pblapply
-
+tb <- traceback
 
 options(error = NULL)
 

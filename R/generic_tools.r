@@ -6,10 +6,16 @@ hyphens_to_underscores <- function(str){
 }
 
 ##' hyphens_to_dots
-##' @param str string or list of string to do replacement upon
+##' @param str string or list of strings to do replacement upon
 ##' @return str_prime string with dot
 hyphens_to_dots <- function(str){
   gsub("-", ".", str)
+}
+##' dots_to_underscores
+##' @param str string or list of strings to do replacement upon
+##' @return str2 dots replaced with underscores
+dots_to_underscores <- function(str){
+  gsub(".", "_", str, fixed = TRUE)
 }
 
 ##' Read RDS from package extdata folder
