@@ -8,7 +8,7 @@ context("test_nov10data.r")
 # experiments <- lapply(filepaths, function(file) {
 #   fread(file)
 # })
-sample_maps_data <- as.data.frame(fread(get_Resilio_filepath('noiseTrial2017_11_18_14_26_37.txt')))
+sample_maps_data <- as.data.frame(fread(get_Resilio_filepath('noiseTrial2017_11_19_15_18_32.txt')))
 # sample_maps_data <- as.data.frame(experiments[[1]])
 JR3_sensor_null <- colMeans(head(sample_maps_data, 100))
 sample_maps_data <- zero_out_JR3_sensors(sample_maps_data, JR3_sensor_null)
@@ -43,6 +43,7 @@ muscle_constraints_matrix <- diag(rep(1, num_muscles))
 generator_columns_A_matrix <- t(A_fit$AMatrix)
 dim(generator_columns_A_matrix)
 dim(muscle_constraints_matrix)
+browser()
 generator_columns_A_matrix %*% c(rep(20,7)) #this is used to get one viable force for the model.
 task_force <- c(-0.5641187,  0.4335497, 0.6873463)
 task_multiplier_bounds <- c(0.0, 1.0) #if c(0.0,0.0) then a null task.
@@ -131,8 +132,8 @@ colnames(task_list_df) <- force_names_to_predict
 maps_with_target_tasks <- cbind(big_har_set_to_test_on_finger, task_list_df)
 
 ## TODO GET data from the cadaver finger from big_har_set_to_test_on_finger
-scaling <- as.data.frame(fread(get_Resilio_filepath("noPostureNeutralForceTrials2017_11_14_12_46_57.txt")))
-map_id_table_scaling <- as.data.frame(fread(get_Resilio_filepath("scaling_task_n100_per_outputvec_of_interest_10_steps_nov14.csv")))
+###################################################################################################
+scaling <- as.data.frame(fread(get_Resilio_filepath("noiseTrial2017_11_18_15_05_33.txt")))
 
 JR3_sensor_null <- colMeans(head(scaling, 30))
 # TODO test zero out sensors
@@ -144,7 +145,7 @@ p <- p + geom_line(aes(time, JR3_FZ))
 p
 
 dts_scaling <- split(sample_maps_data_scaling, sample_maps_data_scaling$map_creation_id)
-are_correct_length <- dcc(lapply(dts, function(dt) {
+are_correct_length <- dcc(lapply(dts_scaling, function(dt) {
   return(nrow(dt) >= 700 && nrow(dt) < 805)
 }))
 
