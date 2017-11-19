@@ -1,5 +1,5 @@
+context('test_functions_specific_to_frontiers2017.r')
 source("../../R/functions_specific_to_frontiers2017_dataset.r")
-context('Frontiers2017-specific function tests')
 test_that("postures_grouped_by_line", {
   unique_postures <- data.frame(adept_x = c(-516.314298, -531.478918, -525.80549,
     -525, -525, -525, -525, -525, -525, -525, -525), adept_y = c(68, 68, 68,

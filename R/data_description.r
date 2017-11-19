@@ -308,9 +308,9 @@ data_description_analysis <- function(first_data_chunk, minimum_tendon_force, ma
 
   # Visualization of output Wrenches
   list_of_tail_wrench_mean <- list_of_mean_of_last_n_observations(forces, indices_of_interest,
-    n = 100, force_column_names)
+    last_n_milliseconds = 100, force_column_names)
   list_of_tail_wrench_SD <- sd_of_last_n_observations(forces, indices_of_interest,
-    n = 100, force_column_names)
+    last_n_milliseconds = 100, force_column_names)
 
   list_of_wrenches <- lapply(list_of_tail_wrench_mean, as.numeric)
   list_of_sd_for_wrenches <- lapply(list_of_tail_wrench_SD, as.numeric)
@@ -336,7 +336,7 @@ data_description_analysis <- function(first_data_chunk, minimum_tendon_force, ma
     TRUE)
 
   force_extended_list <- list_of_mean_of_last_n_observations(forces, indices_of_interest = 1:length(forces),
-    n = 100, force_column_names)
+    last_n_milliseconds = 100, force_column_names)
   posture_1_viable_forces <- force_extended_list[indices_of_correctly_lengthed_forces]
   plot_porcupine_of_endpoint_wrenches(posture_1_viable_forces)
 

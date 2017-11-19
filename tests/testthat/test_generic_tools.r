@@ -1,4 +1,4 @@
-source("../../R/generic_tools.r")
+context('generic_tools.r')
 require(testthat)
 context("Generic Tools")
 sample_df_numbers <- data.frame(first = c(1, 5, 4, 2, 5, 2), second = 1:6, row.names = c(5,
@@ -63,8 +63,6 @@ test_that('hyphens_to_dots', {
 
 context("concatenation")
 test_that('dcc', {
-  expect_false(1-1==2)
-  expect_equal(1,1)
   A = c(1.5, 2.5, 3)
   B = c(4, 5)
   C = "dog"
@@ -72,3 +70,4 @@ test_that('dcc', {
   D = c(1.5, 2.5, 3, 4, 5, "dog")
    expect_equal(dcc(ABC), D)
    expect_equal(do.call('c', lapply(1:5, function(x) x)), dcc(lapply(1:5, function(x) x)))
+})

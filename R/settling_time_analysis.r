@@ -434,17 +434,18 @@ all_muscles_stabilized <- function(force_trial, err, muscles_of_interest) {
 ##' mask_settled_force_trials
 ##' @param list_of_force_trials List of force trials, each a df with cols for each measured/reference force
 ##' @param err highest acceptable error residual from desired tension
+##' @param ... params passed to all_muscles_stabilized
 ##' @return l_dfs list of force trials without the force trials that did not converge for all muscles
-mask_settled_force_trials <- function(list_of_force_trials, err) {
-  as.logical(lapply(list_of_force_trials, all_muscles_stabilized, err))
+mask_settled_force_trials <- function(list_of_force_trials, err, ...) {
+  as.logical(lapply(list_of_force_trials, all_muscles_stabilized, err, ...))
 }
 
 ##' remove_unsettled_force_trials
 ##' @param list_of_force_trials List of force trials
 ##' @param err highest acceptable error residual from desired tension
 ##' @return l_dfs list of force trials without the force trials that did not converge for all muscles
-remove_unsettled_force_trials <- function(list_of_force_trials, err) {
-  list_of_force_trials[mask_settled_force_trials(list_of_force_trials, err)]
+remove_unsettled_force_trials <- function(list_of_force_trials, err, muscles_of_interest) {
+  list_of_force_trials[mask_settled_force_trials(list_of_force_trials, err, muscles_of_interest)]
 }
 
 
