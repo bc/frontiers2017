@@ -13,6 +13,8 @@ source("R/linear_fit.r")
 source("R/settling_time_analysis.r")
 source("R/time_series_functions.r")
 library(gridExtra)
+
+create_output_folder()
 #Having multicore issues? use this to nullify functions that try to parallelize
 # pbmclapply <- pblapply
 # mclapply <- pblapply

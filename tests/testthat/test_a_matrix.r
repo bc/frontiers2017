@@ -1,7 +1,10 @@
 context("test_a_matrix.r")
-
+create_output_folder()
 context("Linearity functions manipulations")
-
+##' @param filename string filename of interest
+output_filepath_from_test <- function(filename){
+  paste0("../../..", filename)
+}
 set.seed(100)
 range_tension <- c(3, 20)
 sample_input_output_data <- read_rds_from_package_extdata("training_data.rds")

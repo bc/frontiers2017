@@ -159,3 +159,7 @@ left_pad_ones <- function(mat) left_pad(mat, 1)
 ##' @param 0 int value of the pad to be added
 ##' @return mat_prime matrix with a left pad of 0's added
 left_pad_zeros <- function(mat) left_pad(mat, 0)
+
+##' Create Output folder
+##' Creates an output folder right next to frontiers2017
+create_output_folder <- function() dir.create(file.path("../../", "output"), showWarnings = FALSE)
