@@ -51,13 +51,6 @@ colnames(task_df) <- force_names_to_predict
 sset <- lapply(df_to_list_of_rows(task_df), function(task_i) {
   constr <- task_and_generators_to_constr(generator_columns_A_matrix, muscle_constraints_matrix,
     range_tension, task_i)
-  har_collect_points <- function(constr, thin, n) {
-    state <- har.init(constr, thin = 100)
-    result <- har.run(state, n.samples = 100)
-    samples <- result$samples
-    browser()
-    return(samples)
-  }
   samples <- har_collect_points(constr, thin=100, n=100)
   # Try running those samples back through the A_matrix
   predicted_forces <- predict_output_force(A_fit$AMatrix,samples)
