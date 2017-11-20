@@ -41,4 +41,5 @@ test_that("samples_from_2d_square in Q1 successfully", {
   samples <- har_collect_points(constr, thin = 100, n = 20000)
   par(mfrow = c(1, 1))
   plot(samples, xlab = "x1", ylab = "x2", pch = 19, cex = 0.25, main = "This should look like a uniformly-sampled square in Q1")
+  fas_histogram(samples, range_tension=c(0,1), task=1, breaks=100)
 })
