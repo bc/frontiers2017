@@ -1,7 +1,9 @@
 language: r
-cache: packages
 warnings_are_errors: false
+cache: packages
 sudo: required
+r_build_args: "--no-manual --no-resave-data"
+r_check_args: "--no-build-vignettes --no-manual --timings"
 env:
   os:
     - linux
@@ -16,6 +18,24 @@ notifications:
      slack: kaspectscientists:OFGveqm4qxt26CPytZrHUxSV
 r_packages:
       - covr
+      - testthat
+      - devtools
+      - ggplot2
+      - parallel
+      - roxygen2
+      - xml2
+      - caTools
+      - WVPlots
+      - GGally
+      - plotrix
+      - scatterplot3d
+      - microbenchmark
+      - data.table
+      - pbmcapply
+      - hitandrun
+      - pbapply
+      - rgl
+      - geometry
 r_github_packages:
   - jimhester/lintr
 after_success:
