@@ -134,7 +134,7 @@ get_stability_df_for_all_postures <- function(rds_postures) {
 ##' @return force_dataframes a list of dataframes, each with a unique map_creation_id
 split_by_map_creation_id <- function(unique_map_creation_ids, maps_data_df){
   force_dataframes <- lapply(unique_map_creation_ids, function(map_id){
-    sample_maps_data[sample_maps_data$map_creation_id == map_id,]
+    maps_data_df[maps_data_df$map_creation_id == map_id,]
   })
   return(force_dataframes)
 }

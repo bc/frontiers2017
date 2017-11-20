@@ -133,10 +133,9 @@ p <- p + geom_line(aes(time, JR3_FZ))
 p
 
 
+predict_output_force
+
 # ////
-
-
-
 
 plot_input_output_signals(head(sample_maps_data_scaling, 10000))
 plot_input_output_signals(head(sample_maps_data_scaling, 10000), command)
@@ -146,6 +145,12 @@ plot_input_output_signals(downsampled_df(sample_maps_data_scaling,100), referenc
 plot_input_output_signals(downsampled_df(sample_maps_data_scaling,100), command)
 #make sure the JR3 signals respond in some way to the changes.
 sample_maps_data_scaling_wo_null <- sample_maps_data_scaling[sample_maps_data_scaling$map_creation_id!=0.0,]
+# Expect to see only force trials with none of the warmup
+plot_input_output_signals(head(sample_maps_data_scaling_wo_null, 10000))
+# Expect to see only force trials with none of the cooldown
+plot_input_output_signals(tail(sample_maps_data_scaling_wo_null, 10000))
+
+
 # Remove pre-experiment and post experiment stuff
 scaling_hand_responses_raw <- split_by_map_creation_id(unique(sample_maps_data_scaling_wo_null$map_creation_id), sample_maps_data_scaling)
 are_correct_length <- dcc(lapply(scaling_hand_responses_raw, function(dt) {
