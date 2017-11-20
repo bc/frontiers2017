@@ -19,7 +19,7 @@ are_correct_length <- dcc(lapply(noise_hand_responses_raw, function(dt) {
   return(nrow(dt) >= 700 && nrow(dt) < 810)
 }))
 noise_hand_responses <- noise_hand_responses_raw[are_correct_length]
-message(sprintf("Out of the %s collected maps, only %s had between 700 and 810 samples. Using %s maps.", length(noise_hand_responses_raw), length(noise_hand_responses),length(noise_hand_responses)))
+message(sprintf("Out of the %s collected maps, %s had between 700 and 810 samples. Using %s maps.", length(noise_hand_responses_raw), length(noise_hand_responses),length(noise_hand_responses)))
 input_output_data <- dcrb(lapply(lapply(noise_hand_responses, tail, 100), colMeans))
 
 data <- df_split_into_training_and_testing(input_output_data, fraction_training = 0.8)
@@ -144,6 +144,9 @@ plot_input_output_signals(downsampled_df(sample_maps_data_scaling,100))
 plot_input_output_signals(downsampled_df(sample_maps_data_scaling,100), reference)
 plot_input_output_signals(downsampled_df(sample_maps_data_scaling,100), command)
 #make sure the JR3 signals respond in some way to the changes.
+
+
+# Remove pre-experiment and post experiment stuff
 sample_maps_data_scaling_wo_null <- sample_maps_data_scaling[sample_maps_data_scaling$map_creation_id!=0.0,]
 # Expect to see only force trials with none of the warmup
 plot_input_output_signals(head(sample_maps_data_scaling_wo_null, 10000))
@@ -151,13 +154,12 @@ plot_input_output_signals(head(sample_maps_data_scaling_wo_null, 10000))
 plot_input_output_signals(tail(sample_maps_data_scaling_wo_null, 10000))
 
 
-# Remove pre-experiment and post experiment stuff
-scaling_hand_responses_raw <- split_by_map_creation_id(unique(sample_maps_data_scaling_wo_null$map_creation_id), sample_maps_data_scaling)
+scaling_hand_responses_raw <- split_by_map_creation_id(unique(sample_maps_data_scaling_wo_null$map_creation_id), sample_maps_data_scaling_wo_null)
 are_correct_length <- dcc(lapply(scaling_hand_responses_raw, function(dt) {
   return(nrow(dt) >= 700 && nrow(dt) < 810)
 }))
 noise_hand_responses <- scaling_hand_responses_raw[are_correct_length]
-message(sprintf("Out of the %s collected maps, only %s had between 700 and 810 samples. Using %s maps.", length(noise_hand_responses_raw), length(noise_hand_responses),length(noise_hand_responses)))
+message(sprintf("Out of the %s collected maps, %s had between 700 and 810 samples. Using %s maps.", length(noise_hand_responses_raw), length(noise_hand_responses),length(noise_hand_responses)))
 
 
 

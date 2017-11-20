@@ -129,8 +129,8 @@ get_stability_df_for_all_postures <- function(rds_postures) {
   stability_df <- dcrb(pbmclapply(rds_postures, posture_path_to_stability_df))
   return(stability_df)
 }
-
-##' TODO document
+##' split_by_map_creation_id
+##' TODO document and test.
 ##' @return force_dataframes a list of dataframes, each with a unique map_creation_id
 split_by_map_creation_id <- function(unique_map_creation_ids, maps_data_df){
   force_dataframes <- lapply(unique_map_creation_ids, function(map_id){
