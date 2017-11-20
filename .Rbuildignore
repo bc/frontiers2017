@@ -4,3 +4,4 @@
 output
 references
 coverletter.docx
+^\.travis\.yml$
