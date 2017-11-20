@@ -19,4 +19,4 @@ notifications:
 after_success:
       - Rscript -e 'library(covr); codecov()'
       - bash <(curl -s https://codecov.io/bash)
-      - Rscript -e 'lintr::lint_package()'
+      - Rscript -e 'lintr::lint_package(".", linters = lintr::with_defaults(lintr::line_length_linter(120)))'
