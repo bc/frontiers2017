@@ -7,7 +7,7 @@
 muscle_names()
 }
 \value{
-muscle_names list of strings of names, i.e. "M0, ..."
+muscle_names list of strings of names, i.e. 'M0, ...'
 }
 \description{
 Muscle Names from Frontiers2017 experiment

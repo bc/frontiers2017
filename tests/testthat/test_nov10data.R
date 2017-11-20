@@ -29,7 +29,7 @@ test_data <- data$test
 force_names_to_predict <- c("JR3_FX", "JR3_FY", "JR3_FZ")
 muscles_of_interest <- muscle_names()[1:7]
 num_muscles <- length(muscles_of_interest)
-A_fit <- find_A_matrix_without_offset(as.data.frame(training_data), measured(),
+A_fit <- find_A_matrix_without_offset(as.data.frame(training_data), measured(muscles_of_interest),
   force_names_to_predict)
 fit_evaluation_without_offset(A_fit, as.data.frame(test_data))
 
@@ -101,7 +101,7 @@ list_of_mats <- add_gradient_to_attrs(extract_3cols, gradient(length(extract_3co
 rgl.clear()
 axes_for_multiple_sets(list_of_mats)
 axes_for_defined_xyz_limits(rep(list(c(0,20)),3))
-rgl_convhulls(list_of_mats[6], points=TRUE)
+rgl_convhulls(list_of_mats, points=TRUE)
 # Add x, y, and z Axes
 
 create_and_cbind_map_creation_ids <- function(df_of_maps, muscles_of_interest){

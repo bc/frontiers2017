@@ -19,8 +19,14 @@ compose_b_vector <- function(task_force, range_tension, num_muscles){
   as.numeric(c(task_force, rep(-range_tension[1], num_muscles),
     rep(range_tension[2], num_muscles)))
 }
-
+##' task_and_generators_to_constr
 ##' @return constr constraints in the format acceptable by hitandrun. See ?har.init
+##' TODO fill in param descriptions'
+##' TODO test
+##' @param generator_columns_A_matrix TODO
+##' @param muscle_constraints_matrix TODO
+##' @param range_tension 2 element vector defining lower and upperbound for tension placed on all tendons. Assumes same bounds for all muscles.
+##' @param task_force vector of numeric numbers representing the output task vector. dim is the same as the nrow(generator_columns_A_matrix)
 task_and_generators_to_constr <- function(generator_columns_A_matrix,
   muscle_constraints_matrix, range_tension, task_force) {
   big_A <- rbind(generator_columns_A_matrix, -muscle_constraints_matrix, muscle_constraints_matrix)
@@ -32,6 +38,7 @@ task_and_generators_to_constr <- function(generator_columns_A_matrix,
 
 ##' Multiple Multicolor Convhulls
 ##' @param list_of_3d_matrices each a matrix with only 3 columns to show as XYZ. Must have attr(,"color") for each in the list
+##' @param points logical - whether or not to show the xyz points within each convex hull.
 rgl_convhulls <- function(list_of_3d_matrices, points){
   lapply(list_of_3d_matrices, function(mat) {
     xyz_points_with_convhull(mat, col = attr(mat, "color"), points = points)

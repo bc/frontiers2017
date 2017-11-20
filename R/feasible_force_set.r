@@ -1,6 +1,7 @@
 ##' xyz_points_with_convhull
 ##' @param mat matrix with 3 columns for xyz
 ##' @param col color to paint the convex hull object'=
+##' @param points logical- whether or not to show the actual XYZ points inside the convex hulls
 ##' @importFrom rgl points3d
 xyz_points_with_convhull <- function(mat, col, points = TRUE) {
   if (points) {
@@ -61,7 +62,9 @@ axes_for_multiple_sets <- function(list_of_3d_matrices, cols = c("red", "green",
   rgl.lines(c(0, 0), c(0, 0), c(min(z), max(z)), color = cols[3])
 }
 
+##' RGL axes_for_defined_xyz_limits
 ##' @param xyz_range_vec vector of 3 elements, each a tuple of the range for i in xyz
+##' @param cols vector of three colors that will be used for the XYZ axes. rgb by default.
 axes_for_defined_xyz_limits <- function(xyz_range_vec, cols = c("red", "green",
   "blue")) {
   rgl.lines(xyz_range_vec[[1]], c(0, 0), c(0, 0), color = cols[1])
