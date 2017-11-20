@@ -1,22 +1,19 @@
-# R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
+# R for travis:      see documentation at https://docs.travis-ci.com/user/languages/r
 
-language: R
-sudo: false
-cache: packages
+language:            R
+sudo:                false
+cache:               packages
 warnings_are_errors: false
-env:
-  os:
-    - linux
-    - osx
-  matrix:
-    - RVERSION=devel
-    - RVERSION=release
-    - RVERSION=oldrel
-    - RVERSION=3.4.1
-    - RVERSION=3.4.0
+r:
+  - 3.4.1
+  - oldrel
+  - release
+  - devel
 notifications:
-     slack: kaspectscientists:OFGveqm4qxt26CPytZrHUxSV
+     slack:          kaspectscientists:OFGveqm4qxt26CPytZrHUxSV
 after_success:
       - Rscript -e 'library(covr); codecov()'
       - bash <(curl -s https://codecov.io/bash)
       - Rscript -e 'lintr::lint_package(".", linters = lintr::with_defaults(lintr::line_length_linter(120)))'
+before_install:
+    - Rscript -e 'update.packages(ask = FALSE)'
