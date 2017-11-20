@@ -1,26 +1,22 @@
 context("test_nov10data.r")
-# map_id_table <- fread(get_Resilio_filepath("map_unit_cube_nov11.csv"))
-# filenames <- c("noPostureNeutralForceTrials2017_11_12_14_53_25.txt", "noPostureNeutralForceTrials2017_11_12_14_50_59.txt",
-#   "noPostureNeutralForceTrials2017_11_12_14_48_27.txt", "noPostureNeutralForceTrials2017_11_12_14_46_00.txt",
-#   "noPostureNeutralForceTrials2017_11_12_14_43_47.txt")
-# filepaths <- dcc(lapply(filenames, get_Resilio_filepath))
-#
-# experiments <- lapply(filepaths, function(file) {
-#   fread(file)
-# })
 sample_maps_data <- as.data.frame(fread(get_Resilio_filepath('noiseTrial2017_11_19_15_18_32.txt')))
-# sample_maps_data <- as.data.frame(experiments[[1]])
 JR3_sensor_null <- colMeans(head(sample_maps_data, 100))
 sample_maps_data <- zero_out_JR3_sensors(sample_maps_data, JR3_sensor_null)
-p <- ggplot(data = head(sample_maps_data, 100))
-p <- p + geom_line(aes(time, JR3_FX))
-p <- p + geom_line(aes(time, JR3_FY))
-p <- p + geom_line(aes(time, JR3_FZ))
+p <- ggplot(data = head(sample_maps_data, 10000))
+p <- p + geom_line(aes(time, JR3_FX), color="red")
+p <- p + geom_line(aes(time, JR3_FY), color="green")
+p <- p + geom_line(aes(time, JR3_FZ), color="blue")
 p <- p + geom_line(aes(time, measured_M0)) # this one should be non0 higher.
-p
+p <- p + geom_line(aes(time, measured_M1)) # this one should be non0 higher.
+p <- p + geom_line(aes(time, measured_M2)) # this one should be non0 higher.
+p <- p + geom_line(aes(time, measured_M3)) # this one should be non0 higher.
+p <- p + geom_line(aes(time, measured_M4)) # this one should be non0 higher.
+p <- p + geom_line(aes(time, measured_M5)) # this one should be non0 higher.
+p <- p + geom_line(aes(time, measured_M6)) # this one should be non0 higher.
+p + xlab('Time (s)') + ylab("Newtons")
 # Remove pre-experiment and post experiment stuff
-sample_maps_data <- sample_maps_data[sample_maps_data$map_creation_id!=0,]
-dts <- split(sample_maps_data, sample_maps_data$map_creation_id)
+dts <- split_by_map_creation_id(unique(sample_maps_data_wo_null$map_creation_id), sample_maps_data)
+
 are_correct_length <- dcc(lapply(dts, function(dt) {
   return(nrow(dt) >= 700 && nrow(dt) < 805)
 }))

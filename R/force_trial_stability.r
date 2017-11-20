@@ -17,7 +17,7 @@ get_reference_to_variance_relationship_df <- function(force_list, last_n_millise
 
 ##' Zero out JR3 sensors
 ##' @param df dataframe of raw timeseries data including JR3_FX, etc.
-##' @param JR3_sensor_null vecotr of 6 values representing the mean in the first 100ms
+##' @param JR3_sensor_null vector of 6 values representing the mean in the first 100ms
 zero_out_JR3_sensors <- function(df, JR3_sensor_null) {
   for (i in c("JR3_FX", "JR3_FY", "JR3_FZ", "JR3_MX", "JR3_MY", "JR3_MZ")) {
     df[,i] <- df[,i] - JR3_sensor_null[[i]]
@@ -128,4 +128,13 @@ posture_path_to_stability_df <- function(posturepath) {
 get_stability_df_for_all_postures <- function(rds_postures) {
   stability_df <- dcrb(pbmclapply(rds_postures, posture_path_to_stability_df))
   return(stability_df)
+}
+
+##' TODO document
+##' @return force_dataframes a list of dataframes, each with a unique map_creation_id
+split_by_map_creation_id <- function(unique_map_creation_ids, maps_data_df){
+  force_dataframes <- lapply(unique_map_creation_ids, function(map_id){
+    sample_maps_data[sample_maps_data$map_creation_id == map_id,]
+  })
+  return(force_dataframes)
 }
