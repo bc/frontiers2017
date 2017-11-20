@@ -43,15 +43,13 @@ ffs_vertex <- generator_columns_A_matrix %*% c(rep(20,7)) #this is used to get o
 # task_force <- c(-0.5641187,  0, 1)
  task_force <- ffs_vertex
 
-
+############MANUAL: IDENTIFY TASK MULTIPLIER BOUNDS
 task_multiplier_bounds <- c(0.0, 1.0) #if c(0.0,0.0) then a null task.
 task_multiplier_list <- seq(task_multiplier_bounds[1], task_multiplier_bounds[2],
   length.out = 5)
 task_df <- t(task_force %*% t(task_multiplier_list))
 colnames(task_df) <- force_names_to_predict
-num_samples_desired <- 5000
-
-browser()
+num_samples_desired <- 100
 sset <- lapply(df_to_list_of_rows(task_df), function(task_i) {
   constraints_to_points(muscle_column_generators = t(A_fit$AMatrix), range_tension, task_i, num_samples_desired, thin=100)
 })
@@ -71,6 +69,8 @@ for (i in seq(1, length(sset))) {
   show_l1_costs(samples, task)
 }
 dev.off()
+##############
+
 #######Expect to see five distinct points. one for each task.
 rgl.init()
 list_of_predicted_forces <- lapply(sset, function(samples){
@@ -79,12 +79,9 @@ list_of_predicted_forces <- lapply(sset, function(samples){
 plot3d(dcrb(list_of_predicted_forces))
 #######
 
-rgl.open()
 
-# TODO get the test data from the actual data collected test_observed_response <-
-# test_data[force_column_names] res_test <- test_observed_response -
-# test_predicted_response summary(res_test)
-
+#######Visualize the FAS sets that are produced by feeding in the noiseResponse data.
+rgl.init()
 num_tasks <- length(sset)
 rgl_init(bg = "white")
 extract_3cols <- lapply(sset, function(x) x[,c(1,2,3)])
@@ -97,39 +94,25 @@ axes_for_multiple_sets(list_of_mats)
 axes_for_defined_xyz_limits(rep(list(c(0,20)),3))
 rgl_convhulls(list_of_mats, points=TRUE)
 # Add x, y, and z Axes
+###################
 
 res <- lapply(sset, create_and_cbind_map_creation_ids, muscle_names())
-
 big_har_set_to_test_on_finger <- dcrb(res)
-
 write.csv(big_har_set_to_test_on_finger, "scaling_task_n100_per_outputvec_of_interest_5_steps_no_replicates.csv",
   row.names = FALSE, quote = FALSE)
-# make a little db to remember which map was trying to achieve which task.
-tasklists <- lapply(seq(0.9, 2.8, length.out = 10), function(x) {
-  dcrb(rep(list(x * c(0.33152926, 0.07102741, 0.22046813)), 100))
-})
-task_list_df <- dcrb(tasklists)
-colnames(task_list_df) <- force_names_to_predict
-maps_with_target_tasks <- cbind(big_har_set_to_test_on_finger, task_list_df)
 
 ## TODO GET data from the cadaver finger from big_har_set_to_test_on_finger
 ###################################################################################################
 #this is the response when you push in the maps for 5 tasks through the finger
-scaling <- as.data.frame(fread(get_Resilio_filepath("noiseTrial2017_11_19_20_21_33.txt")))
-
-JR3_sensor_null <- colMeans(head(scaling, 30))
-# TODO test zero out sensors
-sample_maps_data_scaling <- zero_out_JR3_sensors(scaling, JR3_sensor_null)
+response_to_prescribed_har_maps <- as.data.frame(fread(get_Resilio_filepath("noiseTrial2017_11_19_20_21_33.txt")))
+JR3_sensor_null_for_prescribed_har_maps <- colMeans(head(response_to_prescribed_har_maps, 30))
+sample_maps_data_scaling <- zero_out_JR3_sensors(response_to_prescribed_har_maps, JR3_sensor_null_for_prescribed_har_maps)
 p <- ggplot(data = head(sample_maps_data_scaling, 30))
 p <- p + geom_line(aes(time, JR3_FX))
 p <- p + geom_line(aes(time, JR3_FY))
 p <- p + geom_line(aes(time, JR3_FZ))
 p
-
-
-predict_output_force
-
-# ////
+###TODO Compare jr3 nulls from response_to_noise and response_to_prescribed_har_maps to see if drift happened
 
 plot_input_output_signals(head(sample_maps_data_scaling, 10000))
 plot_input_output_signals(head(sample_maps_data_scaling, 10000), command)
@@ -142,9 +125,9 @@ plot_input_output_signals(downsampled_df(sample_maps_data_scaling,100), command)
 
 # Remove pre-experiment and post experiment stuff
 sample_maps_data_scaling_wo_null <- sample_maps_data_scaling[sample_maps_data_scaling$map_creation_id!=0.0,]
-# Expect to see only force trials with none of the warmup
+# Expect to see only force trials with none of the warmup. ending forcetrial will be cut off
 plot_input_output_signals(head(sample_maps_data_scaling_wo_null, 10000))
-# Expect to see only force trials with none of the cooldown
+# Expect to see only force trials with none of the cooldown. Beginning ft will be cut off
 plot_input_output_signals(tail(sample_maps_data_scaling_wo_null, 10000))
 
 
@@ -157,5 +140,6 @@ message(sprintf("Out of the %s collected maps, %s had between 700 and 810 sample
 
 
 maps_with_ids <- dcrb(lapply(noise_hand_responses, tail, 1))
-expected_forces <- t(as.matrix(A_fit$AMatrix)) %*% t(as.matrix(maps_with_ids[,reference(muscles_of_interest)]))
-plot3d(t(expected_forces))
+maps_without_ids <- unique(sample_maps_data_scaling_wo_null[reference(muscle_names())])
+expected_forces <- t(as.matrix(A_fit$AMatrix)) %*% t(as.matrix(maps_without_ids[,reference(muscles_of_interest)]))
+plot3d(t(expected_forces), xlim=c(-2,2),ylim=c(-2,2),zlim=c(-2,2))
