@@ -104,11 +104,6 @@ axes_for_defined_xyz_limits(rep(list(c(0,20)),3))
 rgl_convhulls(list_of_mats, points=TRUE)
 # Add x, y, and z Axes
 
-create_and_cbind_map_creation_ids <- function(df_of_maps, muscles_of_interest){
-  cbound <- cbind(generate_map_creation_ids(nrow(samples)), as.data.frame(samples))
-  colnames(cbound) <- c("map_creation_id", muscles_of_interest)
-  return(cbound)
-}
 res <- lapply(sset, create_and_cbind_map_creation_ids, muscle_names())
 
 big_har_set_to_test_on_finger <- dcrb(res)

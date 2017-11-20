@@ -158,18 +158,19 @@ ensure_map_creation_ids_are_the_same <- function(map_creation_id_vector) {
 ##' @param approx_nrow expected number of samples for each of the replicates
 ##' @param tol tolerance for approx_nrow
 ##' @return list_of_replicates list of replicates, each a df with time column, etc. all will have same mapID
-split_by_replicate <- function(df_of_concatenated_replicates, time_delta_threshold=0.1){
+split_by_replicate <- function(df_of_concatenated_replicates, time_delta_threshold = 0.1) {
   delta_times <- diff(df_of_concatenated_replicates$time)
-  final_indices_of_each_replicate <- which(delta_times>time_delta_threshold)
+  final_indices_of_each_replicate <- which(delta_times > time_delta_threshold)
   initial_index <- 1
   counter <- 1
   res <- list()
   for (i in final_indices_of_each_replicate) {
-    res[[counter]] <- df_of_concatenated_replicates[initial_index:i,]
+    res[[counter]] <- df_of_concatenated_replicates[initial_index:i, ]
     counter <- counter + 1
     initial_index <- i + 1
   }
-  res[[counter]] <- df_of_concatenated_replicates[i:nrow(df_of_concatenated_replicates),]
+  res[[counter]] <- df_of_concatenated_replicates[i:nrow(df_of_concatenated_replicates),
+    ]
   return(res)
 }
 
@@ -178,17 +179,29 @@ split_by_replicate <- function(df_of_concatenated_replicates, time_delta_thresho
 ##' @param list_of_trials list of dataframes, each with N colums
 ##' @param last_n_milliseconds number of milliseconds to base the stability metrics off.
 column_sd_across_replicates <- function(list_of_trials, last_n_milliseconds) {
-  apply(dcrb(lapply(lapply(list_of_trials,tail,100), colMeans)),2,sd)
+  apply(dcrb(lapply(lapply(list_of_trials, tail, 100), colMeans)), 2, sd)
 }
-
 
 ##' lowest_l1_cost_soln'
 ##' @param df a dataframe where each row is a nrow(df)- dimensional vector
 ##' @param v a vector of numeric values
 ##' @return l1 numeric, the row with the lowest l1
-  lowest_l1_cost_soln <- function(df) df[which.min(rowSums(df)), ]
-  ##' highest_l1_cost_soln'
-  ##' @param df a dataframe where each row is a nrow(df)- dimensional vector
-  ##' @param v a vector of numeric values
-  ##' @return l1 numeric, the row with the highest l1
-  highest_l1_cost_soln <- function(df) df[which.max(rowSums(df)), ]
+lowest_l1_cost_soln <- function(df) df[which.min(rowSums(df)), ]
+
+##' highest_l1_cost_soln'
+##' @param df a dataframe where each row is a nrow(df)- dimensional vector
+##' @param v a vector of numeric values
+##' @return l1 numeric, the row with the highest l1
+highest_l1_cost_soln <- function(df) df[which.max(rowSums(df)), ]
+
+##' create_and_cbind_map_creation_ids
+##' generates the maps'
+##' TODO test
+##' @param df_of_maps dataframe where each column is a muscle, and each row is a unique musle activation pattern (map)
+##' @param muscles_of_interest vector of muscle name strings, i.e. 'M0', 'M1', ...
+##' @return cbound dataframe with new inserted column, called 'map_creation_id'.
+create_and_cbind_map_creation_ids <- function(df_of_maps, muscles_of_interest) {
+  cbound <- cbind(generate_map_creation_ids(nrow(df_of_maps)), as.data.frame(df_of_maps))
+  colnames(cbound) <- c("map_creation_id", muscles_of_interest)
+  return(cbound)
+}
