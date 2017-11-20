@@ -48,22 +48,19 @@ task_multiplier_list <- seq(task_multiplier_bounds[1], task_multiplier_bounds[2]
 task_df <- t(task_force %*% t(task_multiplier_list))
 colnames(task_df) <- force_names_to_predict
 
+task <- task_df[3,]
+num_samples_desired <- 100000
+samples <- constraints_to_points(muscle_column_generators = t(A_fit$AMatrix), range_tension, task, num_samples_desired, thin=100)
+predicted_forces <- t(t(A_fit$AMatrix) %*% t(samples))
+euclidian_errors_vector <- apply(predicted_forces,1, function(row) norm_vec(row - task))
+expect_equal(max(euclidian_errors_vector), 0, tol=1e-13)
+message('How close are predicted forces to desired task force? We should expect max == min.')
+print(column_ranges(predicted_forces))
+
+fas_histogram(samples, range_tension, task, breaks=100)
+
 sset <- lapply(df_to_list_of_rows(task_df), function(task_i) {
-  constr <- task_and_generators_to_constr(generator_columns_A_matrix, muscle_constraints_matrix,
-    range_tension, task_i)
-  samples <- har_collect_points(constr, thin=100, n=100)
-  # Try running those samples back through the A_matrix
-  predicted_forces <- predict_output_force(A_fit$AMatrix,samples)
-  maximums <- apply(predicted_forces,2,max)
-  minimums <- apply(predicted_forces,2,min)
-  expect_equal(norm_vec(maximums- minimums), 0, tol=1e-10)
   # Show histograms of the FAS
-  par(mfrow = c(1, 7))
-  lapply(1:7, function(muscle_num) {
-    hist(samples[, muscle_num], breaks = 10, main = paste("M", muscle_num, "at",
-      format(task_i, digits = 3), collapse = ""), xlab = "Tendon force (N)",
-      xlim = c(0, 11))
-  })
 
   message(paste("TASK:",task_i))
   message("-------------------------")

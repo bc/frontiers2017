@@ -23,7 +23,7 @@ dots_to_underscores <- function(str){
 ##' TODO Test example:
 ##' > experimental_range
 ##' [1]  0.05845569 19.80210853
-##' > tension_range
+##' > range_tension
 ##' [1]  0 20
 ##' should return true'
 ##' @param vector vector of elements

@@ -3,29 +3,30 @@ context("test_hitandrun.r")
 
 
 test_that("hit and run works with the canonical 3 muscle, 1N output request", {
-  tension_range <- c(0, 1)
+  range_tension <- c(0, 1)
   task <- 0.5
   num_samples_desired <- 10000
   muscle_column_generators <- matrix(c(10/3, -53/15, 2), ncol=3)
-  samples <- constraints_to_points(muscle_column_generators, tension_range, task, num_samples_desired, thin=100)
+  samples <- constraints_to_points(muscle_column_generators, range_tension, task, num_samples_desired, thin=100)
   expect_equal(nrow(samples), num_samples_desired)
   plot3d(samples, xlim = c(0, 1), ylim = c(0, 1), zlim = c(0, 1))
   # Select only the first column, that corresponds to the output force.
-  predicted_forces <- predict_output_force(t(constr$constr), samples)[, 1]
+  predicted_forces <- predict_output_force(t(muscle_column_generators), samples)[, 1]
   expect_equal(maximum_absolute_residual(vector = predicted_forces, desired_val = task),
     0, tol = 1e-05)
+    fas_histogram(samples, range_tension, task, breaks=100)
 })
 
 test_that("Hit and run works with the canonical 3 muscle, with 5 different force tasks", {
-  tension_range <- c(0, 1)
+  range_tension <- c(0, 1)
   tasks <- seq(0,2, length.out=5)
   num_samples_desired <- 10000
   muscle_column_generators <- matrix(c(10/3, -53/15, 2), ncol=3)
   list_of_samplesets <- lapply(tasks, function(task){
-    return(constraints_to_points(muscle_column_generators, tension_range, task, num_samples_desired, thin=100))
+    return(constraints_to_points(muscle_column_generators, range_tension, task, num_samples_desired, thin=100))
   })
   predicted_forces <- dcc(lapply(list_of_samplesets, function(samples){
-    sd(predict_output_force(t(constr$constr), samples)[,1])
+    sd(predict_output_force(t(muscle_column_generators), samples)[,1])
   }))
   expect_equal(predicted_forces, rep(0,5), tol=1e-6)
 })

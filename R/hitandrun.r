@@ -85,12 +85,12 @@ canonical_linear_system <- function(task) {
 	}
 	##' Create bound constraints
 	##' @param constraints_width integer (if you have 3 muscles, this will be 3)
-	##' @param tension_range vector of two numeric values for (lowerbound,upperbound)
+	##' @param range_tension vector of two numeric values for (lowerbound,upperbound)
 	##' @return constraints_list list of constr elements, see ?hitandrun::har
 	##' @importFrom hitandrun lowerBoundConstraint
-	create_bound_constraints <- function(constraints_width, tension_range){
-	  c(create_lowerbound_constraints(constraints_width, tension_range[1]),
-	  create_upperbound_constraints(constraints_width, tension_range[2]))
+	create_bound_constraints <- function(constraints_width, range_tension){
+	  c(create_lowerbound_constraints(constraints_width, range_tension[1]),
+	  create_upperbound_constraints(constraints_width, range_tension[2]))
 	}
 
 	##' Collect points from hit and run (specified for frontiers2017 data)
@@ -108,18 +108,31 @@ har_collect_points <- function(constr, thin, n) {
 
 ##' Constraints_to_points
 ##' @param muscle_column_generators matrix where each column is a muscle generator, each row is a force output dimension
-##' @param tension_range vector of two numeric values for (lowerbound,upperbound)
+##' @param range_tension vector of two numeric values for (lowerbound,upperbound)
 ##' @param task vector of n numeric values. i.e. c(fx,fy)
 ##' @param num_samples_desired int
 ##' @param thin mixing time integer
 ##' @return samples matrix of samples, ncol == muscle_column_generators, nrow == num_samples_desired
-constraints_to_points <- function(muscle_column_generators, tension_range, task, num_samples_desired, thin){
+constraints_to_points <- function(muscle_column_generators, range_tension, task, num_samples_desired, thin){
   num_muscles <- ncol(muscle_column_generators)
   bound_constraints <- mergeConstraints(create_bound_constraints(constraints_width = num_muscles,
-    tension_range))
+    range_tension))
   motor_task_constraint <- list(constr = muscle_column_generators, dir = rep("=", nrow(muscle_column_generators)),
     rhs = task)
   constr <- mergeConstraints(motor_task_constraint, bound_constraints)
   samples <- har_collect_points(constr, thin = thin, n = num_samples_desired)
   return(samples)
+}
+
+##' N Histograms of the projections of the samples in N-dimensions
+##' @param samples matrix of samples, where each row is a sample, with nmuscles columns
+##' @param range_tension 2 element vector of min max in newton_values
+##' @param task a vector of fx fy, ... values etc.
+fas_histogram <- function(samples, range_tension, task, ...){
+  par(mfrow = c(1, ncol(samples)))
+  lapply(1:ncol(samples), function(muscle_num) {
+    hist(samples[, muscle_num], main = paste("M", muscle_num, "at",
+    format(task, digits = 2), collapse = ""), xlab = "Tendon force (N)",
+    xlim = range_tension, ...)
+  })
 }
