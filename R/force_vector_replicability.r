@@ -10,7 +10,7 @@ uar_matrix <- function(rows, cols, min, max) {
 ##' @param number_of_maps_to_generate int, how many unique muscle activation patterns should we create?
 ##' @param muscle_range 2 element vector with min and max, that will be the bounds of the u.a.r. sampling
 noise_df <- function(muscles_of_interest, number_of_maps_to_generate, muscle_range) {
-  noise <- uar_matrix(number_of_maps_to_generate, length(muscle_of_interest), min = muscle_range[1], max = muscle_range[2])
+  noise <- uar_matrix(number_of_maps_to_generate, length(muscles_of_interest), min = muscle_range[1], max = muscle_range[2])
   cbound <- cbind(generate_map_creation_ids(nrow(noise)), as.data.frame(noise))
   colnames(cbound) <- c("map_creation_id", muscle_of_interest)
   return(cbound)

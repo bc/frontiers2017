@@ -102,30 +102,6 @@ test_that('we can produce a binary set of x vectors of size 7', {
   plot3d(samples)  #show 3d plane
 })
 
-test_that('can produce new har CSV from 0,1 CSV', {
-  df <- fread('/Users/briancohn/Resilio\ Sync/data/noPostureNeutralForceTrials2017_11_12_14_28_20.txt')
-  concatenated_ft_dfs <- df["map_creation_id"!=0]
-  unique_maps <- unique(concatenated_ft_dfs$map_creation_id)
-  list_of_ft_dfs <- split(concatenated_ft_dfs, concatenated_ft_dfs$map_creation_id)
-  input_output_datatable <- dcrb(lapply(list_of_ft_dfs, function(ts_df){
-    settled_section <- tail(ts_df,100)
-    colMeans(settled_section)
-  }))
-  input_output_data<- data.frame(input_output_datatable)
-
-
-range_tension <- c(3,20)
-  num_muscles <- 7
-  A_fit <- find_A_matrix(input_output_data,  measured(muscle_names())[1:num_muscles], forces_of_interest=c("JR3_FX"))
-  AMatrix_with_offset <- A_fit$AMatrix
-  muscle_diag_ones <- diag(rep(1, num_muscles))
-  muscle_constraints_matrix <- cbind(rep(0, num_muscles), muscle_diag_ones)
-  generator_columns_A_matrix <- t(A_fit$AMatrix)
-
-  #TODO create test to give some examples for usage this pass_unit_cube_to_A(big_A, 3, c(3,20))
-})
-
-##' TODO check this test_that'
 context("stop_if_min_equals_max")
 test_that("stop_if_min_equals_max will display stop message",
 {
