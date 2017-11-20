@@ -1,4 +1,5 @@
 context("test_nov10data.r")
+set.seed(4)
 #Response to noise through hand
 # noiseTrial2017_11_19_19_45_01.txt was on MIT hand. noise input 100 = num_maps
 # input: no_spaces_noise_lo_0_hi_20_nmaps_500_replicates_1.csv
@@ -26,8 +27,9 @@ training_data <- data$train
 test_data <- data$test
 
 force_names_to_predict <- c("JR3_FX", "JR3_FY", "JR3_FZ")
-num_muscles <- 7
-A_fit <- find_A_matrix_without_offset(as.data.frame(training_data), measured(muscle_names()),
+muscles_of_interest <- muscle_names()[1:7]
+num_muscles <- length(muscles_of_interest)
+A_fit <- find_A_matrix_without_offset(as.data.frame(training_data), measured(),
   force_names_to_predict)
 fit_evaluation_without_offset(A_fit, as.data.frame(test_data))
 
@@ -82,7 +84,7 @@ sset <- lapply(df_to_list_of_rows(task_df), function(task_i) {
   return(samples)
 })
 
-rgl.clear()
+rgl.open()
 
 
 # TODO get the test data from the actual data collected test_observed_response <-
@@ -99,15 +101,15 @@ list_of_mats <- add_gradient_to_attrs(extract_3cols, gradient(length(extract_3co
 rgl.clear()
 axes_for_multiple_sets(list_of_mats)
 axes_for_defined_xyz_limits(rep(list(c(0,20)),3))
-rgl_convhulls(list_of_mats, points=TRUE)
+rgl_convhulls(list_of_mats[6], points=TRUE)
 # Add x, y, and z Axes
 
-
-res <- lapply(sset, function(samples) {
+create_and_cbind_map_creation_ids <- function(df_of_maps, muscles_of_interest){
   cbound <- cbind(generate_map_creation_ids(nrow(samples)), as.data.frame(samples))
-  colnames(cbound) <- c("map_creation_id", muscle_names())
+  colnames(cbound) <- c("map_creation_id", muscles_of_interest)
   return(cbound)
-})
+}
+res <- lapply(sset, create_and_cbind_map_creation_ids, muscle_names())
 
 big_har_set_to_test_on_finger <- dcrb(res)
 
@@ -134,6 +136,37 @@ p <- p + geom_line(aes(time, JR3_FX))
 p <- p + geom_line(aes(time, JR3_FY))
 p <- p + geom_line(aes(time, JR3_FZ))
 p
+
+
+# ////
+
+
+
+
+plot_input_output_signals(head(sample_maps_data_scaling, 10000))
+plot_input_output_signals(head(sample_maps_data_scaling, 10000), command)
+plot_input_output_signals(head(sample_maps_data_scaling, 10000), reference)
+plot_input_output_signals(downsampled_df(sample_maps_data_scaling,100))
+plot_input_output_signals(downsampled_df(sample_maps_data_scaling,100), reference)
+plot_input_output_signals(downsampled_df(sample_maps_data_scaling,100), command)
+#make sure the JR3 signals respond in some way to the changes.
+sample_maps_data_scaling_wo_null <- sample_maps_data_scaling[sample_maps_data_scaling$map_creation_id!=0.0,]
+# Remove pre-experiment and post experiment stuff
+scaling_hand_responses_raw <- split_by_map_creation_id(unique(sample_maps_data_scaling_wo_null$map_creation_id), sample_maps_data_scaling)
+are_correct_length <- dcc(lapply(scaling_hand_responses_raw, function(dt) {
+  return(nrow(dt) >= 700 && nrow(dt) < 810)
+}))
+noise_hand_responses <- scaling_hand_responses_raw[are_correct_length]
+message(sprintf("Out of the %s collected maps, only %s had between 700 and 810 samples. Using %s maps.", length(noise_hand_responses_raw), length(noise_hand_responses),length(noise_hand_responses)))
+
+
+
+
+
+
+
+
+
 
 dts_scaling <- split(sample_maps_data_scaling, sample_maps_data_scaling$map_creation_id)
 are_correct_length <- dcc(lapply(dts_scaling, function(dt) {
