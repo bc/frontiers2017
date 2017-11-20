@@ -8,7 +8,7 @@ save_snapshot_for_first_posture <- function(raw_data_timeseries_df, output_filep
 stabilization_err_99_percentile <- 0.4
 
 ##' Muscle Names from Frontiers2017 experiment
-##' @return muscle_names list of strings of names, i.e. "M0, ..."
+##' @return muscle_names list of strings of names, i.e. 'M0, ...'
 muscle_names <- function() c("M0", "M1", "M2", "M3", "M4", "M5", "M6")
 
 
@@ -127,7 +127,56 @@ columns_to_extract_into_attributes <- function() {
 ##' @param full_stability_df df with adept_x and adept_y column
 ##' @return df_list split dataframes
 split_stability_df_into_postures <- function(full_stability_df) {
-  fix_x_max_residual_and_sd <- full_stability_df[full_stability_df$adept_x == -525.0000,]
-  fix_y_max_residual_and_sd <- full_stability_df[full_stability_df$adept_y == 68.00,]
+  fix_x_max_residual_and_sd <- full_stability_df[full_stability_df$adept_x == -525,
+    ]
+  fix_y_max_residual_and_sd <- full_stability_df[full_stability_df$adept_y == 68,
+    ]
   return(list(fix_x = fix_x_max_residual_and_sd, fix_y = fix_y_max_residual_and_sd))
+}
+
+
+
+##' ensure_map_creation_ids_are_the_same
+##' Stops if there are more than 1 unique value, or 0 map_creation_id values passed to it
+##' @param map_creation_id_vector list of map_creation_ids as strings, or numbers.
+ensure_map_creation_ids_are_the_same <- function(map_creation_id_vector) {
+  map_vec_len <- length(unique(map_creation_id_vector))
+  if (map_vec_len == 0) {
+    stop("A length-0 vector of map_creation_ids were passed to ensure_map_creation_ids_are_the_same")
+  } else if (length(unique(map_creation_id_vector)) > 1) {
+    stop(paste("Expected only one type of map_creation_id, but instead got",
+      map_vec_len))
+  }
+}
+##' Split By Replicate
+##' Takes a df of many replicates, and splits it up by significant time differences.
+##' BEWARE it won't separate them unless they are at least 0.1 seconds apart from
+##' one another. Will fail when mapID is repeated consecutively (please don't do this anyways)
+##' TODO Rewrite so it will deal with consecutive values
+##' TODO stop if replicate lengths are far from desired length
+##' @param df_of_concatenated_replicates dataframe, witih column 'time'
+##' @param approx_nrow expected number of samples for each of the replicates
+##' @param tol tolerance for approx_nrow
+##' @return list_of_replicates list of replicates, each a df with time column, etc. all will have same mapID
+split_by_replicate <- function(df_of_concatenated_replicates, time_delta_threshold=0.1){
+  delta_times <- diff(df_of_concatenated_replicates$time)
+  final_indices_of_each_replicate <- which(delta_times>time_delta_threshold)
+  initial_index <- 1
+  counter <- 1
+  res <- list()
+  for (i in final_indices_of_each_replicate) {
+    res[[counter]] <- df_of_concatenated_replicates[initial_index:i,]
+    counter <- counter + 1
+    initial_index <- i + 1
+  }
+  res[[counter]] <- df_of_concatenated_replicates[i:nrow(df_of_concatenated_replicates),]
+  return(res)
+}
+
+##' column_sd_across_replicates
+##' TODO test
+##' @param list_of_trials list of dataframes, each with N colums
+##' @param last_n_milliseconds number of milliseconds to base the stability metrics off.
+column_sd_across_replicates <- function(list_of_trials, last_n_milliseconds) {
+  apply(dcrb(lapply(lapply(list_of_trials,tail,100), colMeans)),2,sd)
 }

@@ -2,30 +2,35 @@ context("test_nov10data.r")
 sample_maps_data <- as.data.frame(fread(get_Resilio_filepath('noiseTrial2017_11_19_16_45_54.txt')))
 JR3_sensor_null <- colMeans(head(sample_maps_data, 100))
 sample_maps_data <- zero_out_JR3_sensors(sample_maps_data, JR3_sensor_null)
-plot_input_output_signals <- function(timeseries_df,col_identifier_function=measured){
-  p <- ggplot(data=timeseries_df)
-  p <- p + geom_line(aes(time, JR3_FX), color="red")
-  p <- p + geom_line(aes(time, JR3_FY), color="green")
-  p <- p + geom_line(aes(time, JR3_FZ), color="blue")
-  for (muscle in muscle_names()) {
-    p <- p + geom_line(aes_string("time", col_identifier_function(muscle))) # this one should be non0 higher.
-  }
-  p + xlab('Time (s)') + ylab("Newtons")
-}
 plot_input_output_signals(head(sample_maps_data, 10000))
-
+plot_input_output_signals(head(sample_maps_data, 10000), command)
+plot_input_output_signals(head(sample_maps_data, 10000), reference)
 plot_input_output_signals(downsampled_df(sample_maps_data,1000))
+plot_input_output_signals(downsampled_df(sample_maps_data,100), reference)
+plot_input_output_signals(downsampled_df(sample_maps_data,100), command)
 #make sure the JR3 signals respond in some way to the changes.
 plot_input_output_signals(downsampled_df(sample_maps_data,100), reference)
-
+sample_maps_data_wo_null <- sample_maps_data[sample_maps_data$map_creation_id!=0.0,]
 # Remove pre-experiment and post experiment stuff
 dts <- split_by_map_creation_id(unique(sample_maps_data_wo_null$map_creation_id), sample_maps_data)
-are_correct_length <- dcc(lapply(dts, function(dt) {
+
+df_of_concatenated_replicates <- dts[[1]]
+replicate_list <- lapply(dts, split_by_replicate)
+sd_of_replicates <- dcrb(lapply(replicate_list, column_sd_across_replicates))
+boxplot(sd_of_replicates[,measured(muscle_names())], xlab="Muscle", ylab="SD (N)")
+boxplot(sd_of_replicates[,command(muscle_names())], xlab="Muscle", ylab="SD voltage?")
+boxplot(sd_of_replicates[,dots_to_underscores(force_column_names)], xlab="Muscle", ylab="SD in Force (N)")
+
+#only take first replicate for each map_creation_id
+raw_noise_trials <- unlist(lapply(replicate_list, head,1), recursive=FALSE)
+
+are_correct_length <- dcc(lapply(raw_noise_trials, function(dt) {
   return(nrow(dt) >= 700 && nrow(dt) < 805)
 }))
 # maps <- dts #TODO later, split off the replicates
-maps <- dts[are_correct_length]
-input_output_data <- dcrb(lapply(lapply(maps, tail, 100), colMeans))
+
+noise_trials <- raw_noise_trials[are_correct_length]
+input_output_data <- dcrb(lapply(lapply(noise_trials, tail, 100), colMeans))
 
 data <- df_split_into_training_and_testing(input_output_data, fraction_training = 0.8)
 training_data <- data$train

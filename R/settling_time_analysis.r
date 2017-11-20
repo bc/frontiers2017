@@ -472,3 +472,18 @@ plot_remaining_force_trial_fraction_as_function_of_err <- function(different_err
 add_posture_to_max_residual_and_sd <- function(row_of_max_residual_and_sd, adept_coords){
   cbind(data.frame(adept_x = adept_coords[1], adept_y=adept_coords[2]), row_of_max_residual_and_sd)
 }
+
+
+##' Sanity Check Plot signals over time
+##' @param timeseries_df a dataframe with time, JR3_FX, measured_M0 columns, etc
+##' @param col_identifier_function by default using measured, but can be command, or reference.
+plot_input_output_signals <- function(timeseries_df,col_identifier_function=measured){
+  p <- ggplot(data=timeseries_df)
+  p <- p + geom_line(aes(time, JR3_FX), color="red")
+  p <- p + geom_line(aes(time, JR3_FY), color="green")
+  p <- p + geom_line(aes(time, JR3_FZ), color="blue")
+  for (muscle in muscle_names()) {
+    p <- p + geom_line(aes_string("time", col_identifier_function(muscle))) # this one should be non0 higher.
+  }
+  p + xlab('Time (s)') + ylab("Newtons")
+}
