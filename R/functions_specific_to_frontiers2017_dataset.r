@@ -180,3 +180,15 @@ split_by_replicate <- function(df_of_concatenated_replicates, time_delta_thresho
 column_sd_across_replicates <- function(list_of_trials, last_n_milliseconds) {
   apply(dcrb(lapply(lapply(list_of_trials,tail,100), colMeans)),2,sd)
 }
+
+
+##' lowest_l1_cost_soln'
+##' @param df a dataframe where each row is a nrow(df)- dimensional vector
+##' @param v a vector of numeric values
+##' @return l1 numeric, the row with the lowest l1
+  lowest_l1_cost_soln <- function(df) df[which.min(rowSums(df)), ]
+  ##' highest_l1_cost_soln'
+  ##' @param df a dataframe where each row is a nrow(df)- dimensional vector
+  ##' @param v a vector of numeric values
+  ##' @return l1 numeric, the row with the highest l1
+  highest_l1_cost_soln <- function(df) df[which.max(rowSums(df)), ]

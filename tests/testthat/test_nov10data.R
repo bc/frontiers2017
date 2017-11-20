@@ -1,36 +1,25 @@
 context("test_nov10data.r")
-sample_maps_data <- as.data.frame(fread(get_Resilio_filepath('noiseTrial2017_11_19_16_45_54.txt')))
+#Response to noise through hand
+# noiseTrial2017_11_19_19_45_01.txt was on MIT hand. noise input 100 = num_maps
+# input: no_spaces_noise_lo_0_hi_20_nmaps_500_replicates_1.csv
+sample_maps_data <- as.data.frame(fread(get_Resilio_filepath('noiseTrial2017_11_19_19_53_10.txt')))
 JR3_sensor_null <- colMeans(head(sample_maps_data, 100))
 sample_maps_data <- zero_out_JR3_sensors(sample_maps_data, JR3_sensor_null)
 plot_input_output_signals(head(sample_maps_data, 10000))
 plot_input_output_signals(head(sample_maps_data, 10000), command)
 plot_input_output_signals(head(sample_maps_data, 10000), reference)
-plot_input_output_signals(downsampled_df(sample_maps_data,1000))
 plot_input_output_signals(downsampled_df(sample_maps_data,100), reference)
 plot_input_output_signals(downsampled_df(sample_maps_data,100), command)
 #make sure the JR3 signals respond in some way to the changes.
-plot_input_output_signals(downsampled_df(sample_maps_data,100), reference)
 sample_maps_data_wo_null <- sample_maps_data[sample_maps_data$map_creation_id!=0.0,]
 # Remove pre-experiment and post experiment stuff
-dts <- split_by_map_creation_id(unique(sample_maps_data_wo_null$map_creation_id), sample_maps_data)
-
-df_of_concatenated_replicates <- dts[[1]]
-replicate_list <- lapply(dts, split_by_replicate)
-sd_of_replicates <- dcrb(lapply(replicate_list, column_sd_across_replicates))
-boxplot(sd_of_replicates[,measured(muscle_names())], xlab="Muscle", ylab="SD (N)")
-boxplot(sd_of_replicates[,command(muscle_names())], xlab="Muscle", ylab="SD voltage?")
-boxplot(sd_of_replicates[,dots_to_underscores(force_column_names)], xlab="Muscle", ylab="SD in Force (N)")
-
-#only take first replicate for each map_creation_id
-raw_noise_trials <- unlist(lapply(replicate_list, head,1), recursive=FALSE)
-
-are_correct_length <- dcc(lapply(raw_noise_trials, function(dt) {
-  return(nrow(dt) >= 700 && nrow(dt) < 805)
+noise_hand_responses_raw <- split_by_map_creation_id(unique(sample_maps_data_wo_null$map_creation_id), sample_maps_data)
+are_correct_length <- dcc(lapply(noise_hand_responses_raw, function(dt) {
+  return(nrow(dt) >= 700 && nrow(dt) < 810)
 }))
-# maps <- dts #TODO later, split off the replicates
-
-noise_trials <- raw_noise_trials[are_correct_length]
-input_output_data <- dcrb(lapply(lapply(noise_trials, tail, 100), colMeans))
+noise_hand_responses <- noise_hand_responses_raw[are_correct_length]
+message(sprintf("Out of the %s collected maps, only %s had between 700 and 810 samples. Using %s maps.", length(noise_hand_responses_raw), length(noise_hand_responses),length(noise_hand_responses)))
+input_output_data <- dcrb(lapply(lapply(noise_hand_responses, tail, 100), colMeans))
 
 data <- df_split_into_training_and_testing(input_output_data, fraction_training = 0.8)
 training_data <- data$train
@@ -38,7 +27,7 @@ test_data <- data$test
 
 force_names_to_predict <- c("JR3_FX", "JR3_FY", "JR3_FZ")
 num_muscles <- 7
-A_fit <- find_A_matrix_without_offset(as.data.frame(training_data), reference(muscle_names()),
+A_fit <- find_A_matrix_without_offset(as.data.frame(training_data), measured(muscle_names()),
   force_names_to_predict)
 fit_evaluation_without_offset(A_fit, as.data.frame(test_data))
 
@@ -47,9 +36,10 @@ muscle_constraints_matrix <- diag(rep(1, num_muscles))
 generator_columns_A_matrix <- t(A_fit$AMatrix)
 dim(generator_columns_A_matrix)
 dim(muscle_constraints_matrix)
-browser()
-generator_columns_A_matrix %*% c(rep(20,7)) #this is used to get one viable force for the model.
-task_force <- c(-0.5641187,  0.4335497, 0.6873463)
+#Here, identify a force vector of interest and apply it to the generated A Matrix. Then permute it to create a task line
+ffs_vertex <- generator_columns_A_matrix %*% c(rep(20,7)) #this is used to get one viable force for the model.
+# task_force <- c(-0.5641187,  0, 1)
+ task_force <- ffs_vertex
 task_multiplier_bounds <- c(0.0, 1.0) #if c(0.0,0.0) then a null task.
 task_multiplier_list <- seq(task_multiplier_bounds[1], task_multiplier_bounds[2],
   length.out = 5)
@@ -76,11 +66,6 @@ sset <- lapply(df_to_list_of_rows(task_df), function(task_i) {
       xlim = c(0, 11))
   })
 
-
-##' @param df a dataframe where each row is a nrow(df)- dimensional vector
-##' @param v a vector of
-  lowest_l1_cost_soln <- function(df) df[which.min(rowSums(df)), ]
-  highest_l1_cost_soln <- function(df) df[which.max(rowSums(df)), ]
   message(paste("TASK:",task_i))
   message("-------------------------")
   message("Lowest l1 cost solution:")
@@ -90,9 +75,10 @@ sset <- lapply(df_to_list_of_rows(task_df), function(task_i) {
   message("===========================")
 
   test_predicted_response <- as.matrix(samples %*% A_fit$AMatrix)
-  boxplot(test_predicted_response, ylab = "Tension N for FX,FY,FZ, Torque Nm for MX,MY,MZ",
-    main = "what do most of the FAS-sampled forces product in output space? ")
+  # boxplot(test_predicted_response, ylab = "Tension N for FX,FY,FZ, Torque Nm for MX,MY,MZ",
+  #   main = "what do most of the FAS-sampled forces product in output space? ")
   plot3d(test_predicted_response)
+  Sys.sleep(2)
   return(samples)
 })
 
@@ -137,7 +123,8 @@ maps_with_target_tasks <- cbind(big_har_set_to_test_on_finger, task_list_df)
 
 ## TODO GET data from the cadaver finger from big_har_set_to_test_on_finger
 ###################################################################################################
-scaling <- as.data.frame(fread(get_Resilio_filepath("noiseTrial2017_11_18_15_05_33.txt")))
+#this is the response when you push in the maps for 5 tasks through the finger
+scaling <- as.data.frame(fread(get_Resilio_filepath("noiseTrial2017_11_19_20_21_33.txt")))
 
 JR3_sensor_null <- colMeans(head(scaling, 30))
 # TODO test zero out sensors
@@ -154,24 +141,5 @@ are_correct_length <- dcc(lapply(dts_scaling, function(dt) {
 }))
 
 
-maps_scaling <- dts[are_correct_length]
-scaling_input_output_data <- as.data.frame(dcrb(lapply(lapply(maps, tail, 100), colMeans)))
-maps_with_target_tasks$map_creation_id <- as.numeric(as.character(maps_with_target_tasks$map_creation_id))
-a <- merge(scaling_input_output_data, maps_with_target_tasks, by = "map_creation_id")
-
-
-
-## later, do some more stuff with replicates
-
-# noPostureNeutralForceTrials2017_11_18_12_22_04.txt
-evaluate_if_length_of_ForceTrials_is_appropriate <- function(raw_df){
-  #trim off nullm
- ft_lengths <- a[map_creation_id!=0][,.N,'map_creation_id'][,N]
- a_without_pre_experiment <- a[map_creation_id!=0][,,'map_creation_id']
- b <- split(a_without_pre_experiment,a_without_pre_experiment$map_creation_id)
- ft_start_times <- dcc(lapply(b, function(df) head(df$time,1)))
- means <- list_of_mean_of_last_n_observations(forces=lapply(b,as.data.frame), indices_of_interest=1:10, last_n_milliseconds=100, force_column_names=dots_to_underscores(force_column_names))
- dcrb(means)
- cbind(time = ft_start_times, dcrb(means))
-
-}
+maps_scaling <- dts_scaling[are_correct_length]
+scaling_input_output_data <- as.data.frame(dcrb(lapply(lapply(maps_scaling, tail, 100), colMeans)))
