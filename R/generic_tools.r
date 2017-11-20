@@ -33,6 +33,13 @@ is_within_range <- function(vector, bounds){
   return(all(truth_vector))
 }
 
+##' downsampled_df'
+##' TODO test
+##' @param df dataframe
+##' @param by Starting from 1, every 'by' datapoint will be kept
+##' @param df2 dataframe that has been downsampled
+downsampled_df <- function(df, by) df[seq(1, nrow(df), by = by),]
+
 ##' Maximum absolute residual
 ##' TODO test
 ##' Of all of the absolute residuals from a desired value, this function returns the maximums

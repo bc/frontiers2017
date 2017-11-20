@@ -1,27 +1,30 @@
 context("test_nov10data.r")
-sample_maps_data <- as.data.frame(fread(get_Resilio_filepath('noiseTrial2017_11_19_15_18_32.txt')))
+sample_maps_data <- as.data.frame(fread(get_Resilio_filepath('noiseTrial2017_11_19_16_45_54.txt')))
 JR3_sensor_null <- colMeans(head(sample_maps_data, 100))
 sample_maps_data <- zero_out_JR3_sensors(sample_maps_data, JR3_sensor_null)
-p <- ggplot(data = head(sample_maps_data, 10000))
-p <- p + geom_line(aes(time, JR3_FX), color="red")
-p <- p + geom_line(aes(time, JR3_FY), color="green")
-p <- p + geom_line(aes(time, JR3_FZ), color="blue")
-p <- p + geom_line(aes(time, measured_M0)) # this one should be non0 higher.
-p <- p + geom_line(aes(time, measured_M1)) # this one should be non0 higher.
-p <- p + geom_line(aes(time, measured_M2)) # this one should be non0 higher.
-p <- p + geom_line(aes(time, measured_M3)) # this one should be non0 higher.
-p <- p + geom_line(aes(time, measured_M4)) # this one should be non0 higher.
-p <- p + geom_line(aes(time, measured_M5)) # this one should be non0 higher.
-p <- p + geom_line(aes(time, measured_M6)) # this one should be non0 higher.
-p + xlab('Time (s)') + ylab("Newtons")
+plot_input_output_signals <- function(timeseries_df,col_identifier_function=measured){
+  p <- ggplot(data=timeseries_df)
+  p <- p + geom_line(aes(time, JR3_FX), color="red")
+  p <- p + geom_line(aes(time, JR3_FY), color="green")
+  p <- p + geom_line(aes(time, JR3_FZ), color="blue")
+  for (muscle in muscle_names()) {
+    p <- p + geom_line(aes_string("time", col_identifier_function(muscle))) # this one should be non0 higher.
+  }
+  p + xlab('Time (s)') + ylab("Newtons")
+}
+plot_input_output_signals(head(sample_maps_data, 10000))
+
+plot_input_output_signals(downsampled_df(sample_maps_data,1000))
+#make sure the JR3 signals respond in some way to the changes.
+plot_input_output_signals(downsampled_df(sample_maps_data,100), reference)
+
 # Remove pre-experiment and post experiment stuff
 dts <- split_by_map_creation_id(unique(sample_maps_data_wo_null$map_creation_id), sample_maps_data)
-
 are_correct_length <- dcc(lapply(dts, function(dt) {
   return(nrow(dt) >= 700 && nrow(dt) < 805)
 }))
-maps <- dts #TODO later, split off the replicates
-# maps <- dts[are_correct_length]
+# maps <- dts #TODO later, split off the replicates
+maps <- dts[are_correct_length]
 input_output_data <- dcrb(lapply(lapply(maps, tail, 100), colMeans))
 
 data <- df_split_into_training_and_testing(input_output_data, fraction_training = 0.8)
