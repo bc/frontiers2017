@@ -62,3 +62,33 @@ canonical_linear_system <- function(task) {
   constr <- list(constr = big_A, dir = dir, rhs = big_b)
   return(constr)
   }
+	##' create_upperbound_constraints
+	##' @param constraints_width integer (if you have 3 muscles, this will be 3)
+	##' @param upper_bound numeric single value
+	##' @return constraints_list list of constr elements, see ?hitandrun::har
+	##' @importFrom hitandrun upperBoundConstraint
+	create_upperbound_constraints <- function(constraints_width, upper_bound){
+	  lapply(1:constraints_width, function(column){
+	    constr <- upperBoundConstraint(n = constraints_width, i = c(column), upper_bound)
+	  })
+	}
+
+	##' create_lowerbound_constraints
+	##' @param constraints_width integer (if you have 3 muscles, this will be 3)
+	##' @param lower_bound numeric single value
+	##' @return constraints_list list of constr elements, see ?hitandrun::har
+	##' @importFrom hitandrun lowerBoundConstraint
+	create_lowerbound_constraints <- function(constraints_width, lower_bound){
+	  lapply(1:constraints_width, function(column){
+	    constr <- lowerBoundConstraint(n = constraints_width, i = c(column), lower_bound)
+	  })
+	}
+	##' Create bound constraints
+	##' @param constraints_width integer (if you have 3 muscles, this will be 3)
+	##' @param tension_range vector of two numeric values for (lowerbound,upperbound)
+	##' @return constraints_list list of constr elements, see ?hitandrun::har
+	##' @importFrom hitandrun lowerBoundConstraint
+	create_bound_constraints <- function(constraints_width, tension_range){
+	  c(create_lowerbound_constraints(constraints_width, tension_range[1]),
+	  create_upperbound_constraints(constraints_width, tension_range[2]))
+	}

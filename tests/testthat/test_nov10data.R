@@ -51,10 +51,14 @@ colnames(task_df) <- force_names_to_predict
 sset <- lapply(df_to_list_of_rows(task_df), function(task_i) {
   constr <- task_and_generators_to_constr(generator_columns_A_matrix, muscle_constraints_matrix,
     range_tension, task_i)
-  constraints_are_feasible(constr)
-  state <- har.init(constr, thin = 100)
-  result <- har.run(state, n.samples = 100)
-  samples <- result$samples
+  har_collect_points <- function(constr, thin, n) {
+    state <- har.init(constr, thin = 100)
+    result <- har.run(state, n.samples = 100)
+    samples <- result$samples
+    browser()
+    return(samples)
+  }
+  samples <- har_collect_points(constr, thin=100, n=100)
   # Try running those samples back through the A_matrix
   predicted_forces <- predict_output_force(A_fit$AMatrix,samples)
   maximums <- apply(predicted_forces,2,max)
@@ -162,19 +166,6 @@ noise_hand_responses <- scaling_hand_responses_raw[are_correct_length]
 message(sprintf("Out of the %s collected maps, %s had between 700 and 810 samples. Using %s maps.", length(noise_hand_responses_raw), length(noise_hand_responses),length(noise_hand_responses)))
 
 
-
-
-
-
-
-
-
-
-dts_scaling <- split(sample_maps_data_scaling, sample_maps_data_scaling$map_creation_id)
-are_correct_length <- dcc(lapply(dts_scaling, function(dt) {
-  return(nrow(dt) >= 700 && nrow(dt) < 805)
-}))
-
-
-maps_scaling <- dts_scaling[are_correct_length]
-scaling_input_output_data <- as.data.frame(dcrb(lapply(lapply(maps_scaling, tail, 100), colMeans)))
+maps_with_ids <- dcrb(lapply(noise_hand_responses, tail, 1))
+expected_forces <- t(as.matrix(A_fit$AMatrix)) %*% t(as.matrix(maps_with_ids[,reference(muscles_of_interest)]))
+plot3d(t(expected_forces))
