@@ -42,44 +42,44 @@ dim(muscle_constraints_matrix)
 ffs_vertex <- generator_columns_A_matrix %*% c(rep(20,7)) #this is used to get one viable force for the model.
 # task_force <- c(-0.5641187,  0, 1)
  task_force <- ffs_vertex
+
+
 task_multiplier_bounds <- c(0.0, 1.0) #if c(0.0,0.0) then a null task.
 task_multiplier_list <- seq(task_multiplier_bounds[1], task_multiplier_bounds[2],
   length.out = 5)
 task_df <- t(task_force %*% t(task_multiplier_list))
 colnames(task_df) <- force_names_to_predict
+num_samples_desired <- 5000
 
-task <- task_df[3,]
-num_samples_desired <- 100000
-samples <- constraints_to_points(muscle_column_generators = t(A_fit$AMatrix), range_tension, task, num_samples_desired, thin=100)
-predicted_forces <- t(t(A_fit$AMatrix) %*% t(samples))
-euclidian_errors_vector <- apply(predicted_forces,1, function(row) norm_vec(row - task))
-expect_equal(max(euclidian_errors_vector), 0, tol=1e-13)
-message('How close are predicted forces to desired task force? We should expect max == min.')
-print(column_ranges(predicted_forces))
-
-fas_histogram(samples, range_tension, task, breaks=100)
-
+browser()
 sset <- lapply(df_to_list_of_rows(task_df), function(task_i) {
-  # Show histograms of the FAS
-
-  message(paste("TASK:",task_i))
-  message("-------------------------")
-  message("Lowest l1 cost solution:")
-  message(format(lowest_l1_cost_soln(samples), digits = 2))
-  message("Highest l1 cost solution:")
-  message(format(highest_l1_cost_soln(samples), digits = 2))
-  message("===========================")
-
-  test_predicted_response <- as.matrix(samples %*% A_fit$AMatrix)
-  # boxplot(test_predicted_response, ylab = "Tension N for FX,FY,FZ, Torque Nm for MX,MY,MZ",
-  #   main = "what do most of the FAS-sampled forces product in output space? ")
-  plot3d(test_predicted_response)
-  Sys.sleep(2)
-  return(samples)
+  constraints_to_points(muscle_column_generators = t(A_fit$AMatrix), range_tension, task_i, num_samples_desired, thin=100)
 })
+pdf("fdsa.pdf", width=100, height=100)
+par(mfrow = c(nrow(task_df), num_muscles))
+for (i in seq(1, length(sset))) {
+  samples <- sset[[i]]
+  task <- task_df[i,]
+  predicted_forces <- t(t(A_fit$AMatrix) %*% t(samples))
+  points3d(predicted_forces)
+  euclidian_errors_vector <- apply(predicted_forces,1, function(row) norm_vec(row - task))
+  print(task)
+  expect_equal(max(euclidian_errors_vector), 0, tol=1e-13)
+  context('expect no residual from target endpoint force with the produced points')
+  expect_equal(sum(apply(predicted_forces,2,sd)),0,tol=1e-5)
+  fas_histogram(samples, range_tension, task, breaks=100, col="black", cex=0.25)
+  show_l1_costs(samples, task)
+}
+dev.off()
+#######Expect to see five distinct points. one for each task.
+rgl.init()
+list_of_predicted_forces <- lapply(sset, function(samples){
+  t(t(A_fit$AMatrix) %*% t(samples))
+})
+plot3d(dcrb(list_of_predicted_forces))
+#######
 
 rgl.open()
-
 
 # TODO get the test data from the actual data collected test_observed_response <-
 # test_data[force_column_names] res_test <- test_observed_response -

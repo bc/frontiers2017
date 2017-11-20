@@ -129,10 +129,23 @@ constraints_to_points <- function(muscle_column_generators, range_tension, task,
 ##' @param range_tension 2 element vector of min max in newton_values
 ##' @param task a vector of fx fy, ... values etc.
 fas_histogram <- function(samples, range_tension, task, ...){
-  par(mfrow = c(1, ncol(samples)))
   lapply(1:ncol(samples), function(muscle_num) {
     hist(samples[, muscle_num], main = paste("M", muscle_num, "at",
     format(task, digits = 2), collapse = ""), xlab = "Tendon force (N)",
     xlim = range_tension, ...)
   })
+}
+
+
+##' Print show_l1_costs to help idenfity which tasks have multiple solutions
+##' @param samples see constraints_to_points
+##' @param task see constraints_to_points
+show_l1_costs <- function(samples, task){
+  message(paste("TASK:",task))
+  message("-------------------------")
+  message("Lowest l1 cost solution:")
+  message(format(lowest_l1_cost_soln(samples), digits = 2))
+  message("Highest l1 cost solution:")
+  message(format(highest_l1_cost_soln(samples), digits = 2))
+  message("===========================")
 }
