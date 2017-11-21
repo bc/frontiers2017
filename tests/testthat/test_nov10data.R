@@ -105,10 +105,10 @@ rgl_convhulls(list_of_mats, points=TRUE)
 
 res <- lapply(sset, create_and_cbind_map_creation_ids, muscle_names())
 big_har_set_to_test_on_finger <- dcrb(res)
-write.csv(big_har_set_to_test_on_finger, "../../../scaling_task_n100_per_outputvec_of_interest_5_steps_no_replicates.csv",
+write.csv(big_har_set_to_test_on_finger, "../../output/scaling_task_n100_per_outputvec_of_interest_5_steps_no_replicates.csv",
   row.names = FALSE, quote = FALSE)
 #Make sure the output looks correct
-  prescribed_maps <- as.data.frame(fread("../../../scaling_task_n100_per_outputvec_of_interest_5_steps_no_replicates.csv"))
+  prescribed_maps <- as.data.frame(fread("../../output/scaling_task_n100_per_outputvec_of_interest_5_steps_no_replicates.csv"))
   maps_without_ids <- unique(prescribed_maps[muscle_names()])
   expected_forces <- t(as.matrix(A_fit$AMatrix)) %*% t(as.matrix(maps_without_ids[,muscles_of_interest]))
   plot3d(t(expected_forces), xlim=c(-.5,0),ylim=c(-2,2),zlim=c(-2,2))
