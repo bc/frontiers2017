@@ -1,7 +1,4 @@
-## load dependencies
 library(testthat)
-load_all()
-options(rgl.useNULL = TRUE) 
-devtools::install()
-## test package
-devtools::test()
+library(frontiers2017)
+options(rgl.useNULL = TRUE)
+test_check("frontiers2017")
