@@ -27,11 +27,3 @@ test_that("we can visualize the output forces in different groups", {
   plot3d(along_x_line$JR3.FX, along_x_line$JR3.FY, along_x_line$JR3.FZ, sub = "along_x_line of postures",
     aspect = TRUE)
 })
-
-
-test_that("we can explore many different sample sizes for train/test splits", {
-  sample_sizes <- 1:100
-  model_performance <- 1:100  #TODO
-  plot(sample_sizes, model_performance)
-  expect_true(implemented <- FALSE)  #TODO
-})

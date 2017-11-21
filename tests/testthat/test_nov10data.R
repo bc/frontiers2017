@@ -1,4 +1,11 @@
 context("test_nov10data.r")
+
+#Experiment Procedure:
+
+# no_spaces_noise_lo_0_hi_20_nmaps_500_replicates_1.csv --> Hand --> noiseTrial2017_11_19_19_45_01.txt
+# noiseTrial2017_11_19_19_45_01.txt --> R --> A_fit_har_5_tasks --> scaling_task_n100_per_outputvec_of_interest_5_steps_no_replicates.csv
+# scaling_task_n100_per_outputvec_of_interest_5_steps_no_replicates.csv --> Hand --> scalingResponse.csv
+
 set.seed(4)
 #Response to noise through hand
 # noiseTrial2017_11_19_19_45_01.txt was on MIT hand. noise input 100 = num_maps
