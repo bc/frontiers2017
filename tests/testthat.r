@@ -1,6 +1,6 @@
 ## load dependencies
 library(testthat)
 load_all()
-install()
+devtools::install()
 ## test package
-test()
+devtools::test()
