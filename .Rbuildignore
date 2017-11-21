@@ -4,4 +4,7 @@
 output
 references
 coverletter.docx
+awssecret.md
 ^\.travis\.yml$
+^.*\.Rproj$
+^\.Rproj\.user$
