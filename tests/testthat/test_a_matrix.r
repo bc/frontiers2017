@@ -95,9 +95,7 @@ test_that('we can produce a binary set of x vectors of size 7', {
   boxplot(test_predicted_response, ylab = "Tension N for FX,FY,FZ, Torque Nm for MX,MY,MZ")
   test_observed_response <- test_data[force_column_names]
   res_test <- test_observed_response - test_predicted_response
-  summary(res_test)
-
-
+  # summary(res_test)
   parcoord(samples)
   plot3d(samples)  #show 3d plane
 })
