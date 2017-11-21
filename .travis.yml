@@ -17,3 +17,5 @@ after_success:
       - Rscript -e 'lintr::lint_package(".", linters = lintr::with_defaults(lintr::line_length_linter(120)))'
 before_install:
     - Rscript -e 'update.packages(ask = FALSE)'
+r_packages:
+  - covr
