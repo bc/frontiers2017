@@ -107,6 +107,7 @@ har_collect_points <- function(constr, thin, n) {
 }
 
 ##' Constraints_to_points
+##' TODO test
 ##' @param muscle_column_generators matrix where each column is a muscle generator, each row is a force output dimension
 ##' @param range_tension vector of two numeric values for (lowerbound,upperbound)
 ##' @param task vector of n numeric values. i.e. c(fx,fy)

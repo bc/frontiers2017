@@ -41,7 +41,7 @@ dim(muscle_constraints_matrix)
 #Here, identify a force vector of interest and apply it to the generated A Matrix. Then permute it to create a task line
 ffs_vertex <- generator_columns_A_matrix %*% c(rep(20,7)) #this is used to get one viable force for the model.
 # task_force <- c(-0.5641187,  0, 1)
- task_force <- ffs_vertex
+task_force <- ffs_vertex
 
 ############MANUAL: IDENTIFY TASK MULTIPLIER BOUNDS
 task_multiplier_bounds <- c(0.0, 1.0) #if c(0.0,0.0) then a null task.
@@ -104,6 +104,11 @@ write.csv(big_har_set_to_test_on_finger, "scaling_task_n100_per_outputvec_of_int
 ## TODO GET data from the cadaver finger from big_har_set_to_test_on_finger
 ###################################################################################################
 #this is the response when you push in the maps for 5 tasks through the finger
+prescribed_maps <- as.data.frame(fread("scaling_task_n100_per_outputvec_of_interest_5_steps_no_replicates.csv"))
+maps_without_ids <- unique(prescribed_maps[muscle_names()])
+expected_forces <- t(as.matrix(A_fit$AMatrix)) %*% t(as.matrix(maps_without_ids[,muscles_of_interest]))
+plot3d(t(expected_forces), xlim=c(-.5,0),ylim=c(-2,2),zlim=c(-2,2))
+
 response_to_prescribed_har_maps <- as.data.frame(fread(get_Resilio_filepath("noiseTrial2017_11_19_20_21_33.txt")))
 JR3_sensor_null_for_prescribed_har_maps <- colMeans(head(response_to_prescribed_har_maps, 30))
 sample_maps_data_scaling <- zero_out_JR3_sensors(response_to_prescribed_har_maps, JR3_sensor_null_for_prescribed_har_maps)
@@ -142,4 +147,4 @@ message(sprintf("Out of the %s collected maps, %s had between 700 and 810 sample
 maps_with_ids <- dcrb(lapply(noise_hand_responses, tail, 1))
 maps_without_ids <- unique(sample_maps_data_scaling_wo_null[reference(muscle_names())])
 expected_forces <- t(as.matrix(A_fit$AMatrix)) %*% t(as.matrix(maps_without_ids[,reference(muscles_of_interest)]))
-plot3d(t(expected_forces), xlim=c(-2,2),ylim=c(-2,2),zlim=c(-2,2))
+plot3d(t(expected_forces), xlim=c(-.5,0),ylim=c(-2,2),zlim=c(-2,2))
