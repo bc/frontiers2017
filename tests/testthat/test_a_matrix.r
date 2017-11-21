@@ -8,8 +8,26 @@ sample_input_output_data <- read_rds_from_package_extdata("training_data.rds")
 data <- df_split_into_training_and_testing(sample_input_output_data, fraction_training = 0.8)
 training_data <- data$train
 test_data <- data$test
+x1 <- matrix(c(120), nrow = 1, ncol = 1, byrow = TRUE)
+b1 <- matrix(c(3), nrow = 1, ncol = 1, byrow = TRUE)
+A1 <- matrix(c(b1[1,1]/x1[1,1]), ncol(x1), ncol(b1), byrow = TRUE)
+
+x2 <- matrix(c(1, 0, 0, 1), nrow = 2, ncol = 2, byrow = TRUE)
+b2 <- matrix(c(1, 0, 0, 1), nrow = 2, ncol = 2, byrow = TRUE)
+A2 <- matrix(c(1, 0, 0, 1), ncol(x2), ncol(b2), byrow = TRUE)
+
+x3 <- matrix(c(1, 0, 0, 0, 1, 0, 0, 0, 1), nrow = 3, ncol = 3, byrow = TRUE)
+b3 <- matrix(c(1, 0, 0, 0, 1, 0, 0, 0, 1), nrow = 3, ncol = 3, byrow = TRUE)
+A3 <- matrix(c(1, 0, 0, 0, 1, 0, 0, 0, 1), ncol(x3), ncol(b3), byrow = TRUE)
 
 context('Computing A Matrix Fits')
+test_that("lin_qr_solve works as expected", {
+   expect_equal(lin_qr_solve(x1, b1), A1)
+   expect_equal(lin_qr_solve(x2, b2), A2)
+   expect_equal(lin_qr_solve(x3, b3), A3)
+   
+})
+
 test_that("produce A matrices for different numbers of muscles or output force dimensions",
   {
     pdf("../../output/a_mat_fit.pdf")
