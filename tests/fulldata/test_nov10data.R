@@ -14,17 +14,16 @@ last_n_milliseconds <- 100
 # Response to noise through hand noiseTrial2017_11_19_19_45_01.txt was on MIT
 # hand. noise input 100 = num_maps input:
 # no_spaces_noise_lo_0_hi_20_nmaps_500_replicates_1.csv
-sample_maps_data <- as.data.frame(fread(get_Resilio_filepath("noiseTrial2017_11_19_19_53_10.txt")))
-JR3_sensor_null <- colMeans(head(sample_maps_data, 100))
-sample_maps_data <- zero_out_JR3_sensors(sample_maps_data, JR3_sensor_null)
-plot_measured_command_reference_over_time(sample_maps_data)
+noise_response <- as.data.frame(fread(get_Resilio_filepath("noiseTrial2017_11_19_19_53_10.txt")))
+JR3_sensor_null <- colMeans(head(noise_response, 100))
+noise_response <- zero_out_JR3_sensors(noise_response, JR3_sensor_null)
+plot_measured_command_reference_over_time(noise_response)
 
 # make sure the JR3 signals respond in some way to the changes.
-sample_maps_data_wo_null <- sample_maps_data[sample_maps_data$map_creation_id !=
-  0, ]
+noise_response_wo_null <- noise_response[noise_response$map_creation_id != 0, ]
 # Remove pre-experiment and post experiment stuff
-noise_hand_responses_raw <- split_by_map_creation_id(unique(sample_maps_data_wo_null$map_creation_id),
-  sample_maps_data)
+noise_hand_responses_raw <- split_by_map_creation_id(unique(noise_response_wo_null$map_creation_id),
+  noise_response)
 are_correct_length <- dcc(lapply(noise_hand_responses_raw, function(dt) {
   return(nrow(dt) >= 700 && nrow(dt) < 810)
 }))
