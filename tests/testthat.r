@@ -1,5 +1,6 @@
 library(testthat)
+library(devtools)
 library(frontiers2017)
 options(rgl.useNULL = TRUE)
-devtools::install()
-test_check("frontiers2017")
+devtools::test()
+# test_check("frontiers2017")
