@@ -23,9 +23,11 @@ Depends:
   hitandrun,
   pbapply,
   rgl,
-  geometry
-Suggests:
-  lintr
+  geometry,
+  covr
+Suggests: 
+    lintr,
+    covr
 License: USC
 Encoding: UTF-8
 LazyData: true
