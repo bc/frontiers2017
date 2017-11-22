@@ -2,8 +2,7 @@
 % Please edit documentation in R/generic_tools.r
 \name{hyphens_to_underscores}
 \alias{hyphens_to_underscores}
-\title{hyphens_to_underscores
-TODO test}
+\title{hyphens_to_underscores}
 \usage{
 hyphens_to_underscores(str)
 }
@@ -15,5 +14,4 @@ str_prime string with underscores
 }
 \description{
 hyphens_to_underscores
-TODO test
 }

@@ -2,7 +2,9 @@
 % Please edit documentation in R/settling_time_analysis.r
 \name{fill_initials_into_stabilization_df}
 \alias{fill_initials_into_stabilization_df}
-\title{fill_initials_into_stabilization_df}
+\title{fill_initials_into_stabilization_df
+Gives a dataframe with initial reference values'
+TODO Create test'}
 \usage{
 fill_initials_into_stabilization_df(df, full_df, muscle_of_interest)
 }
@@ -15,4 +17,9 @@ fill_initials_into_stabilization_df(df, full_df, muscle_of_interest)
 }
 \value{
 df_filled stabilization dataframe with initial reference values added.
+}
+\description{
+fill_initials_into_stabilization_df
+Gives a dataframe with initial reference values'
+TODO Create test'
 }

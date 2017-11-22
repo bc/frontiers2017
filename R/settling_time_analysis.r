@@ -1,7 +1,8 @@
 ##' stabilized
+##' Tells you whether the value is stabilized'
 ##' @param vector vector of numeric values, that change by a constant interval of time.
-##' @param desired numeric the desired stabilized value for the vector, if the vector is 'stabilized'
-##' @param err numeric the maximum allowable residual for a given value from the desired value.
+##' @param desired the desired numeric stabilized value for the vector, if the vector is 'stabilized'
+##' @param err the maximum allowable residual numeric value for a given value from the desired value
 ##' This defines the threshold
 ##' @return stabilized Logical, whether or not the value is stabilized
 stabilized <- function(vector, desired, err) {
@@ -13,7 +14,8 @@ stabilized <- function(vector, desired, err) {
   return(!sum(abs(residuals) > err) > 0)
 }
 
-##' integer midpoint
+##' integer_midpoint
+##' Gives the floor value for even tuples and center value for odd tuples'
 ##' @param tuple_of_lower_and_upper a tuple of two integers, denoting the lower and upper bound
 ##' @return midpoint an integer that is between the lower and upper bound.
 ##' @description
@@ -25,7 +27,9 @@ integer_midpoint <- function(tuple_of_lower_and_upper) {
   return(floor((lower + upper)/2))
 }
 
+##' force_trial_does_stabilize
 ##' Evaluate whether a force trial has stabilized for a given muscle.
+##' TODO Create Test'
 ##' @param force_trial_df data.frame of numeric values, that includes the reference and measured columns
 ##' @param desired numeric the desired stabilized value for the vector, if the vector is 'stabilized'
 ##' @param err numeric the maximum allowable residual for a given value from the desired value.
@@ -38,13 +42,17 @@ force_trial_does_stabilize <- function(force_trial_df, muscle, err) {
   return(last_value_is_in_range)
 }
 
+##' bound_width
 ##' Get the width of the bounds
+##' TODO Create Test'
 ##' @param tuple of two integer values
 ##' @return the integer distance between the values
 bound_width <- function(tuple) {
   abs(max(tuple) - min(tuple))
 }
+##' settling_time_histogram_for_posture
 ##' plot settling time histogram
+##' TODO Create Test'
 ##' @param stabilized_df stabilized dataframe with column settling_time as vector of integers
 ##' @param ... parameters passed to histogram function
 settling_time_histogram_for_posture <- function(stabilized_df,...) {
@@ -54,7 +62,9 @@ settling_time_histogram_for_posture <- function(stabilized_df,...) {
     col = "black",...)
 }
 
-##' @title fill_initials_into_stabilization_df
+##' fill_initials_into_stabilization_df
+##' Gives a dataframe with initial reference values'
+##' TODO Create test'
 ##' @param df a stabilization data frame that contains initial_index as a column.
 ##' @param full_df object for full_df from .rds file
 ##' @param muscle_of_interest . muscle name string, i.e. 'M0'
@@ -68,11 +78,13 @@ fill_initials_into_stabilization_df <- function(df, full_df, muscle_of_interest)
   return(df)
 }
 
-##' Get reference value from specific row of dataframe
+##' get_reference_value
+##' Gets reference value from specific row of dataframe
 ##' TODO test
 ##' @param index_target int; the index from which we will extract the muscle of interest's reference force
 ##' @param full_df full dataset from the .rds
 ##' @param muscle_of_interest string, e.g. 'M0'
+##' @return full_df numeric reference value from muscle of interest '
 get_reference_value <- function(index_target, full_df, muscle_of_interest) {
   return(as.numeric(full_df[index_target, reference(muscle_of_interest)]))
 }
@@ -180,20 +192,39 @@ fill_force_velocity_metrics <- function(df) {
   return(df)
 }
 
-##' First true value index
-##' TODO test
+##' Index of the first value that has stabilized, given two indices.
+##' Take two indices of interest and identify whether the first, second or neither converged.
+##' When we have narrowed the index of stabilization down to two values,
+##' it's got to be one of them (or the time series never stabilized).
+##' In a timeseries that stabilized, there are two situations we have
+##' to account for. First, if the first of the two indices is stable,
+##' then it follows that the second one is also stable.
+##' We would return the index of the first bound.
+##' If we find that the first element is unstable, but the second
+##' element is stable, then we return the upper bound.
+##' Else we throw an error proclaiming that neither of the sample
+##' converged, and by induction the entire time series never
+##' stabilized under the stablization criteria.
 ##' @param left Logical; whether the left index is stabilized
 ##' @param right Logical; whether the right index is stabilized
-##' @param idx_for_l_and_r the index lower and upper bounds (list of 2 integers)
+##' @param idx_for_l_and_r the index lower and upper bounds (list of 2 integers). Essentially the bounds.
 ##' @return idx index of the first TRUE in a list of two Logical values.
 first_true_value_idx <- function(left, right, idx_for_l_and_r) {
-  if (!left & !right) {
-    stop("The time series never stabilized under the maximum allowable error threshold")
-  }
+  stop_if_neither_of_bounds_converged(left,right)
   truth_table <- c(left, right)
   return(idx_for_l_and_r[min(which(truth_table == TRUE))])
 }
 
+##' Stop if neight of the bounds converged
+##' If we've narrowed it down to two final elements of the timeseries,
+##' and there isn't any convergence on either, we respond with an error message.
+##' @param left Logical; whether the left index is stabilized
+##' @param right Logical; whether the right index is stabilized
+stop_if_neither_of_bounds_converged <- function(left,right){
+  if (!left & !right) {
+    stop("The time series never stabilized under the maximum allowable error threshold")
+  }
+}
 ##' Are there no bounds?
 ##' TODO test
 ##' @description True when the bounds have converged to a single index.
@@ -209,6 +240,7 @@ no_bounds <- function(idx_bounds) idx_bounds[1] == idx_bounds[2]
 ##' @param bounds a tuple of lower and upper bound indices (integers)
 ##' @return updated_bounds fixed bounds to reflect whether we should
 assign_new_bounds <- function(midpoint, midpoint_is_stable, bounds) {
+  stop_if_midpoint_out_of_range(midpoint, bounds)
   bounds_copy <- bounds
   if (midpoint_is_stable) {
     bounds_copy[2] <- midpoint  # move right side in a bit
@@ -218,17 +250,34 @@ assign_new_bounds <- function(midpoint, midpoint_is_stable, bounds) {
   return(bounds_copy)
 }
 
-##' Index of first stabilized value
-##' TODO test
+##' Stops the program if the  midpoint is out of range
+##' Used in assign_new_bounds
+##' @param midpoint a index value (integer)
+##' @param bounds a tuple of lower and upper bound indices (integers)
+stop_if_midpoint_out_of_range <- function(midpoint, bounds) {
+  if(midpoint < bounds[1] || midpoint > bounds[2]){
+    stop("The midpoint is out of range")
+  }
+}
+
+##' Index of first stabilized value of two values of interest
+##' The internal call to stablized returns TRUE or FALSE.
+##' If left is TRUE, then we should take that one. if right is TRUE we should take that one.
 ##' @param ts numeric vector of values over time
 ##' @param bounds a tuple of lower and upper bound indices (integers)
 ##' @param desired numeric the desired stabilized value for the vector, if the vector is 'stabilized'
 ##' @param err numeric the maximum allowable residual for a given value from the desired value.
 ##' @return idx int, index of the first stabilized value within the timeseries ts.
 index_of_first_stabilized_val <- function(ts, bounds, desired, err) {
+  stop_if_bounds_are_not_len_1(bounds)
   left <- stabilized(ts[bounds[1]:bounds[2]], desired, err)
   right <- stabilized(ts[bounds[2]:bounds[2]], desired, err)
   return(first_true_value_idx(left, right, bounds))
+}
+stop_if_bounds_are_not_len_1 <- function(bounds){
+  if(bound_width(bounds)!=1){
+    stop("index_of_first_stabilized_val needs to take in a 2-element timeseries, with bounds that are only 1 index away from one another.")
+  }
 }
 
 ##' stabilized index
@@ -238,7 +287,6 @@ index_of_first_stabilized_val <- function(ts, bounds, desired, err) {
 ##' @param ts timeseries vector of numeric values
 ##' @param desired numeric the desired stabilized value for the vector, if the vector is 'stabilized'
 ##' @param err numeric the maximum allowable residual for a given value from the desired value.
-##' @description
 stabilized_index <- function(ts, desired, err) {
   bounds <- c(1, length(ts))
   while (bound_width(bounds) != 0) {
@@ -255,7 +303,8 @@ stabilized_index <- function(ts, desired, err) {
 }
 
 ##' Brute force stabilized index
-##' TODO test, and confirm that it gets the same answer as stabilized_index
+##' Each snip to check is the time series starting at x
+##' This algorithm checks for every index, essentially O(n), n=number of samples in the timeseries. Brute force.
 ##' @param ts timeseries vector of numeric values
 ##' @param desired numeric the desired stabilized value for the vector, if the vector is 'stabilized'
 ##' @param err numeric the maximum allowable residual for a given value from the desired value.
@@ -269,8 +318,16 @@ slow_stabilized_index <- function(ts, desired, err) {
     snip_to_check <- ts[x:length(ts)]
     return(stabilized(snip_to_check, desired, err))
   })
-  stabilized_vec <- do.call("c", stabilized_vec)
-  return(min(which(stabilized_vec == TRUE)))
+  stabilized_vec_truth_table <- do.call("c", stabilized_vec)
+  stop_if_no_indices_were_stabilized(stabilized_vec_truth_table)
+  index <- min(which(stabilized_vec_truth_table == TRUE))
+  return(index)
+}
+
+stop_if_no_indices_were_stabilized <- function(vector_of_true_false){
+  if (sum(vector_of_true_false)==0){
+    stop("The time series never stabilized under the maximum allowable error threshold")
+  }
 }
 ##' postures grouped by line
 ##' This is highly specific to the experimental paradigm of realTimeData2017_08_16_13_23_42.rds.
@@ -286,7 +343,7 @@ postures_grouped_by_line <- function(unique_postures, x_fixed_value, y_fixed_val
   return(list(postures_x_fixed, postures_y_fixed))
 }
 ##' discrete_diff
-##' TODO test
+##' Given an array of values, you take the difference between each pair of values, the you return an array of the same size of the original array but -1.
 ##' @param vector numeric vector of values
 ##' @return differentiated vector of values, with a displacement of 1 index. length 1 less than input.
 discrete_diff <- function(vector) {
@@ -389,17 +446,18 @@ all_muscles_stabilized <- function(force_trial, err, muscles_of_interest) {
 ##' mask_settled_force_trials
 ##' @param list_of_force_trials List of force trials, each a df with cols for each measured/reference force
 ##' @param err highest acceptable error residual from desired tension
+##' @param ... params passed to all_muscles_stabilized
 ##' @return l_dfs list of force trials without the force trials that did not converge for all muscles
-mask_settled_force_trials <- function(list_of_force_trials, err) {
-  as.logical(lapply(list_of_force_trials, all_muscles_stabilized, err))
+mask_settled_force_trials <- function(list_of_force_trials, err, ...) {
+  as.logical(lapply(list_of_force_trials, all_muscles_stabilized, err, ...))
 }
 
 ##' remove_unsettled_force_trials
 ##' @param list_of_force_trials List of force trials
 ##' @param err highest acceptable error residual from desired tension
 ##' @return l_dfs list of force trials without the force trials that did not converge for all muscles
-remove_unsettled_force_trials <- function(list_of_force_trials, err) {
-  list_of_force_trials[mask_settled_force_trials(list_of_force_trials, err)]
+remove_unsettled_force_trials <- function(list_of_force_trials, err, muscles_of_interest) {
+  list_of_force_trials[mask_settled_force_trials(list_of_force_trials, err, muscles_of_interest)]
 }
 
 
@@ -425,4 +483,21 @@ plot_remaining_force_trial_fraction_as_function_of_err <- function(different_err
 ##' @param df dataframe with the posture adept coordinates added as two new columns
 add_posture_to_max_residual_and_sd <- function(row_of_max_residual_and_sd, adept_coords){
   cbind(data.frame(adept_x = adept_coords[1], adept_y=adept_coords[2]), row_of_max_residual_and_sd)
+}
+
+
+##' Sanity Check Plot signals over time
+##' @param timeseries_df a dataframe with time, JR3_FX, measured_M0 columns, etc
+##' @param col_identifier_function by default using measured, but can be command, or reference.
+##' @return p the plot in ggplot object format
+plot_input_output_signals <- function(timeseries_df,col_identifier_function=measured){
+  p <- ggplot(data=timeseries_df)
+  p <- p + geom_line(aes(time, JR3_FX), color="red")
+  p <- p + geom_line(aes(time, JR3_FY), color="green")
+  p <- p + geom_line(aes(time, JR3_FZ), color="blue")
+  for (muscle in muscle_names()) {
+    p <- p + geom_line(aes_string("time", col_identifier_function(muscle))) # this one should be non0 higher.
+  }
+  p <- p + xlab('Time (s)') + ylab("Newtons") + ggtitle(col_identifier_function(muscle))
+  return(p)
 }

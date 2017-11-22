@@ -3,7 +3,8 @@
 \name{posture_rds_to_A_matrix}
 \alias{posture_rds_to_A_matrix}
 \title{Posture RDS to A matrix information
-Uses all data to train}
+Uses all data to train
+TODO Create Test or Retire Function'}
 \usage{
 posture_rds_to_A_matrix(rds_file_path, last_n_milliseconds, fraction_training)
 }
@@ -15,4 +16,5 @@ posture_rds_to_A_matrix(rds_file_path, last_n_milliseconds, fraction_training)
 \description{
 Posture RDS to A matrix information
 Uses all data to train
+TODO Create Test or Retire Function'
 }

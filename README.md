@@ -1,5 +1,10 @@
 # frontiers2017
 
+MASTER:[![Travis-CI Build Status](https://travis-ci.org/bc/frontiers2017.svg?branch=master)](https://travis-ci.org/bc/frontiers2017)  
+DEV:[![Travis-CI Build Status](https://travis-ci.org/bc/frontiers2017.svg?branch=dev)](https://travis-ci.org/bc/frontiers2017)  
+iss39:[![Travis-CI Build Status](https://travis-ci.org/bc/frontiers2017.svg?branch=iss39)](https://travis-ci.org/bc/frontiers2017)  
+iss37:[![Travis-CI Build Status](https://travis-ci.org/bc/frontiers2017.svg?branch=iss37)](https://travis-ci.org/bc/frontiers2017)  
+
 # Installation
 
 ### Put dataset on the EC2 Server:

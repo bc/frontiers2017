@@ -3,7 +3,8 @@
 \name{posture_dependency_plot}
 \alias{posture_dependency_plot}
 \title{posture dependency bi plot
-just makes plot of settling~delta_tension}
+just makes plot of settling~delta_tension
+TODO Create test'}
 \usage{
 posture_dependency_plot(posture_dependency, independent_variable_name,
   response_variable_name)
@@ -21,4 +22,5 @@ ggplot object of the resultant plot
 \description{
 posture dependency bi plot
 just makes plot of settling~delta_tension
+TODO Create test'
 }

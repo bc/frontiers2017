@@ -8,7 +8,7 @@ save_snapshot_for_first_posture <- function(raw_data_timeseries_df, output_filep
 stabilization_err_99_percentile <- 0.4
 
 ##' Muscle Names from Frontiers2017 experiment
-##' @return muscle_names list of strings of names, i.e. "M0, ..."
+##' @return muscle_names list of strings of names, i.e. 'M0, ...'
 muscle_names <- function() c("M0", "M1", "M2", "M3", "M4", "M5", "M6")
 
 
@@ -127,7 +127,115 @@ columns_to_extract_into_attributes <- function() {
 ##' @param full_stability_df df with adept_x and adept_y column
 ##' @return df_list split dataframes
 split_stability_df_into_postures <- function(full_stability_df) {
-  fix_x_max_residual_and_sd <- full_stability_df[full_stability_df$adept_x == -525.0000,]
-  fix_y_max_residual_and_sd <- full_stability_df[full_stability_df$adept_y == 68.00,]
+  fix_x_max_residual_and_sd <- full_stability_df[full_stability_df$adept_x == -525,
+    ]
+  fix_y_max_residual_and_sd <- full_stability_df[full_stability_df$adept_y == 68,
+    ]
   return(list(fix_x = fix_x_max_residual_and_sd, fix_y = fix_y_max_residual_and_sd))
+}
+
+
+
+##' ensure_map_creation_ids_are_the_same
+##' Stops if there are more than 1 unique value, or 0 map_creation_id values passed to it
+##' @param map_creation_id_vector list of map_creation_ids as strings, or numbers.
+ensure_map_creation_ids_are_the_same <- function(map_creation_id_vector) {
+  map_vec_len <- length(unique(map_creation_id_vector))
+  if (map_vec_len == 0) {
+    stop("A length-0 vector of map_creation_ids were passed to ensure_map_creation_ids_are_the_same")
+  } else if (length(unique(map_creation_id_vector)) > 1) {
+    stop(paste("Expected only one type of map_creation_id, but instead got",
+      map_vec_len))
+  }
+}
+##' Split By Replicate
+##' Takes a df of many replicates, and splits it up by significant time differences.
+##' BEWARE it won't separate them unless they are at least 0.1 seconds apart from
+##' one another. Will fail when mapID is repeated consecutively (please don't do this anyways)
+##' TODO Rewrite so it will deal with consecutive values
+##' TODO stop if replicate lengths are far from desired length
+##' @param df_of_concatenated_replicates dataframe, witih column 'time'
+##' @param approx_nrow expected number of samples for each of the replicates
+##' @param tol tolerance for approx_nrow
+##' @return list_of_replicates list of replicates, each a df with time column, etc. all will have same mapID
+split_by_replicate <- function(df_of_concatenated_replicates, time_delta_threshold = 0.1) {
+  delta_times <- diff(df_of_concatenated_replicates$time)
+  final_indices_of_each_replicate <- which(delta_times > time_delta_threshold)
+  initial_index <- 1
+  counter <- 1
+  res <- list()
+  for (i in final_indices_of_each_replicate) {
+    res[[counter]] <- df_of_concatenated_replicates[initial_index:i, ]
+    counter <- counter + 1
+    initial_index <- i + 1
+  }
+  res[[counter]] <- df_of_concatenated_replicates[i:nrow(df_of_concatenated_replicates),
+    ]
+  return(res)
+}
+
+##' column_sd_across_replicates
+##' TODO test
+##' @param list_of_trials list of dataframes, each with N colums
+##' @param last_n_milliseconds number of milliseconds to base the stability metrics off.
+column_sd_across_replicates <- function(list_of_trials, last_n_milliseconds) {
+  apply(dcrb(lapply(lapply(list_of_trials, tail, 100), colMeans)), 2, sd)
+}
+##' column_mean_across_replicates
+##' TODO test
+##' @param list_of_trials list of dataframes, each with N colums
+##' @param last_n_milliseconds number of milliseconds to base the stability metrics off.
+list_of_trials_to_colMeans_of_last_n_milliseconds <- function(list_of_trials,last_n_milliseconds){
+  lapply(lapply(list_of_trials, tail, last_n_milliseconds), colMeans)
+}
+
+##' lowest_l1_cost_soln'
+##' @param df a dataframe where each row is a nrow(df)- dimensional vector
+##' @param v a vector of numeric values
+##' @return l1 numeric, the row with the lowest l1
+lowest_l1_cost_soln <- function(df) df[which.min(rowSums(df)), ]
+
+##' highest_l1_cost_soln'
+##' @param df a dataframe where each row is a nrow(df)- dimensional vector
+##' @param v a vector of numeric values
+##' @return l1 numeric, the row with the highest l1
+highest_l1_cost_soln <- function(df) df[which.max(rowSums(df)), ]
+
+##' create_and_cbind_map_creation_ids
+##' generates the maps'
+##' TODO test
+##' @param df_of_maps dataframe where each column is a muscle, and each row is a unique musle activation pattern (map)
+##' @param muscles_of_interest vector of muscle name strings, i.e. 'M0', 'M1', ...
+##' @return cbound dataframe with new inserted column, called 'map_creation_id'.
+create_and_cbind_map_creation_ids <- function(df_of_maps, muscles_of_interest) {
+  cbound <- cbind(generate_map_creation_ids(nrow(df_of_maps)), as.data.frame(df_of_maps))
+  colnames(cbound) <- c("map_creation_id", muscles_of_interest)
+  return(cbound)
+}
+
+
+##' df_of_hand_response_input_output
+##' takes in the hand responses, outputs a dataframe that you can use to interpret
+##' the static tension-force relationship.
+##' result typically passed to df_split_into_training_and_testing
+##' TODO Test or retire'
+##' @param noise_hand_responses a list of multiple timeseries dataframes, each with the input muscle columns and output columns.
+##' @return df input_output_data dataframe that concatenates each noise_hand_response into one row of the dataframe.
+df_of_hand_response_input_output <- function(noise_hand_responses, last_n_milliseconds){
+  dcrb(lapply(lapply(noise_hand_responses, tail, last_n_milliseconds), colMeans))
+}
+
+##' plot_measured_command_reference_over_time
+##' used to visualize whether the data is being collected across each of the muscles. Visual inspection of settling time too.'
+##' @param sample_maps_data raw timeseries DF, with measured, command, and JR3_FX columns, etc.
+plot_measured_command_reference_over_time <- function(sample_maps_data){
+plot_list <- list(
+  plot_input_output_signals(head(sample_maps_data, 10000)),
+  plot_input_output_signals(head(sample_maps_data, 10000), command),
+  plot_input_output_signals(head(sample_maps_data, 10000), reference),
+  plot_input_output_signals(downsampled_df(sample_maps_data, 100)),
+  plot_input_output_signals(downsampled_df(sample_maps_data, 100), reference),
+  plot_input_output_signals(downsampled_df(sample_maps_data,100), command)
+)
+  ggsave("../../output/xray_for_noiseReponse.pdf", arrangeGrob(grobs=plot_list, nrow = 2), width=90, height=30, limitsize=FALSE)
 }

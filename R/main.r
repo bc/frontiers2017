@@ -1,21 +1,32 @@
 #load all available material
-source("R/time_series_functions.r")
+source("R/a_matrix.r")
 source("R/data_description.r")
+source("R/feasible_activation_set.r")
+source("R/feasible_force_set.r")
+source("R/force_vector_replicability.r")
 source("R/force_trial_stability.r")
 source("R/ForceTrial.r")
-source("R/linear_fit.r")
 source("R/functions_specific_to_frontiers2017_dataset.r")
 source("R/generic_tools.r")
+source("R/hitandrun.r")
+source("R/linear_fit.r")
 source("R/settling_time_analysis.r")
-source("R/feasible_force_set.r")
-source("R/feasible_activation_set.r")
+source("R/time_series_functions.r")
 library(gridExtra)
+
+create_output_folder()
 #Having multicore issues? use this to nullify functions that try to parallelize
 # pbmclapply <- pblapply
 # mclapply <- pblapply
-
+tb <- traceback
 
 options(error = NULL)
+
+nov12_realTimeDataFormatting <- function(filepath){
+  as.data.frame(fread("filepath"))
+}
+
+
 main <- function() {
 
   source("R/data_description.r")
@@ -48,7 +59,7 @@ stability_rds_file <- function(){
 
 ##' Munge full_DF into the posture RDS files
 produce_ForceTrial_rds_objects <- function(){
-  posture_idxs_per_line <- read_rds_to_package_extdata("index_dataframes_for_two_posture_lines.rds") #hardcoded index dfs
+  posture_idxs_per_line <- read_rds_from_package_extdata("index_dataframes_for_two_posture_lines.rds") #hardcoded index dfs
   print("Loading full_df. Expect 2'")
   full_df <- readRDS("~/Resilio Sync/data/realTimeData2017_08_16_13_23_42.rds")
   err = 0.4

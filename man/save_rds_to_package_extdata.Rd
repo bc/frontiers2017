@@ -7,7 +7,7 @@
 save_rds_to_package_extdata(object, filename)
 }
 \arguments{
-\item{filename}{string, for the file to place within the extdata folder of the analytics package.}
+\item{filename}{string, for the file to place within the extdata folder of the frontiers2017 package.}
 }
 \value{
 object the object yielded from the filepath rds

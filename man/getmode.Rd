@@ -3,8 +3,7 @@
 \name{getmode}
 \alias{getmode}
 \title{Get Mode from vector
-if there is no element that is the mode, it returns the first element of the list of equal-occurrence elements.
-TODO test getmode(c(1,2,3,2,3)) -> 2}
+if there is no element that is the mode, it returns the first element of the list of equal-occurrence elements.}
 \usage{
 getmode(v)
 }
@@ -17,5 +16,4 @@ mode most common element
 \description{
 Get Mode from vector
 if there is no element that is the mode, it returns the first element of the list of equal-occurrence elements.
-TODO test getmode(c(1,2,3,2,3)) -> 2
 }
