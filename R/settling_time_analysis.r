@@ -489,12 +489,15 @@ add_posture_to_max_residual_and_sd <- function(row_of_max_residual_and_sd, adept
 ##' Sanity Check Plot signals over time
 ##' @param timeseries_df a dataframe with time, JR3_FX, measured_M0 columns, etc
 ##' @param col_identifier_function by default using measured, but can be command, or reference.
+##' @param include_forces whether or not to plot JR3_FX, JR3_FY, and JR3_FZ
 ##' @return p the plot in ggplot object format
-plot_input_output_signals <- function(timeseries_df,col_identifier_function=measured){
+plot_input_output_signals <- function(timeseries_df,col_identifier_function=measured, include_forces=TRUE){
   p <- ggplot(data=timeseries_df)
-  p <- p + geom_line(aes(time, JR3_FX), color="red")
-  p <- p + geom_line(aes(time, JR3_FY), color="green")
-  p <- p + geom_line(aes(time, JR3_FZ), color="blue")
+  if (include_forces){
+    p <- p + geom_line(aes(time, JR3_FX), color="red")
+    p <- p + geom_line(aes(time, JR3_FY), color="green")
+    p <- p + geom_line(aes(time, JR3_FZ), color="blue")
+}
   for (muscle in muscle_names()) {
     p <- p + geom_line(aes_string("time", col_identifier_function(muscle))) # this one should be non0 higher.
   }
