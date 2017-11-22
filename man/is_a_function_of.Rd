@@ -2,7 +2,8 @@
 % Please edit documentation in R/linear_fit.r
 \name{is_a_function_of}
 \alias{is_a_function_of}
-\title{Compose a Y~X string for use in titles for linear relationships}
+\title{Compose a Y~X string for use in titles for linear relationships
+TODO Create test'}
 \usage{
 is_a_function_of(x, y)
 }
@@ -16,4 +17,5 @@ xy linear relationship string
 }
 \description{
 Compose a Y~X string for use in titles for linear relationships
+TODO Create test'
 }

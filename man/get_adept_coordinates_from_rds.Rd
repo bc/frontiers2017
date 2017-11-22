@@ -2,7 +2,9 @@
 % Please edit documentation in R/linear_fit.r
 \name{get_adept_coordinates_from_rds}
 \alias{get_adept_coordinates_from_rds}
-\title{get_adept_coordinates_from_rds}
+\title{get_adept_coordinates_from_rds
+Reads adept coordinates and the first force from an RDS posture string path'
+TODO Create Test'}
 \usage{
 get_adept_coordinates_from_rds(rds_posture_string_path)
 }
@@ -14,4 +16,6 @@ adept_coordinates tuple numeric vector of adept_x, adept_y
 }
 \description{
 get_adept_coordinates_from_rds
+Reads adept coordinates and the first force from an RDS posture string path'
+TODO Create Test'
 }

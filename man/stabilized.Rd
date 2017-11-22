@@ -2,16 +2,17 @@
 % Please edit documentation in R/settling_time_analysis.r
 \name{stabilized}
 \alias{stabilized}
-\title{stabilized}
+\title{stabilized
+Tells you whether the value is stabilized'}
 \usage{
 stabilized(vector, desired, err)
 }
 \arguments{
 \item{vector}{vector of numeric values, that change by a constant interval of time.}
 
-\item{desired}{numeric the desired stabilized value for the vector, if the vector is 'stabilized'}
+\item{desired}{the desired numeric stabilized value for the vector, if the vector is 'stabilized'}
 
-\item{err}{numeric the maximum allowable residual for a given value from the desired value.
+\item{err}{the maximum allowable residual numeric value for a given value from the desired value
 This defines the threshold}
 }
 \value{
@@ -19,4 +20,5 @@ stabilized Logical, whether or not the value is stabilized
 }
 \description{
 stabilized
+Tells you whether the value is stabilized'
 }

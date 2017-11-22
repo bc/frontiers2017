@@ -18,6 +18,28 @@ dots_to_underscores <- function(str){
   gsub(".", "_", str, fixed = TRUE)
 }
 
+
+##' All values of a vector are within a desired range
+##' TODO Test example:
+##' > experimental_range
+##' [1]  0.05845569 19.80210853
+##' > range_tension
+##' [1]  0 20
+##' should return true'
+##' @param vector vector of elements
+##' @param bounds 2 element vector
+is_within_range <- function(vector, bounds){
+  truth_vector <- dcc(lapply(vector, function(x) x < bounds[2] || x > bounds[1]))
+  return(all(truth_vector))
+}
+
+##' downsampled_df'
+##' TODO test
+##' @param df dataframe
+##' @param by Starting from 1, every 'by' datapoint will be kept
+##' @param df2 dataframe that has been downsampled
+downsampled_df <- function(df, by) df[seq(1, nrow(df), by = by),]
+
 ##' Maximum absolute residual
 ##' TODO test
 ##' Of all of the absolute residuals from a desired value, this function returns the maximums
@@ -28,30 +50,30 @@ dots_to_underscores <- function(str){
 maximum_absolute_residual <- function(vector, desired_val) max(abs(vector - desired_val))
 
 ##' Read RDS from package extdata folder
-##' @param filename string, for the file within the extdata folder of the analytics package.
+##' @param filename string, for the file within the extdata folder of the frontiers2017 package.
 ##' @return object the object yielded from the filepath rds
 read_rds_from_package_extdata <- function(filename){
   # path <- paste0("~/Documents/GitHub/bc/frontiers2017/inst/extdata/",filename)
-  path <- system.file("extdata", filename, package="analytics")
+  path <- system.file("extdata", filename, package="frontiers2017")
   readRDS(path)
 }
 
 ##' @title Save RDS to package extdata folder
-##' @param filename string, for the file to place within the extdata folder of the analytics package.
+##' @param filename string, for the file to place within the extdata folder of the frontiers2017 package.
 ##' @return object the object yielded from the filepath rds
 save_rds_to_package_extdata <- function(object, filename){
-  path <- paste0("~/Documents/GitHub/bc/frontiers2017/analytics/inst/extdata/",filename)
-  # path <- system.file("extdata", filename, package="analytics")
+  path <- paste0("~/Documents/GitHub/bc/frontiers2017/frontiers2017/inst/extdata/",filename)
+  # path <- system.file("extdata", filename, package="frontiers2017")
   saveRDS(object)
 }
 
 ##' @title Save RDS to resilio sync folder
 ##' TODO test
-##' @param filename string, for the file to place within the extdata folder of the analytics package.
+##' @param filename string, for the file to place within the extdata folder of the frontiers2017 package.
 ##' @return object the object yielded from the filepath rds
 save_rds_to_Resilio <- function(object, filename){
   path <- paste0("~/Resilio Sync/data/",filename)
-  # path <- system.file("extdata", filename, package="analytics")
+  # path <- system.file("extdata", filename, package="frontiers2017")
   saveRDS(object, filename)
 }
 
@@ -137,3 +159,7 @@ left_pad_ones <- function(mat) left_pad(mat, 1)
 ##' @param 0 int value of the pad to be added
 ##' @return mat_prime matrix with a left pad of 0's added
 left_pad_zeros <- function(mat) left_pad(mat, 0)
+
+##' Create Output folder
+##' Creates an output folder right next to frontiers2017
+create_output_folder <- function() dir.create(file.path("../../", "output"), showWarnings = FALSE)

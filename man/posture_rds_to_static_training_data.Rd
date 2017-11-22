@@ -3,7 +3,8 @@
 \name{posture_rds_to_static_training_data}
 \alias{posture_rds_to_static_training_data}
 \title{Posture RDS to Static Training Data
-Compose training data from a posture RDS (a list of ForceTrials)}
+Compose training data from a posture RDS (a list of ForceTrials)
+TODO Create Test or Retire Function'}
 \usage{
 posture_rds_to_static_training_data(rds_file_path, last_n_milliseconds)
 }
@@ -12,7 +13,11 @@ posture_rds_to_static_training_data(rds_file_path, last_n_milliseconds)
 
 \item{last_n_milliseconds}{number of samples used to generate column means for static representation in training data}
 }
+\value{
+training_data column of means of training data form a list of ForceTrials'
+}
 \description{
 Posture RDS to Static Training Data
 Compose training data from a posture RDS (a list of ForceTrials)
+TODO Create Test or Retire Function'
 }
