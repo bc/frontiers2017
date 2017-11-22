@@ -60,7 +60,7 @@ num_samples_desired <- 100
 sset <- lapply(df_to_list_of_rows(task_df), function(task_i) {
   constraints_to_points(muscle_column_generators = t(A_fit$AMatrix), range_tension, task_i, num_samples_desired, thin=100)
 })
-pdf("fdsa.pdf", width=100, height=100)
+pdf("histogram_by_muscle_projections_over_5_tasks.pdf", width=100, height=100)
 par(mfrow = c(nrow(task_df), num_muscles))
 for (i in seq(1, length(sset))) {
   samples <- sset[[i]]
@@ -72,7 +72,7 @@ for (i in seq(1, length(sset))) {
   expect_equal(max(euclidian_errors_vector), 0, tol=1e-13)
   context('expect no residual from target endpoint force with the produced points')
   expect_equal(sum(apply(predicted_forces,2,sd)),0,tol=1e-5)
-  fas_histogram(samples, range_tension, task, breaks=100, col="black", cex=0.25)
+  fas_histogram(samples, range_tension, task, breaks=50, col="black", cex=0.25)
   show_l1_costs(samples, task)
 }
 dev.off()

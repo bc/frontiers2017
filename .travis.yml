@@ -4,8 +4,8 @@ language:            R
 sudo:                false
 cache:               packages
 warnings_are_errors: false
-before_install:
-    - Rscript -e 'update.packages(ask = FALSE)'
+# before_install:
+#     - Rscript -e 'update.packages(ask = FALSE)'
 r:
   - 3.4.2
 notifications:
@@ -14,6 +14,6 @@ after_success:
       # - Rscript -e 'library(covr); codecov()'
       # - bash <(curl -s https://codecov.io/bash)
       # - Rscript -e 'lintr::lint_package(".", linters = lintr::with_defaults(lintr::line_length_linter(120)))'
-# 
+#
 # r_packages:
 #   - covr
