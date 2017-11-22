@@ -17,17 +17,7 @@ last_n_milliseconds <- 100
 sample_maps_data <- as.data.frame(fread(get_Resilio_filepath("noiseTrial2017_11_19_19_53_10.txt")))
 JR3_sensor_null <- colMeans(head(sample_maps_data, 100))
 sample_maps_data <- zero_out_JR3_sensors(sample_maps_data, JR3_sensor_null)
-plot_measured_command_reference_over_time <- function(sample_maps_data){
-plot_list <- list(
-  plot_input_output_signals(head(sample_maps_data, 10000)),
-  plot_input_output_signals(head(sample_maps_data, 10000), command),
-  plot_input_output_signals(head(sample_maps_data, 10000), reference),
-  plot_input_output_signals(downsampled_df(sample_maps_data, 100)),
-  plot_input_output_signals(downsampled_df(sample_maps_data, 100), reference),
-  plot_input_output_signals(downsampled_df(sample_maps_data,100), command)
-)
-  ggsave("../../output/xray_for_noiseReponse.pdf", arrangeGrob(grobs=plot_list, nrow = 2), width=90, height=30, limitsize=FALSE)
-}
+plot_measured_command_reference_over_time(sample_maps_data)
 
 # make sure the JR3 signals respond in some way to the changes.
 sample_maps_data_wo_null <- sample_maps_data[sample_maps_data$map_creation_id !=

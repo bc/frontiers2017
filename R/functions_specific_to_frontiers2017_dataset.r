@@ -224,3 +224,18 @@ create_and_cbind_map_creation_ids <- function(df_of_maps, muscles_of_interest) {
 df_of_hand_response_input_output <- function(noise_hand_responses, last_n_milliseconds){
   dcrb(lapply(lapply(noise_hand_responses, tail, last_n_milliseconds), colMeans))
 }
+
+##' plot_measured_command_reference_over_time
+##' used to visualize whether the data is being collected across each of the muscles. Visual inspection of settling time too.'
+##' @param sample_maps_data raw timeseries DF, with measured, command, and JR3_FX columns, etc.
+plot_measured_command_reference_over_time <- function(sample_maps_data){
+plot_list <- list(
+  plot_input_output_signals(head(sample_maps_data, 10000)),
+  plot_input_output_signals(head(sample_maps_data, 10000), command),
+  plot_input_output_signals(head(sample_maps_data, 10000), reference),
+  plot_input_output_signals(downsampled_df(sample_maps_data, 100)),
+  plot_input_output_signals(downsampled_df(sample_maps_data, 100), reference),
+  plot_input_output_signals(downsampled_df(sample_maps_data,100), command)
+)
+  ggsave("../../output/xray_for_noiseReponse.pdf", arrangeGrob(grobs=plot_list, nrow = 2), width=90, height=30, limitsize=FALSE)
+}
