@@ -2,7 +2,9 @@
 % Please edit documentation in R/settling_time_analysis.r
 \name{force_trial_does_stabilize}
 \alias{force_trial_does_stabilize}
-\title{Evaluate whether a force trial has stabilized for a given muscle.}
+\title{force_trial_does_stabilize
+Evaluate whether a force trial has stabilized for a given muscle.
+TODO Create Test'}
 \usage{
 force_trial_does_stabilize(force_trial_df, muscle, err)
 }
@@ -19,5 +21,7 @@ force_trial_does_stabilize(force_trial_df, muscle, err)
 last_value_is_in_range TRUE if last value is in range, false if last value is not in range
 }
 \description{
+force_trial_does_stabilize
 Evaluate whether a force trial has stabilized for a given muscle.
+TODO Create Test'
 }

@@ -2,8 +2,19 @@
 % Please edit documentation in R/settling_time_analysis.r
 \name{first_true_value_idx}
 \alias{first_true_value_idx}
-\title{First true value index
-TODO test}
+\title{Index of the first value that has stabilized, given two indices.
+Take two indices of interest and identify whether the first, second or neither converged.
+When we have narrowed the index of stabilization down to two values,
+it's got to be one of them (or the time series never stabilized).
+In a timeseries that stabilized, there are two situations we have
+to account for. First, if the first of the two indices is stable,
+then it follows that the second one is also stable.
+We would return the index of the first bound.
+If we find that the first element is unstable, but the second
+element is stable, then we return the upper bound.
+Else we throw an error proclaiming that neither of the sample
+converged, and by induction the entire time series never
+stabilized under the stablization criteria.}
 \usage{
 first_true_value_idx(left, right, idx_for_l_and_r)
 }
@@ -12,12 +23,23 @@ first_true_value_idx(left, right, idx_for_l_and_r)
 
 \item{right}{Logical; whether the right index is stabilized}
 
-\item{idx_for_l_and_r}{the index lower and upper bounds (list of 2 integers)}
+\item{idx_for_l_and_r}{the index lower and upper bounds (list of 2 integers). Essentially the bounds.}
 }
 \value{
 idx index of the first TRUE in a list of two Logical values.
 }
 \description{
-First true value index
-TODO test
+Index of the first value that has stabilized, given two indices.
+Take two indices of interest and identify whether the first, second or neither converged.
+When we have narrowed the index of stabilization down to two values,
+it's got to be one of them (or the time series never stabilized).
+In a timeseries that stabilized, there are two situations we have
+to account for. First, if the first of the two indices is stable,
+then it follows that the second one is also stable.
+We would return the index of the first bound.
+If we find that the first element is unstable, but the second
+element is stable, then we return the upper bound.
+Else we throw an error proclaiming that neither of the sample
+converged, and by induction the entire time series never
+stabilized under the stablization criteria.
 }

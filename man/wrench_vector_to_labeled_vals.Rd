@@ -2,7 +2,10 @@
 % Please edit documentation in R/data_description.r
 \name{wrench_vector_to_labeled_vals}
 \alias{wrench_vector_to_labeled_vals}
-\title{Compose sentence with wrench values}
+\title{wrench_vector_to_labeled_vals
+Wrench vector to labeled values
+TODO Create Test'
+Compose sentence with wrench values}
 \usage{
 wrench_vector_to_labeled_vals(wrench_vector)
 }
@@ -10,8 +13,11 @@ wrench_vector_to_labeled_vals(wrench_vector)
 \item{wrench_vector}{a vector of six forces & torques, as numeric values in N or N*m}
 }
 \value{
-string written-out string of the values and all of the torques.
+a written-out string of the values and all of the torques.
 }
 \description{
+wrench_vector_to_labeled_vals
+Wrench vector to labeled values
+TODO Create Test'
 Compose sentence with wrench values
 }

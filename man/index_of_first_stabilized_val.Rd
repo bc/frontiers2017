@@ -2,8 +2,9 @@
 % Please edit documentation in R/settling_time_analysis.r
 \name{index_of_first_stabilized_val}
 \alias{index_of_first_stabilized_val}
-\title{Index of first stabilized value
-TODO test}
+\title{Index of first stabilized value of two values of interest
+The internal call to stablized returns TRUE or FALSE.
+If left is TRUE, then we should take that one. if right is TRUE we should take that one.}
 \usage{
 index_of_first_stabilized_val(ts, bounds, desired, err)
 }
@@ -20,6 +21,7 @@ index_of_first_stabilized_val(ts, bounds, desired, err)
 idx int, index of the first stabilized value within the timeseries ts.
 }
 \description{
-Index of first stabilized value
-TODO test
+Index of first stabilized value of two values of interest
+The internal call to stablized returns TRUE or FALSE.
+If left is TRUE, then we should take that one. if right is TRUE we should take that one.
 }

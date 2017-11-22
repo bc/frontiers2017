@@ -14,6 +14,17 @@ get_reference_to_variance_relationship_df <- function(force_list, last_n_millise
   rownames(ref_sd_df) <- NULL
   return(ref_sd_df)
 }
+
+##' Zero out JR3 sensors
+##' @param df dataframe of raw timeseries data including JR3_FX, etc.
+##' @param JR3_sensor_null vector of 6 values representing the mean in the first 100ms
+zero_out_JR3_sensors <- function(df, JR3_sensor_null) {
+  for (i in c("JR3_FX", "JR3_FY", "JR3_FZ", "JR3_MX", "JR3_MY", "JR3_MZ")) {
+    df[,i] <- df[,i] - JR3_sensor_null[[i]]
+  }
+    return(df)
+  }
+
 ##' force_trial_to_stable_metrics
 ##' @param force_trial force trial time series
 ##' @param last_n_milliseconds the number of tail milliseconds from which we should calculate the settled standard deviation.
@@ -47,10 +58,10 @@ ft_list_to_stability_df_rows <- function(list_of_force_trials, last_n_millisecon
 ##' @param force_trials a list of raw force timeseries_DFs. has_settled has not been applied yet
 ##' @param err_lenout integer, the resolution along the X axis by which diff err thresholds will be evaluated
 ##' @importFrom parallel mclapply
-try_different_stability_thresholds <- function(force_trials, err_lenout = 20) {
+try_different_stability_thresholds <- function(force_trials, err_lenout = 20, muscles_of_interest) {
   different_errors <- seq(0.1, 1, length.out = err_lenout)
-  num_remaining_force_trials <- unlist(mclapply(different_errors, function(err) {
-    length(remove_unsettled_force_trials(force_trials, err))
+  num_remaining_force_trials <- unlist(lapply(different_errors, function(err) {
+    length(remove_unsettled_force_trials(force_trials, err, muscles_of_interest))
   }))
   plot_remaining_force_trial_fraction_as_function_of_err(different_errors, num_remaining_force_trials,
     length(force_trials))
@@ -117,4 +128,13 @@ posture_path_to_stability_df <- function(posturepath) {
 get_stability_df_for_all_postures <- function(rds_postures) {
   stability_df <- dcrb(pbmclapply(rds_postures, posture_path_to_stability_df))
   return(stability_df)
+}
+##' split_by_map_creation_id
+##' TODO document and test.
+##' @return force_dataframes a list of dataframes, each with a unique map_creation_id
+split_by_map_creation_id <- function(unique_map_creation_ids, maps_data_df){
+  force_dataframes <- lapply(unique_map_creation_ids, function(map_id){
+    maps_data_df[maps_data_df$map_creation_id == map_id,]
+  })
+  return(force_dataframes)
 }

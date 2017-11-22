@@ -1,7 +1,10 @@
 context("test_a_matrix.r")
-
+create_output_folder()
 context("Linearity functions manipulations")
-
+##' @param filename string filename of interest
+output_filepath_from_test <- function(filename){
+  paste0("../../..", filename)
+}
 set.seed(100)
 range_tension <- c(3, 20)
 sample_input_output_data <- read_rds_from_package_extdata("training_data.rds")
@@ -33,7 +36,6 @@ test_that("lin_qr_solve works as expected", {
 test_that("find_A_matrix finds A matrix", {
    #expect_equal(
 })
-
 test_that("produce A matrices for different numbers of muscles or output force dimensions",
   {
     pdf("../../output/a_mat_fit.pdf")
@@ -44,15 +46,10 @@ test_that("produce A matrices for different numbers of muscles or output force d
     fit_evaluation(A_fit, test_data)
   dev.off()
   })
-
-
-
-
 test_that('We find no error when fewer than 7 muscles (4) are used to train A matrix',{
     A_fit <- find_A_matrix(training_data, measured(muscle_names())[1:4], forces_of_interest=force_column_names[1:3])
     fit_evaluation(A_fit, test_data)
   })
-
 test_that("We can calculate cond of an A matrix that uses 6forces~7tendons", {
   A_fit <- find_A_matrix(training_data,  measured(muscle_names())[1:7], forces_of_interest=force_column_names[1:3])
 	cond_num <- kappa(A_fit$AMatrix, exact = TRUE)
@@ -106,47 +103,17 @@ test_that('we can produce a binary set of x vectors of size 7', {
   result <- har.run(state, n.samples = 100)
   samples <- result$samples
   pass_unit_cube_to_A(big_A, 3, c(3,20))
-
   lowest_l1_cost_soln <- samples[which.min(rowSums(samples)), ]
   highest_l1_cost_soln <- samples[which.max(rowSums(samples)), ]
-
-
   test_predicted_response <- as.matrix(samples %*% A_fit$AMatrix)
 
   boxplot(test_predicted_response, ylab = "Tension N for FX,FY,FZ, Torque Nm for MX,MY,MZ")
   test_observed_response <- test_data[force_column_names]
   res_test <- test_observed_response - test_predicted_response
-  summary(res_test)
-
-
-  parcoord(samples)
+  # summary(res_test)
+  MASS::parcoord(samples)
   plot3d(samples)  #show 3d plane
 })
-
-test_that('can produce new har CSV from 0,1 CSV', {
-  df <- fread(get_Resilio_filepath('noPostureNeutralForceTrials2017_11_12_14_28_20.txt'))
-  concatenated_ft_dfs <- df["map_creation_id"!=0]
-  unique_maps <- unique(concatenated_ft_dfs$map_creation_id)
-  list_of_ft_dfs <- split(concatenated_ft_dfs, concatenated_ft_dfs$map_creation_id)
-  input_output_datatable <- dcrb(lapply(list_of_ft_dfs, function(ts_df){
-    settled_section <- tail(ts_df,100)
-    colMeans(settled_section)
-  }))
-  input_output_data<- data.frame(input_output_datatable)
-
-
-range_tension <- c(3,20)
-  num_muscles <- 7
-  A_fit <- find_A_matrix(input_output_data,  measured(muscle_names())[1:num_muscles], forces_of_interest=c("JR3_FX"))
-  AMatrix_with_offset <- A_fit$AMatrix
-  muscle_diag_ones <- diag(rep(1, num_muscles))
-  muscle_constraints_matrix <- cbind(rep(0, num_muscles), muscle_diag_ones)
-  generator_columns_A_matrix <- t(A_fit$AMatrix)
-
-  #TODO create test to give some examples for usage this pass_unit_cube_to_A(big_A, 3, c(3,20))
-})
-
-##' TODO check this test_that'
 context("stop_if_min_equals_max")
 test_that("stop_if_min_equals_max will display stop message",
 {

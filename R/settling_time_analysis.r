@@ -1,7 +1,8 @@
 ##' stabilized
+##' Tells you whether the value is stabilized'
 ##' @param vector vector of numeric values, that change by a constant interval of time.
-##' @param desired numeric the desired stabilized value for the vector, if the vector is 'stabilized'
-##' @param err numeric the maximum allowable residual for a given value from the desired value.
+##' @param desired the desired numeric stabilized value for the vector, if the vector is 'stabilized'
+##' @param err the maximum allowable residual numeric value for a given value from the desired value
 ##' This defines the threshold
 ##' @return stabilized Logical, whether or not the value is stabilized
 stabilized <- function(vector, desired, err) {
@@ -13,7 +14,8 @@ stabilized <- function(vector, desired, err) {
   return(!sum(abs(residuals) > err) > 0)
 }
 
-##' integer midpoint
+##' integer_midpoint
+##' Gives the floor value for even tuples and center value for odd tuples'
 ##' @param tuple_of_lower_and_upper a tuple of two integers, denoting the lower and upper bound
 ##' @return midpoint an integer that is between the lower and upper bound.
 ##' @description
@@ -25,7 +27,9 @@ integer_midpoint <- function(tuple_of_lower_and_upper) {
   return(floor((lower + upper)/2))
 }
 
+##' force_trial_does_stabilize
 ##' Evaluate whether a force trial has stabilized for a given muscle.
+##' TODO Create Test'
 ##' @param force_trial_df data.frame of numeric values, that includes the reference and measured columns
 ##' @param desired numeric the desired stabilized value for the vector, if the vector is 'stabilized'
 ##' @param err numeric the maximum allowable residual for a given value from the desired value.
@@ -38,13 +42,17 @@ force_trial_does_stabilize <- function(force_trial_df, muscle, err) {
   return(last_value_is_in_range)
 }
 
+##' bound_width
 ##' Get the width of the bounds
+##' TODO Create Test'
 ##' @param tuple of two integer values
 ##' @return the integer distance between the values
 bound_width <- function(tuple) {
   abs(max(tuple) - min(tuple))
 }
+##' settling_time_histogram_for_posture
 ##' plot settling time histogram
+##' TODO Create Test'
 ##' @param stabilized_df stabilized dataframe with column settling_time as vector of integers
 ##' @param ... parameters passed to histogram function
 settling_time_histogram_for_posture <- function(stabilized_df,...) {
@@ -54,7 +62,9 @@ settling_time_histogram_for_posture <- function(stabilized_df,...) {
     col = "black",...)
 }
 
-##' @title fill_initials_into_stabilization_df
+##' fill_initials_into_stabilization_df
+##' Gives a dataframe with initial reference values'
+##' TODO Create test'
 ##' @param df a stabilization data frame that contains initial_index as a column.
 ##' @param full_df object for full_df from .rds file
 ##' @param muscle_of_interest . muscle name string, i.e. 'M0'
@@ -68,11 +78,13 @@ fill_initials_into_stabilization_df <- function(df, full_df, muscle_of_interest)
   return(df)
 }
 
-##' Get reference value from specific row of dataframe
+##' get_reference_value
+##' Gets reference value from specific row of dataframe
 ##' TODO test
 ##' @param index_target int; the index from which we will extract the muscle of interest's reference force
 ##' @param full_df full dataset from the .rds
 ##' @param muscle_of_interest string, e.g. 'M0'
+##' @return full_df numeric reference value from muscle of interest '
 get_reference_value <- function(index_target, full_df, muscle_of_interest) {
   return(as.numeric(full_df[index_target, reference(muscle_of_interest)]))
 }
@@ -434,17 +446,18 @@ all_muscles_stabilized <- function(force_trial, err, muscles_of_interest) {
 ##' mask_settled_force_trials
 ##' @param list_of_force_trials List of force trials, each a df with cols for each measured/reference force
 ##' @param err highest acceptable error residual from desired tension
+##' @param ... params passed to all_muscles_stabilized
 ##' @return l_dfs list of force trials without the force trials that did not converge for all muscles
-mask_settled_force_trials <- function(list_of_force_trials, err) {
-  as.logical(lapply(list_of_force_trials, all_muscles_stabilized, err))
+mask_settled_force_trials <- function(list_of_force_trials, err, ...) {
+  as.logical(lapply(list_of_force_trials, all_muscles_stabilized, err, ...))
 }
 
 ##' remove_unsettled_force_trials
 ##' @param list_of_force_trials List of force trials
 ##' @param err highest acceptable error residual from desired tension
 ##' @return l_dfs list of force trials without the force trials that did not converge for all muscles
-remove_unsettled_force_trials <- function(list_of_force_trials, err) {
-  list_of_force_trials[mask_settled_force_trials(list_of_force_trials, err)]
+remove_unsettled_force_trials <- function(list_of_force_trials, err, muscles_of_interest) {
+  list_of_force_trials[mask_settled_force_trials(list_of_force_trials, err, muscles_of_interest)]
 }
 
 
@@ -470,4 +483,21 @@ plot_remaining_force_trial_fraction_as_function_of_err <- function(different_err
 ##' @param df dataframe with the posture adept coordinates added as two new columns
 add_posture_to_max_residual_and_sd <- function(row_of_max_residual_and_sd, adept_coords){
   cbind(data.frame(adept_x = adept_coords[1], adept_y=adept_coords[2]), row_of_max_residual_and_sd)
+}
+
+
+##' Sanity Check Plot signals over time
+##' @param timeseries_df a dataframe with time, JR3_FX, measured_M0 columns, etc
+##' @param col_identifier_function by default using measured, but can be command, or reference.
+##' @return p the plot in ggplot object format
+plot_input_output_signals <- function(timeseries_df,col_identifier_function=measured){
+  p <- ggplot(data=timeseries_df)
+  p <- p + geom_line(aes(time, JR3_FX), color="red")
+  p <- p + geom_line(aes(time, JR3_FY), color="green")
+  p <- p + geom_line(aes(time, JR3_FZ), color="blue")
+  for (muscle in muscle_names()) {
+    p <- p + geom_line(aes_string("time", col_identifier_function(muscle))) # this one should be non0 higher.
+  }
+  p <- p + xlab('Time (s)') + ylab("Newtons") + ggtitle(col_identifier_function(muscle))
+  return(p)
 }
