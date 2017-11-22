@@ -181,6 +181,13 @@ split_by_replicate <- function(df_of_concatenated_replicates, time_delta_thresho
 column_sd_across_replicates <- function(list_of_trials, last_n_milliseconds) {
   apply(dcrb(lapply(lapply(list_of_trials, tail, 100), colMeans)), 2, sd)
 }
+##' column_mean_across_replicates
+##' TODO test
+##' @param list_of_trials list of dataframes, each with N colums
+##' @param last_n_milliseconds number of milliseconds to base the stability metrics off.
+list_of_trials_to_colMeans_of_last_n_milliseconds <- function(list_of_trials,last_n_milliseconds){
+  lapply(lapply(list_of_trials, tail, last_n_milliseconds), colMeans)
+}
 
 ##' lowest_l1_cost_soln'
 ##' @param df a dataframe where each row is a nrow(df)- dimensional vector
@@ -204,4 +211,16 @@ create_and_cbind_map_creation_ids <- function(df_of_maps, muscles_of_interest) {
   cbound <- cbind(generate_map_creation_ids(nrow(df_of_maps)), as.data.frame(df_of_maps))
   colnames(cbound) <- c("map_creation_id", muscles_of_interest)
   return(cbound)
+}
+
+
+##' df_of_hand_response_input_output
+##' takes in the hand responses, outputs a dataframe that you can use to interpret
+##' the static tension-force relationship.
+##' result typically passed to df_split_into_training_and_testing
+##' TODO Test or retire'
+##' @param noise_hand_responses a list of multiple timeseries dataframes, each with the input muscle columns and output columns.
+##' @return df input_output_data dataframe that concatenates each noise_hand_response into one row of the dataframe.
+df_of_hand_response_input_output <- function(noise_hand_responses, last_n_milliseconds){
+  dcrb(lapply(lapply(noise_hand_responses, tail, last_n_milliseconds), colMeans))
 }
