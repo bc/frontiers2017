@@ -96,7 +96,7 @@ test_that('we can produce a binary set of x vectors of size 7', {
   test_observed_response <- test_data[force_column_names]
   res_test <- test_observed_response - test_predicted_response
   # summary(res_test)
-  parcoord(samples)
+  MASS::parcoord(samples)
   plot3d(samples)  #show 3d plane
 })
 
