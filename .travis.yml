@@ -8,7 +8,8 @@ r:
   - 3.4.2
 notifications:
      slack:          kaspectscientists:OFGveqm4qxt26CPytZrHUxSV
-r_packages:
-  - covr
+r_github_packages:
+  - r-lib/covr
 after_success:
-  - Rscript -e 'covr::codecov()'
+  - Rscript -e 'covr::coveralls()'
+    - Rscript -e 'covr::codecov()'

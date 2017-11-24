@@ -15,6 +15,7 @@ test_that("maps500_replicates1muscles_7; affixed to wooden post",{
 
 })
 test_that("maps500_replicates1muscles_7; affixed to wooden post", {
+last_n_milliseconds <- 100
   # make sure the JR3 signals respond in some way to the changes.
   maps500reps1_wo_null <- maps500reps1[maps500reps1$map_creation_id != 0, ]
   # Remove pre-experiment and post experiment stuff
@@ -26,6 +27,12 @@ test_that("maps500_replicates1muscles_7; affixed to wooden post", {
   noise_hand_responses <- noise_hand_responses_raw[are_correct_length]
   message(sprintf("Out of the %s collected maps, %s had between 700 and 810 samples. Using %s maps.",
     length(noise_hand_responses_raw), length(noise_hand_responses), length(noise_hand_responses)))
-  input_output_data <- df_of_hand_response_input_output(noise_hand_responses, last_n_milliseconds)
-  browser()
+  input_output_data <- as.data.frame(df_of_hand_response_input_output(noise_hand_responses, last_n_milliseconds))
+  desired_stability_residual <- sapply(df_to_list_of_rows(input_output_data), function(trial){
+    trial$reference_M0-trial$measured_M0
+  })
+  l1_of_maps <- apply(input_output_data[,reference(muscle_names())],1,sum)
+  hist(desired_stability_residual)
+  print(summary(desired_stability_residual))
+  plot(input_output_data$measured_M0, desired_stability_residual)
 })
