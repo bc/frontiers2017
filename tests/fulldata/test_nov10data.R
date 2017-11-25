@@ -15,14 +15,13 @@ last_n_milliseconds <- 100
 # hand. noise input 100 = num_maps input:
 # no_spaces_noise_lo_0_hi_20_nmaps_500_replicates_1.csv
 # noise_response <- as.data.frame(fread(get_Resilio_filepath("noiseTrial2017_11_19_19_53_10.txt")))
-noise_response <- as.data.frame(fread(get_Resilio_filepath("noiseResponse2017_11_22_16_01_36_on_mit_hand_500maps_1replicate.txt")))
+noise_response <- as.data.frame(fread(get_Resilio_filepath("noiseResponse2017_11_24_18_27_55_noiseResponse_MIT_test.txt")))
 JR3_sensor_null <- colMeans(head(noise_response, 100))
 noise_response <- zero_out_JR3_sensors(noise_response, JR3_sensor_null)
 # make sure the JR3 signals respond in some way to the changes.
 noise_response_wo_null <- noise_response[noise_response$map_creation_id != 0, ]
 p <- plot_measured_command_reference_over_time(noise_response_wo_null)
 ggsave("../../output/xray_for_noiseReponse.pdf", p, width=90, height=30, limitsize=FALSE)
-# Remove pre-experiment and post experiment stuff
 noise_hand_responses_raw <- split_by_map_creation_id(unique(noise_response_wo_null$map_creation_id),
   noise_response)
 are_correct_length <- dcc(lapply(noise_hand_responses_raw, function(dt) {
@@ -36,7 +35,7 @@ data <- df_split_into_training_and_testing(input_output_data, fraction_training 
 training_data <- data$train
 test_data <- data$test
 
-force_names_to_predict <- c("JR3_FX", "JR3_FY", "JR3_FZ")
+force_names_to_predict <- c("JR3_FX", "JR3_FY", "JR3_FZ", "JR3_MX", "JR3_MY", "JR3_MZ")
 muscles_of_interest <- muscle_names()[1:7]
 num_muscles <- length(muscles_of_interest)
 A_fit <- find_A_matrix_without_offset(as.data.frame(training_data), measured(muscles_of_interest),
@@ -104,12 +103,11 @@ extract_3cols <- lapply(sset, function(x) x[, c(1, 2, 3)])
 gradient <- colorRampPalette(c("#a6cee3", "#1f78b4", "#b2df8a", "#fc8d62", "#ffffb3",
   "#bebada"))
 list_of_mats <- add_gradient_to_attrs(extract_3cols, gradient(length(extract_3cols)))
-
+list_of_mats <- lapply(list_of_mats, function(x) x/1e5)
 rgl.clear()
 axes_for_multiple_sets(list_of_mats)
 axes_for_defined_xyz_limits(rep(list(c(0, 20)), 3))
 rgl_convhulls(list_of_mats, points = TRUE)
-# Add x, y, and z Axes
 
 res <- lapply(sset, create_and_cbind_map_creation_ids, muscle_names())
 big_har_set_to_test_on_finger <- dcrb(res)
@@ -154,6 +152,7 @@ sample_maps_data_scaling_wo_null <- sample_maps_data_scaling[sample_maps_data_sc
   plot_input_output_signals(downsampled_df(sample_maps_data_scaling_wo_null, 100), reference)
   plot_input_output_signals(downsampled_df(sample_maps_data_scaling_wo_null, 100), command)
   # make sure the JR3 signals respond in some way to the changes.
+
 # Expect to see only force trials with none of the warmup. ending forcetrial will
 # be cut off
 plot_input_output_signals(head(sample_maps_data_scaling_wo_null, 10000))
@@ -167,13 +166,19 @@ scaling_hand_responses_raw <- split_by_map_creation_id(unique(sample_maps_data_s
 are_correct_length <- dcc(lapply(scaling_hand_responses_raw, function(dt) {
   return(nrow(dt) >= 700 && nrow(dt) < 810)
 }))
-noise_hand_responses <- scaling_hand_responses_raw[are_correct_length]
+scaling_hand_responses <- scaling_hand_responses_raw[are_correct_length]
 message(sprintf("Out of the %s collected maps, %s had between 700 and 810 samples. Using %s maps.",
-  length(noise_hand_responses_raw), length(noise_hand_responses), length(noise_hand_responses)))
+  length(scaling_hand_responses_raw), length(scaling_hand_responses), length(scaling_hand_responses)))
 
+scaling_input_output_data <- as.data.frame(df_of_hand_response_input_output(scaling_hand_responses, last_n_milliseconds))
 
-maps_with_ids <- dcrb(lapply(noise_hand_responses, tail, 1))
-maps_without_ids <- unique(sample_maps_data_scaling_wo_null[reference(muscle_names())])
-expected_forces <- t(as.matrix(A_fit$AMatrix)) %*% t(as.matrix(maps_without_ids[,
+expected_forces <- t(as.matrix(A_fit$AMatrix)) %*% t(as.matrix(scaling_input_output_data[,
   reference(muscles_of_interest)]))
-plot3d(t(expected_forces), xlim = c(-0.5, 0), ylim = c(-2, 2), zlim = c(-2, 2))
+
+  experimental_forces <- scaling_input_output_data[force_names_to_predict]
+  residuals_in_3d <- experimental_forces - t(expected_forces)
+  residual_euclidian_magnitudes <- apply(residuals_in_3d, 1, norm_vec)
+
+
+plot3d(t(expected_forces))
+plot3d(scaling_input_output_data[force_names_to_predict])
