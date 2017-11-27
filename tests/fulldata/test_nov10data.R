@@ -36,6 +36,7 @@ data <- df_split_into_training_and_testing(input_output_data, fraction_training 
 training_data <- data$train
 test_data <- data$test
 
+
 force_names_to_predict <- c("JR3_FX", "JR3_FY", "JR3_FZ", "JR3_MX", "JR3_MY", "JR3_MZ")
 muscles_of_interest <- muscle_names()[1:7]
 num_muscles <- length(muscles_of_interest)
@@ -47,17 +48,7 @@ range_tension <- c(0, 20)
 muscle_constraints_matrix <- diag(rep(1, num_muscles))
 generator_columns_A_matrix <- t(A_fit$AMatrix)
 
-
-##' @importFrom Matrix rankMatrix
-compute_ranks_of_A <- function(A_matrix){
-  library(Matrix)
-  rank_of_A <- rankMatrix(generator_columns_A_matrix)
-  rank_of_A_forces <- rankMatrix(generator_columns_A_matrix[1:3,])
-  rank_of_A_torques <- rankMatrix(generator_columns_A_matrix[4:6,])
-  message(paste(paste("Ranks: A", rank_of_A),
-  paste(", A_forces", rank_of_A_forces),
-  paste(", A_torques", rank_of_A_torques)))
-}
+compute_ranks_of_A(A_fit$AMatrix)
 
 dim(generator_columns_A_matrix)
 dim(muscle_constraints_matrix)
@@ -69,20 +60,8 @@ generators <- t(generator_columns_A_matrix %*% t(diag(7)*20))
 binary_combination_ffs_points <- t(generator_columns_A_matrix %*% t(n_binary_combinations(7)*20))
 ffs_list <- list(binary_combination_ffs_points[,1:3])
 lim_bounds <- c(-5,5)
-plot_ffs_with_vertices <- function(binary_combination_ffs_points, generators ...){
-  rgl.open()
-  rgl.bg(color = "white")
-  axes_for_multiple_sets(list(binary_combination_ffs_points))
-  points3d(generators[,1:3], col="blue", size=10)
-  points3d(c(0,0,0), col="black", size=11)
-  points3d(binary_combination_ffs_points[,1:3], col="gray", size=5)
-  gradient <- colorRampPalette(c("#a6cee3", "#1f78b4", "#b2df8a", "#fc8d62", "#ffffb3",
-  "#bebada"))
-  ffs_mats <- add_gradient_to_attrs(ffs_list, gradient(10)[8])
-  rgl_convhulls(ffs_mats, points=TRUE)
-  title3d(main="FFS", ...)
-  identify3d(ffs_mats[[1]],n=2)
-}
+plot_ffs_with_vertices(binary_combination_ffs_points[,1:3], generators[,1:3], xlab="Fx", ylab="Fy", zlab="Fz")
+
 
 message('pick the horizontal line endpoints')
 horizontal_line_points <- identify3d(ffs_mats[[1]],n=2)
@@ -91,7 +70,7 @@ horizontal_line_points <- identify3d(ffs_mats[[1]],n=2)
 draw_perpendicular_line(ffs_vertex[1:3],ffs_vertex2[1:3],5)
 # task_force <- c(-0.5641187, 0, 1)
 task_force <- ffs_vertex
-browser()
+
 
 ############ MANUAL: IDENTIFY TASK MULTIPLIER BOUNDS
 pdf("histogram_by_muscle_projections_over_5_tasks.pdf", width = 100, height = 100)

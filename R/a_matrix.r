@@ -327,3 +327,34 @@ pass_unit_cube_to_A <- function(big_A, num_output_dimensions, range_tension){
   forces<- t(output_b_matrix[1:num_output_dimensions,])
   return(forces)
 }
+
+##' plot_ffs_with_vertices
+##' @param binary_combination_ffs_points matrix with n columns (number of muscles) and 2^n rows.
+##' @param generators the A matrix generators to plot. each column is a unique output force dimension.
+plot_ffs_with_vertices <- function(binary_combination_ffs_points, generators, ...){
+  rgl.open()
+  rgl.bg(color = "white")
+  axes_for_multiple_sets(list(binary_combination_ffs_points), sizes=c(3,3,3))
+  rgl.spheres(generators, r=0.05, color="blue")
+  points3d(c(0,0,0), col="black", size=11)
+  points3d(binary_combination_ffs_points, col="gray", size=5)
+  gradient <- colorRampPalette(c("#a6cee3", "#1f78b4", "#b2df8a", "#fc8d62", "#ffffb3",
+  "#bebada"))
+  ffs_mats <- add_gradient_to_attrs(ffs_list, gradient(10)[8])
+  rgl_convhulls(ffs_mats, points=TRUE)
+  title3d(main="FFS", ..., col="black")
+}
+
+##' compute_ranks_of_A
+##' just prints the ranks of the forces, torques, and forces + torques.
+##' @param A_matrix Amatrix. see output of find_A_matrix
+##' @importFrom Matrix rankMatrix
+compute_ranks_of_A <- function(A_matrix){
+  library(Matrix)
+  rank_of_A <- rankMatrix(generator_columns_A_matrix)
+  rank_of_A_forces <- rankMatrix(generator_columns_A_matrix[1:3,])
+  rank_of_A_torques <- rankMatrix(generator_columns_A_matrix[4:6,])
+  message(paste(paste("Ranks: A", rank_of_A),
+  paste(", A_forces", rank_of_A_forces),
+  paste(", A_torques", rank_of_A_torques)))
+}

@@ -216,7 +216,7 @@ create_and_cbind_map_creation_ids <- function(df_of_maps, muscles_of_interest) {
 
 ##' df_of_hand_response_input_output
 ##' takes in the hand responses, outputs a dataframe that you can use to interpret
-##' the static tension-force relationship.
+##' the static tension-force relationship. takes colMeans of last N milliseconds
 ##' result typically passed to df_split_into_training_and_testing
 ##' TODO Test or retire'
 ##' @param noise_hand_responses a list of multiple timeseries dataframes, each with the input muscle columns and output columns.
