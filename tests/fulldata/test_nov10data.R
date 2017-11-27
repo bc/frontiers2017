@@ -18,6 +18,7 @@ last_n_milliseconds <- 100
 noise_response <- as.data.frame(fread(get_Resilio_filepath("noiseResponse2017_11_24_18_27_55_noiseResponse_MIT_test.txt")))
 JR3_sensor_null <- colMeans(head(noise_response, 100))
 noise_response <- zero_out_JR3_sensors(noise_response, JR3_sensor_null)
+noise_response <- jr3_coordinate_transformation_along_z(noise_response, distance = 0.02)
 # make sure the JR3 signals respond in some way to the changes.
 noise_response_wo_null <- noise_response[noise_response$map_creation_id != 0, ]
 p <- plot_measured_command_reference_over_time(noise_response_wo_null)

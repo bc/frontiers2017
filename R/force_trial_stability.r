@@ -25,6 +25,18 @@ zero_out_JR3_sensors <- function(df, JR3_sensor_null) {
     return(df)
   }
 
+##' coordinate frame translation from JR3 base to the fingertip
+##' @param df dataframe of raw timeseries data including JR3_FX, etc.
+##' @param distance distance in meters between base and the contact point.
+##' @return df_translated dataframe with JR3 columns changed
+  jr3_coordinate_transformation_along_z <- function(df, distance) {
+    df$JR3_MX <- df$JR3_MX - distance * df$JR3_FY
+    df$JR3_MY <- df$JR3_MY - distance * df$JR3_FX
+    #MZ is unaffected by the tranlsation along the z axis.
+    return(df)
+    }
+
+
 ##' force_trial_to_stable_metrics
 ##' @param force_trial force trial time series
 ##' @param last_n_milliseconds the number of tail milliseconds from which we should calculate the settled standard deviation.
