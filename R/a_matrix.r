@@ -17,6 +17,10 @@ find_A_matrix <- function(data, regressor_names = measured(muscle_names()), forc
   return(fit)
 }
 
+##' find_A_matrix_without_offset
+##' @param regressor_names,forces_of_interest vector of strings, corresponding to the data.
+##' @param data data frame with inputs and outputs, named the same as regressor_names and forces_of_interest
+##' @param fit fit list with AMatrix, endpointForceObservation and endpointForcePrediction vectors.
 find_A_matrix_without_offset <- function(data, regressor_names = simplify2array(lapply(muscle_names(),
   measured)), forces_of_interest = force_column_names) {
   num_regressor_columns = length(regressor_names)  #inc regressor

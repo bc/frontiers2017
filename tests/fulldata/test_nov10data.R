@@ -14,11 +14,11 @@ last_n_milliseconds <- 100
 # Response to noise through hand noiseTrial2017_11_19_19_45_01.txt was on MIT
 # hand. noise input 100 = num_maps input:
 # no_spaces_noise_lo_0_hi_20_nmaps_500_replicates_1.csv
-# noise_response <- as.data.frame(fread(get_Resilio_filepath("noiseTrial2017_11_19_19_53_10.txt")))
-noise_response <- as.data.frame(fread(get_Resilio_filepath("noiseResponse2017_11_24_18_27_55_noiseResponse_MIT_test.txt")))
-JR3_sensor_null <- colMeans(head(noise_response, 100))
-noise_response <- zero_out_JR3_sensors(noise_response, JR3_sensor_null)
-noise_response <- jr3_coordinate_transformation_along_z(noise_response, distance = 0.02)
+# untransformed_noise_response <- as.data.frame(fread(get_Resilio_filepath("noiseTrial2017_11_19_19_53_10.txt")))
+untransformed_noise_response <- as.data.frame(fread(get_Resilio_filepath("noiseResponse2017_11_24_18_27_55_noiseResponse_MIT_test.txt")))
+JR3_sensor_null <- colMeans(head(untransformed_noise_response, 100))
+untransformed_noise_response <- zero_out_JR3_sensors(untransformed_noise_response, JR3_sensor_null)
+noise_response <- jr3_coordinate_transformation_along_z(untransformed_noise_response, 0.02)
 # make sure the JR3 signals respond in some way to the changes.
 noise_response_wo_null <- noise_response[noise_response$map_creation_id != 0, ]
 p <- plot_measured_command_reference_over_time(noise_response_wo_null)
@@ -46,6 +46,19 @@ fit_evaluation_without_offset(A_fit, as.data.frame(test_data))
 range_tension <- c(0, 20)
 muscle_constraints_matrix <- diag(rep(1, num_muscles))
 generator_columns_A_matrix <- t(A_fit$AMatrix)
+
+
+##' @importFrom Matrix rankMatrix
+compute_ranks_of_A <- function(A_matrix){
+  library(Matrix)
+  rank_of_A <- rankMatrix(generator_columns_A_matrix)
+  rank_of_A_forces <- rankMatrix(generator_columns_A_matrix[1:3,])
+  rank_of_A_torques <- rankMatrix(generator_columns_A_matrix[4:6,])
+  message(paste(paste("Ranks: A", rank_of_A),
+  paste(", A_forces", rank_of_A_forces),
+  paste(", A_torques", rank_of_A_torques)))
+}
+
 dim(generator_columns_A_matrix)
 dim(muscle_constraints_matrix)
 # Here, identify a force vector of interest and apply it to the generated A
@@ -56,13 +69,20 @@ generators <- t(generator_columns_A_matrix %*% t(diag(7)*20))
 binary_combination_ffs_points <- t(generator_columns_A_matrix %*% t(n_binary_combinations(7)*20))
 ffs_list <- list(binary_combination_ffs_points[,1:3])
 lim_bounds <- c(-5,5)
-plot3d(generators[,1:3], col="blue", xlim=lim_bounds,ylim=lim_bounds,zlim=lim_bounds)
-points3d(binary_combination_ffs_points[,1:3], col="gray")
-points3d(ffs_vertex[1:3], col="yellow", size=10)
-gradient <- colorRampPalette(c("#a6cee3", "#1f78b4", "#b2df8a", "#fc8d62", "#ffffb3",
-"#bebada"))
-ffs_mats <- add_gradient_to_attrs(ffs_list, gradient(1))
-rgl_convhulls(ffs_mats, points=TRUE)
+plot_ffs_with_vertices <- function(binary_combination_ffs_points, generators ...){
+  rgl.open()
+  rgl.bg(color = "white")
+  axes_for_multiple_sets(list(binary_combination_ffs_points))
+  points3d(generators[,1:3], col="blue", size=10)
+  points3d(c(0,0,0), col="black", size=11)
+  points3d(binary_combination_ffs_points[,1:3], col="gray", size=5)
+  gradient <- colorRampPalette(c("#a6cee3", "#1f78b4", "#b2df8a", "#fc8d62", "#ffffb3",
+  "#bebada"))
+  ffs_mats <- add_gradient_to_attrs(ffs_list, gradient(10)[8])
+  rgl_convhulls(ffs_mats, points=TRUE)
+  title3d(main="FFS", ...)
+  identify3d(ffs_mats[[1]],n=2)
+}
 
 message('pick the horizontal line endpoints')
 horizontal_line_points <- identify3d(ffs_mats[[1]],n=2)
