@@ -31,7 +31,7 @@ last_n_milliseconds <- 100
   desired_stability_residual <- sapply(df_to_list_of_rows(input_output_data), function(trial){
     trial$reference_M0-trial$measured_M0
   })
-  l1_of_maps <- apply(input_output_data[,reference(muscle_names())],1,sum)
+  l1_of_maps<- apply(input_output_data[,reference(muscle_names())],1,sum)
   hist(desired_stability_residual)
   print(summary(desired_stability_residual))
   plot(input_output_data$measured_M0, desired_stability_residual)

@@ -49,9 +49,28 @@ dim(generator_columns_A_matrix)
 dim(muscle_constraints_matrix)
 # Here, identify a force vector of interest and apply it to the generated A
 # Matrix. Then permute it to create a task line
-ffs_vertex <- generator_columns_A_matrix %*% c(rep(20, 7))  #this is used to get one viable force for the model.
+# ffs_vertex <- generator_columns_A_matrix %*% c(rep(20, 7))  #this is used to get one viable force for the model.
+# ffs_vertex2 <- generator_columns_A_matrix %*% c(c(10,5,15,10,5,10,20))  #this is used to get one viable force for the model.
+generators <- t(generator_columns_A_matrix %*% t(diag(7)*20))
+binary_combination_ffs_points <- t(generator_columns_A_matrix %*% t(n_binary_combinations(7)*20))
+ffs_list <- list(binary_combination_ffs_points[,1:3])
+lim_bounds <- c(-5,5)
+plot3d(generators[,1:3], col="blue", xlim=lim_bounds,ylim=lim_bounds,zlim=lim_bounds)
+points3d(binary_combination_ffs_points[,1:3], col="gray")
+points3d(ffs_vertex[1:3], col="yellow", size=10)
+gradient <- colorRampPalette(c("#a6cee3", "#1f78b4", "#b2df8a", "#fc8d62", "#ffffb3",
+"#bebada"))
+ffs_mats <- add_gradient_to_attrs(ffs_list, gradient(1))
+rgl_convhulls(ffs_mats, points=TRUE)
+
+message('pick the horizontal line endpoints')
+horizontal_line_points <- identify3d(ffs_mats[[1]],n=2)
+
+
+draw_perpendicular_line(ffs_vertex[1:3],ffs_vertex2[1:3],5)
 # task_force <- c(-0.5641187, 0, 1)
 task_force <- ffs_vertex
+browser()
 
 ############ MANUAL: IDENTIFY TASK MULTIPLIER BOUNDS
 pdf("histogram_by_muscle_projections_over_5_tasks.pdf", width = 100, height = 100)
@@ -59,14 +78,14 @@ par(mfrow = c(nrow(task_df), num_muscles))
 
 
 
-task_multiplier_bounds <- c(0.2, 0.9)  #if c(0.0,0.0) then a null task.
+task_multiplier_bounds <- c(0.0, 0.7)
 task_multiplier_list <- seq(task_multiplier_bounds[1], task_multiplier_bounds[2],
   length.out = 5)
 task_df <- t(task_force %*% t(task_multiplier_list))
 colnames(task_df) <- force_names_to_predict
 num_samples_desired <- 100
 sset <- lapply(df_to_list_of_rows(task_df), function(task_i) {
-  constraints_to_points(muscle_column_generators = t(A_fit$AMatrix), range_tension,
+  constraints_inc_torque_to_points(muscle_column_generators = t(A_fit$AMatrix), range_tension,
     task_i, num_samples_desired, thin = 100)
 })
 for (i in seq(1, length(sset))) {
@@ -77,7 +96,7 @@ for (i in seq(1, length(sset))) {
   euclidian_errors_vector <- apply(predicted_forces, 1, function(row) norm_vec(row -
     task))
   print(task)
-  expect_equal(max(euclidian_errors_vector), 0, tol = 1e-13)
+  expect_equal(max(euclidian_errors_vector), 0, tol = 1e-2)
   context("expect no residual from target endpoint force with the produced points")
   # expect_equal(sum(apply(predicted_forces, 2, sd)), 0, tol = 1e-05)
   fas_histogram(samples, range_tension, task, breaks = 50, col = "black", cex = 0.25)
@@ -99,7 +118,7 @@ plot3d(dcrb(list_of_predicted_forces))
 rgl.init()
 num_tasks <- length(sset)
 rgl_init(bg = "white")
-extract_3cols <- lapply(sset, function(x) x[, c(1, 2, 3)])
+extract_3cols <- lapply(sset, function(x) x[, c(2, 3, 4)])
 gradient <- colorRampPalette(c("#a6cee3", "#1f78b4", "#b2df8a", "#fc8d62", "#ffffb3",
   "#bebada"))
 list_of_mats <- add_gradient_to_attrs(extract_3cols, gradient(length(extract_3cols)))

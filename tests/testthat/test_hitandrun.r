@@ -43,3 +43,9 @@ test_that("samples_from_2d_square in Q1 successfully", {
   plot(samples, xlab = "x1", ylab = "x2", pch = 19, cex = 0.25, main = "This should look like a uniformly-sampled square in Q1")
   fas_histogram(samples, range_tension=c(0,1), task=1, breaks=100)
 })
+
+test_that("draw_perpendicular_line", {
+	x1 <- c(1,1)
+	x2 <- c(1,2)
+  draw_perpendicular_line(x1,x2,n=5)
+})
