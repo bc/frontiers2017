@@ -175,7 +175,7 @@ zero_and_coord_translate_JR3_z_and_trim_startup_parts <- function(raw_uncut_time
 ##' @param bounds a 2 element vector of the lower and upper bounds that define the allowable lengths.
 ##' @return mask a vector of logical values, whether the corresponding index has a length that is within the desired range.
 length_is_within_range <- function(list_of_dataframes, bounds){
-  are_correct_length <- dcc(lapply(noise_hand_responses_raw, function(dt) {
+  are_correct_length <- dcc(lapply(list_of_dataframes, function(dt) {
     return(nrow(dt) >= bounds[1] && nrow(dt) < bounds[2])
   }))
   return(are_correct_length)
