@@ -134,7 +134,6 @@ constraints_inc_torque_to_points <- function(muscle_column_generators, range_ten
     range_tension))
   pure_force_constraint <- list(constr = muscle_column_generators[1:3, ], dir = rep("=",
     3), rhs = task[1:3])
-
   torque_upper_bound_constraint <- list(constr = muscle_column_generators[4:6,
     ], dir = rep("<=", 3), rhs = rep(torque_max_deviation, 3))
   torque_lower_bound_constraint <- list(constr = -muscle_column_generators[4:6,
@@ -142,7 +141,6 @@ constraints_inc_torque_to_points <- function(muscle_column_generators, range_ten
   constr <- mergeConstraints(pure_force_constraint, torque_lower_bound_constraint,
     torque_upper_bound_constraint, bound_constraints)
   samples <- har_collect_points(constr, thin = thin, n = num_samples_desired)
-  samples
   return(samples)
 }
 
@@ -177,21 +175,28 @@ show_l1_costs <- function(samples, task) {
 ##' @param pointA pointB a vector of numbers in n dimensions
 ##' @param lambda numeric in [0,1]; how close it should be to pointB. if 1, then result == pointB
 ##' @return res output point.
-##' > points_on_a_segment(c(-1,1,-1), c(0,0,0), 0.75)
+##' > point_on_a_segment(c(-1,1,-1), c(0,0,0), 0.75)
 # [1] -0.25 0.25 -0.25 > rbind(c(-1,1,-1), c(0,0,0),c(-0.25,0.25,-0.25)) [,1]
 # [,2] [,3] [1,] -1.00 1.00 -1.00 [2,] 0.00 0.00 0.00 [3,] -0.25 0.25 -0.25 >
 # points3d(rbind(c(-1,1,-1), c(0,0,0),c(-0.25,0.25,-0.25)))' should be in
 # straight line
-points_on_a_segment <- function(pointA, pointB, lambda) {
-  pointA + (pointB - pointA) * lambda
+point_on_a_segment <- function(pointA, pointB, lambda) {
+  lambda*(pointB-pointA) + pointA
 }
+
+point_on_a_segment_lambda_first <- function(lambda, pointA, pointB) {
+  point_on_a_segment(pointA, pointB, lambda)
+}
+
 ##' Point between line segment endpoints' including endpoints
 ##' TODO test
 ##' @param pointA pointB a vector of numbers in n dimensions
-##' @param n num points requested including endpoints
+##' @param length_out num points requested including endpoints
 ##' @return res_list list of points along the input line segment. including endpoints.
-equidistant_points_on_segment <- function(pointA, pointB, n) {
-  lapply(seq(0, 1, length.out = n), points_on_a_segment, pointA, pointB)
+equidistant_points_on_segment <- function(pointA, pointB, length_out) {
+  line_checkpoints <- seq(0, 1, length.out=length_out)
+  res_list <- lapply(line_checkpoints, point_on_a_segment_lambda_first, pointA,pointB)
+  return(res_list)
 }
 ##' Normalize vector to unit vector
 ##' TODO test
@@ -223,12 +228,11 @@ stop_if_false <- function(predicate) {
 }
 ##' Draw draw_perpendicular_line points (inclusive of endpoints)
 ##' Used to create a redirection task with the same output magnitude.
-##' @param n num points requested including endpoints
+##' @param length_out num points requested including endpoints
 ##' @param x1,x2 vector of numeric values. dim(x1)==dim(x2) should be true.
 ##' @return point_list list of points, each in same dimensions of input x1 and x2.
-draw_perpendicular_line <- function(x1, x2, n) {
+draw_perpendicular_line <- function(x1, x2, length_out) {
   xy <- downscale_the_bigger_vector(x1, x2)
-	message(xy)
-  pointset <- equidistant_points_on_segment(xy[[1]], xy[[2]], n)
+  pointset <- equidistant_points_on_segment(xy[[1]], xy[[2]], length_out)
   return(pointset)
 }

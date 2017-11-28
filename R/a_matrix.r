@@ -332,13 +332,16 @@ pass_unit_cube_to_A <- function(big_A, num_output_dimensions, range_tension){
 ##' conv hull of FFS, with points for all n combinations,
 ##' with observed output forces to see how many landed in the computed ffs.
 ##' @param binary_combination_ffs_points matrix with n columns (number of muscles) and 2^n rows.
-##' @param generators the A matrix generators to plot. each column is a unique output force dimension.
+##' @param generators the A matrix generators to plot. each column is a unique output force dimension. Make sure ncol==3
 plot_ffs_with_vertices <- function(binary_combination_ffs_points, generators, ...){
-  rgl.open()
   rgl.bg(color = "white")
-  axes_for_multiple_sets(list(binary_combination_ffs_points), sizes=c(3,3,3))
-  rgl.spheres(generators, r=0.05, color="blue")
-  apply(generators, 1, function(x) arrow3d(c(0,0,0), x, type = "rotation", col = "silver", s=0.05, n=5))
+  ffs_list <- list(binary_combination_ffs_points)
+  axes_for_multiple_sets(ffs_list, sizes=c(3,3,3))
+  apply(generators, 1, function(x) arrow3d(c(0,0,0), x, type = "rotation", col = "#4daf4a", s=0.25, n=5))
+  for (i in seq(1:nrow(generators))) {
+    v <- generators[i,]*1.05
+    rgl.texts(v, text=muscle_names()[i], col="black")
+  }
   points3d(binary_combination_ffs_points, col="gray", size=5)
   ffs_mats <- add_gradient_to_attrs(ffs_list, "#a8e843")
   rgl_convhulls(ffs_mats, points=TRUE,...)

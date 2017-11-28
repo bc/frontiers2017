@@ -33,27 +33,25 @@ compute_ranks_of_A(A_fit$AMatrix)
 # ffs_vertex <- generator_columns_A_matrix %*% c(rep(20, 7))  #this is used to get one viable force for the model.
 # ffs_vertex2 <- generator_columns_A_matrix %*% c(c(10,5,15,10,5,10,20))  #this is used to get one viable force for the model.
 binary_combination_ffs_points <- custom_binary_combinations(7,c(0,1)) %*% generator_columns_A_matrix
-ffs_list <- list(binary_combination_ffs_points[,1:3])
 lim_bounds <- c(-5,5)
 plot_ffs_with_vertices(binary_combination_ffs_points[,1:3], generator_columns_A_matrix[,1:3], alpha_transparency=0.25)
 points3d(training_data[,force_names_to_predict][,1:3], size=1, col="black", alpha=1)
 title3d(main="FFS", xlab="Fx", ylab="Fy", zlab="Fz", col="black")
 
+
 message('pick the horizontal line endpoints')
-horizontal_line_points <- identify3d(ffs_mats[[1]],n=2)
+horizontal_line_points <- ffs_mats[[1]][identify3d(ffs_mats[[1]],n=2),]
+line_tasks <- dcrb(draw_perpendicular_line(horizontal_line_points[1,],horizontal_line_points[2,],5))
+spheres3d(line_tasks, r=0.10, col="pink")
 
 
-draw_perpendicular_line(ffs_vertex[1:3],ffs_vertex2[1:3],5)
-# task_force <- c(-0.5641187, 0, 1)
-task_force <- ffs_vertex
+#now show the torque fas
+plot_ffs_with_vertices(binary_combination_ffs_points[,4:6], generator_columns_A_matrix[,4:6], alpha_transparency=0.25)
 
 
 ############ MANUAL: IDENTIFY TASK MULTIPLIER BOUNDS
 pdf("histogram_by_muscle_projections_over_5_tasks.pdf", width = 100, height = 100)
 par(mfrow = c(nrow(task_df), num_muscles))
-
-
-
 task_multiplier_bounds <- c(0.0, 0.7)
 task_multiplier_list <- seq(task_multiplier_bounds[1], task_multiplier_bounds[2],
   length.out = 5)
@@ -64,6 +62,7 @@ sset <- lapply(df_to_list_of_rows(task_df), function(task_i) {
   constraints_inc_torque_to_points(muscle_column_generators = t(A_fit$AMatrix), range_tension,
     task_i, num_samples_desired, thin = 100)
 })
+
 for (i in seq(1, length(sset))) {
   samples <- sset[[i]]
   task <- task_df[i, ]
