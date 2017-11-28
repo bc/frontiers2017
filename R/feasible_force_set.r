@@ -3,22 +3,23 @@
 ##' @param col color to paint the convex hull object'=
 ##' @param points logical- whether or not to show the actual XYZ points inside the convex hulls
 ##' @importFrom rgl points3d
-xyz_points_with_convhull <- function(mat, col, points = TRUE) {
+xyz_points_with_convhull <- function(mat, col, points = TRUE,...) {
   if (points) {
     points3d(mat)
   }
-  show_convhull(mat, col)
+  show_convhull(mat, col,...)
 }
 
 ##' Add convex hull over points set onto active RGL device
 ##' @param mat matrix with 3 numeric columns
 ##' @param col color string
+##' @param alpha_transparency transparency of the surface. numeric in 0 to 1
 ##' @importFrom geometry convhulln
 ##' @importFrom rgl rgl.triangles
-show_convhull <- function(mat, col) {
+show_convhull <- function(mat, col, alpha_transparency=0.6) {
   hull_indices <- t(convhulln(mat))
   convex1 <- rgl.triangles(mat[hull_indices, 1], mat[hull_indices, 2], mat[hull_indices,
-    3], col = col, alpha = 0.6)
+    3], col = col, alpha=alpha_transparency)
 }
 
 ##' Start a new rgl device

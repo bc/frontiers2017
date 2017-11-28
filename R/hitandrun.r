@@ -39,9 +39,9 @@ task_and_generators_to_constr <- function(generator_columns_A_matrix, muscle_con
 ##' Multiple Multicolor Convhulls
 ##' @param list_of_3d_matrices each a matrix with only 3 columns to show as XYZ. Must have attr(,'color') for each in the list
 ##' @param points logical - whether or not to show the xyz points within each convex hull.
-rgl_convhulls <- function(list_of_3d_matrices, points) {
+rgl_convhulls <- function(list_of_3d_matrices, points,...) {
   lapply(list_of_3d_matrices, function(mat) {
-    xyz_points_with_convhull(mat, col = attr(mat, "color"), points = points)
+    xyz_points_with_convhull(mat, col = attr(mat, "color"), points = points,...)
   })
 }
 
@@ -128,7 +128,7 @@ constraints_to_points <- function(muscle_column_generators, range_tension, task,
 ##' @param thin mixing time integer
 ##' @return samples matrix of samples, ncol == muscle_column_generators, nrow == num_samples_desired
 constraints_inc_torque_to_points <- function(muscle_column_generators, range_tension,
-  task, num_samples_desired, thin, torque_max_deviation = 0.1) {
+  task, num_samples_desired, thin, torque_max_deviation = 0.01) {
   num_muscles <- ncol(muscle_column_generators)
   bound_constraints <- mergeConstraints(create_bound_constraints(constraints_width = num_muscles,
     range_tension))

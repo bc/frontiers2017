@@ -10,58 +10,34 @@ context("test_nov10data.r")
 # --> scalingResponse.csv
 
 set.seed(4)
+#######PARAMS##############
 last_n_milliseconds <- 100
+range_tension <- c(0, 20)
+muscles_of_interest <- muscle_names()[1:7]
+force_names_to_predict <- c("JR3_FX","JR3_FY","JR3_FZ","JR3_MX","JR3_MY","JR3_MZ")
+#######PARAMS##############
+
 # Response to noise through hand noiseTrial2017_11_19_19_45_01.txt was on MIT
 # hand. noise input 100 = num_maps input:
 # no_spaces_noise_lo_0_hi_20_nmaps_500_replicates_1.csv
-# untransformed_noise_response <- as.data.frame(fread(get_Resilio_filepath("noiseTrial2017_11_19_19_53_10.txt")))
 untransformed_noise_response <- as.data.frame(fread(get_Resilio_filepath("noiseResponse2017_11_24_18_27_55_noiseResponse_MIT_test.txt")))
-JR3_sensor_null <- colMeans(head(untransformed_noise_response, 100))
-untransformed_noise_response <- zero_out_JR3_sensors(untransformed_noise_response, JR3_sensor_null)
-noise_response <- jr3_coordinate_transformation_along_z(untransformed_noise_response, 0.02)
-# make sure the JR3 signals respond in some way to the changes.
-noise_response_wo_null <- noise_response[noise_response$map_creation_id != 0, ]
+noise_response_wo_null <- zero_and_coord_translate_JR3_z_and_trim_startup_parts(untransformed_noise_response)
 p <- plot_measured_command_reference_over_time(noise_response_wo_null)
 ggsave("../../output/xray_for_noiseReponse.pdf", p, width=90, height=30, limitsize=FALSE)
-noise_hand_responses_raw <- split_by_map_creation_id(unique(noise_response_wo_null$map_creation_id),
-  noise_response)
-are_correct_length <- dcc(lapply(noise_hand_responses_raw, function(dt) {
-  return(nrow(dt) >= 700 && nrow(dt) < 810)
-}))
-noise_hand_responses <- noise_hand_responses_raw[are_correct_length]
-message(sprintf("Out of the %s collected maps, %s had between 700 and 810 samples. Using %s maps.",
-  length(noise_hand_responses_raw), length(noise_hand_responses), length(noise_hand_responses)))
+noise_hand_responses <- split_by_map_and_remove_wrongly_lengthed_samples(noise_response_wo_null)
 input_output_data <- df_of_hand_response_input_output(noise_hand_responses, last_n_milliseconds)
-data <- df_split_into_training_and_testing(input_output_data, fraction_training = 0.8)
-training_data <- data$train
-test_data <- data$test
-
-
-force_names_to_predict <- c("JR3_FX", "JR3_FY", "JR3_FZ", "JR3_MX", "JR3_MY", "JR3_MZ")
-muscles_of_interest <- muscle_names()[1:7]
-num_muscles <- length(muscles_of_interest)
-A_fit <- find_A_matrix_without_offset(as.data.frame(training_data), measured(muscles_of_interest),
-  force_names_to_predict)
-fit_evaluation_without_offset(A_fit, as.data.frame(test_data))
-
-range_tension <- c(0, 20)
-muscle_constraints_matrix <- diag(rep(1, num_muscles))
-generator_columns_A_matrix <- t(A_fit$AMatrix)
-
+A_fit <- A_fit_from_80_20_split(input_output_data, muscles_of_interest, force_names_to_predict)
+generator_columns_A_matrix <- t(t(A_fit$AMatrix) %*% diag(7)*range_tension[2])
 compute_ranks_of_A(A_fit$AMatrix)
-
-dim(generator_columns_A_matrix)
-dim(muscle_constraints_matrix)
 # Here, identify a force vector of interest and apply it to the generated A
-# Matrix. Then permute it to create a task line
 # ffs_vertex <- generator_columns_A_matrix %*% c(rep(20, 7))  #this is used to get one viable force for the model.
 # ffs_vertex2 <- generator_columns_A_matrix %*% c(c(10,5,15,10,5,10,20))  #this is used to get one viable force for the model.
-generators <- t(generator_columns_A_matrix %*% t(diag(7)*20))
-binary_combination_ffs_points <- t(generator_columns_A_matrix %*% t(n_binary_combinations(7)*20))
+binary_combination_ffs_points <- custom_binary_combinations(7,c(0,1)) %*% generator_columns_A_matrix
 ffs_list <- list(binary_combination_ffs_points[,1:3])
 lim_bounds <- c(-5,5)
-plot_ffs_with_vertices(binary_combination_ffs_points[,1:3], generators[,1:3], xlab="Fx", ylab="Fy", zlab="Fz")
-
+plot_ffs_with_vertices(binary_combination_ffs_points[,1:3], generator_columns_A_matrix[,1:3], alpha_transparency=0.25)
+points3d(training_data[,force_names_to_predict][,1:3], size=1, col="black", alpha=1)
+title3d(main="FFS", xlab="Fx", ylab="Fy", zlab="Fz", col="black")
 
 message('pick the horizontal line endpoints')
 horizontal_line_points <- identify3d(ffs_mats[[1]],n=2)

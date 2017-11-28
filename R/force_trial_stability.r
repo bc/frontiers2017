@@ -150,3 +150,65 @@ split_by_map_creation_id <- function(unique_map_creation_ids, maps_data_df){
   })
   return(force_dataframes)
 }
+
+##' zero_and_coord_translate_JR3_z_and_trim_startup_parts
+##' apply all relevant data cleaning processes to munge it into high quality format
+##' 1. Zero out sensors from first 100ms of data
+##' 2. translate the coordinate frame from the JR3 surface to the fingertip location
+##' 3. Remove all map_creation_id values that are 0.0 (used in setup and teardown)
+##' @param raw_uncut_timeseries_data time series with the M0, M1, and JR3_FX, and time, etc.
+##' @return timeseries_data time series with the M0, M1, and JR3_FX, and time, etc, but with transformations applied.
+zero_and_coord_translate_JR3_z_and_trim_startup_parts <- function(raw_uncut_timeseries_data,JR3_to_fingertip_distance = 0.02){
+  JR3_sensor_null <- colMeans(head(untransformed_noise_response, 100))
+  untransformed_noise_response <- zero_out_JR3_sensors(untransformed_noise_response, JR3_sensor_null)
+  noise_response <- jr3_coordinate_transformation_along_z(untransformed_noise_response, JR3_to_fingertip_distance)
+  # make sure the JR3 signals respond in some way to the changes.
+  noise_response_wo_null <- noise_response[noise_response$map_creation_id != 0, ]
+  return(noise_response_wo_null)
+}
+##' length of element is within range (takes in list)
+##' We only want the forcetrials that have the correct length to continue on for analysis.
+##' However, sometimes forcetrials have 200 datapoints, instead of the desired 800. This function
+##' is useful for quickly identifying which elements of a list of forcetrials land within the desired bounds of length.
+##' It also outputs a message saying how many of the trials passed the criteria. This can be helpful when identifying throughput.
+##' @param list_of_dataframes a list of elements that nrow can be applied to
+##' @param bounds a 2 element vector of the lower and upper bounds that define the allowable lengths.
+##' @return mask a vector of logical values, whether the corresponding index has a length that is within the desired range.
+length_is_within_range <- function(list_of_dataframes, bounds){
+  are_correct_length <- dcc(lapply(noise_hand_responses_raw, function(dt) {
+    return(nrow(dt) >= bounds[1] && nrow(dt) < bounds[2])
+  }))
+  return(are_correct_length)
+}
+
+##' split_by_map_and_remove_wrongly_lengthed_samples
+##' used to split samples by map_creation_id, then remove samples that have a length that's too short or too long.
+##' @param noise_response_wo_null a large dataframe of time seriers values, including JR3_FX, time, etc.
+##' @param bounds 2 element vector that defines the allowable range for lengths of each of the forcetrials.
+##' @return hand_responses A list of dataframes, each a timeseries with the columns of interest for muscles and forces.
+split_by_map_and_remove_wrongly_lengthed_samples <- function(noise_response_wo_null,bounds=c(700,810)){
+  noise_hand_responses_raw <- split_by_map_creation_id(unique(noise_response_wo_null$map_creation_id),
+    noise_response_wo_null)
+    are_correct_length <- length_is_within_range(noise_hand_responses_raw, bounds=bounds)
+  noise_hand_responses <- noise_hand_responses_raw[are_correct_length]
+  message(sprintf("Out of the %s collected maps, %s had between 700 and 810 samples. Using %s maps. \n Summary of raw lengths:",
+    length(noise_hand_responses_raw), length(noise_hand_responses), length(noise_hand_responses)))
+    print(summary(dcc(lapply(noise_hand_responses_raw, nrow))))
+    return(noise_hand_responses)
+}
+
+##' A_fit_from_80_20_split & evaluate against test data.
+##' at end also prints out results of fit_evaluation_without_offset(A_fit, as.data.frame(test_data))
+##' @param input_output_data data including regressor and response. corresponding to muscles_of_interest and force_names_to_predict
+##' @param muscles_of_interest,force_names_to_predict vector of strings
+##' @return A_fit fit object as a result from_A_matrix
+A_fit_from_80_20_split <- function(input_output_data, muscles_of_interest, force_names_to_predict){
+  data <- df_split_into_training_and_testing(input_output_data, fraction_training = 0.80)
+  training_data <- data$train
+  test_data <- data$test
+  num_muscles <- length(muscles_of_interest)
+  A_fit <- find_A_matrix_without_offset(as.data.frame(training_data), measured(muscles_of_interest),
+    force_names_to_predict)
+  fit_evaluation_without_offset(A_fit, as.data.frame(test_data))
+  return(A_fit)
+}

@@ -88,8 +88,7 @@ predict_output_force <- function(A, x) {
 ##' TODO Create Test or Retire Function'
 ##' @param A_fit linear A matrix fit element with endpointForceObservation and endpointForcePrediction
 observed_predicted_segments3d <- function(A_fit) {
-  endpoints <- interleave_two_dataframes_as_segments(cbind(A_fit$endpointForceObservation,
-    A_fit$endpointForcePrediction))
+  endpoints <- interleave_two_dataframes_as_segments(cbind(A_fit$endpointForceObservation,A_fit$endpointForcePrediction))
   segments3d(endpoints)
 }
 
@@ -99,8 +98,9 @@ observed_predicted_segments3d <- function(A_fit) {
 ##' @param df dataframe with 3 columns for xyz
 ##' @return df_interleaved df with 3 columns, where every other point is the starting endpoint, and the second (rep) are the ending endpoint.
 interleave_two_dataframes_as_segments <- function(df) {
-  df_interleaved <- data.frame(x = as.vector(t(markers[, c(1, 4)])), y = as.vector(t(markers[,
-    c(2, 5)])), z = as.vector(t(markers[, c(3, 6)])))
+  num_output_dimensions <- ncol(df)/2
+  df_interleaved <- data.frame(x = as.vector(t(df[, c(1, num_output_dimensions+1)])), y = as.vector(t(df[,
+    c(2, num_output_dimensions+2)])), z = as.vector(t(df[, c(3, num_output_dimensions+3)])))
   return(df_interleaved)
 }
 
@@ -329,6 +329,8 @@ pass_unit_cube_to_A <- function(big_A, num_output_dimensions, range_tension){
 }
 
 ##' plot_ffs_with_vertices
+##' conv hull of FFS, with points for all n combinations,
+##' with observed output forces to see how many landed in the computed ffs.
 ##' @param binary_combination_ffs_points matrix with n columns (number of muscles) and 2^n rows.
 ##' @param generators the A matrix generators to plot. each column is a unique output force dimension.
 plot_ffs_with_vertices <- function(binary_combination_ffs_points, generators, ...){
@@ -336,13 +338,10 @@ plot_ffs_with_vertices <- function(binary_combination_ffs_points, generators, ..
   rgl.bg(color = "white")
   axes_for_multiple_sets(list(binary_combination_ffs_points), sizes=c(3,3,3))
   rgl.spheres(generators, r=0.05, color="blue")
-  points3d(c(0,0,0), col="black", size=11)
+  apply(generators, 1, function(x) arrow3d(c(0,0,0), x, type = "rotation", col = "silver", s=0.05, n=5))
   points3d(binary_combination_ffs_points, col="gray", size=5)
-  gradient <- colorRampPalette(c("#a6cee3", "#1f78b4", "#b2df8a", "#fc8d62", "#ffffb3",
-  "#bebada"))
-  ffs_mats <- add_gradient_to_attrs(ffs_list, gradient(10)[8])
-  rgl_convhulls(ffs_mats, points=TRUE)
-  title3d(main="FFS", ..., col="black")
+  ffs_mats <- add_gradient_to_attrs(ffs_list, "#a8e843")
+  rgl_convhulls(ffs_mats, points=TRUE,...)
 }
 
 ##' compute_ranks_of_A
