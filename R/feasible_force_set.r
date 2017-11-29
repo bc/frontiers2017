@@ -61,6 +61,8 @@ axes_for_multiple_sets <- function(list_of_3d_matrices, cols = c("red", "green",
   rgl.lines(c(0, max(x)), c(0, 0), c(0, 0), color = cols[1], size=sizes[1])
   rgl.lines(c(0, 0), c(0, max(y)), c(0, 0), color = cols[2], size=sizes[2])
   rgl.lines(c(0, 0), c(0, 0), c(0, max(z)), color = cols[3], size=sizes[3])
+
+  rgl.texts(v, text=muscle_names()[i], col="black")
 }
 
 ##' RGL axes_for_defined_xyz_limits
