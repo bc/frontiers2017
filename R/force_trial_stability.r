@@ -151,17 +151,38 @@ split_by_map_creation_id <- function(unique_map_creation_ids, maps_data_df){
   return(force_dataframes)
 }
 
-##' zero_and_coord_translate_JR3_z_and_trim_startup_parts
+##' Calibration Matrix for JR3 in basement lab Nov 2017
+##' @return mat 6x6 calibration matrix to multiply by FX,FY, ... voltages
+calibration_matrix <- function(){
+  as.matrix(rbind(c(13.669,0.229,0.105,-0.272,0.060,0.865),
+    c(0.160,13.237,-0.387,-0.027,-0.396,-0.477),
+    c(1.084,0.605,27.092,-2.88,-0.106,1.165),
+    c(-.007,-.003,-0.001,0.676,-0.002,-0.038),
+    c(0.004,-0.004,0.001,0.000,0.688,-0.012),
+    c(0.004,0.003,0.003,-0.006,0.013,0.665)))
+  }
+
+##' jr3_voltages_to_forces
+##' @param dataframe_with_jr3_voltage_columns has JR3_FX, etc.
+##' @return new_df  dataframe where voltages are now forces in either N or N*m for forces and torques, respectively.
+jr3_voltages_to_forces <- function(dataframe_with_jr3_voltage_columns){
+  just_jr3_cols <- dataframe_with_jr3_voltage_columns[,dots_to_underscores(force_column_names)]
+  dataframe_with_jr3_voltage_columns[,dots_to_underscores(force_column_names)] <- t(calibration_matrix() %*% t(as.matrix(just_jr3_cols)))
+  return(dataframe_with_jr3_voltage_columns)
+}
+
+##' munge_JR3_data
 ##' apply all relevant data cleaning processes to munge it into high quality format
 ##' 1. Zero out sensors from first 100ms of data
 ##' 2. translate the coordinate frame from the JR3 surface to the fingertip location
 ##' 3. Remove all map_creation_id values that are 0.0 (used in setup and teardown)
 ##' @param raw_uncut_timeseries_data time series with the M0, M1, and JR3_FX, and time, etc.
 ##' @return timeseries_data time series with the M0, M1, and JR3_FX, and time, etc, but with transformations applied.
-zero_and_coord_translate_JR3_z_and_trim_startup_parts <- function(raw_uncut_timeseries_data,JR3_to_fingertip_distance = 0.02){
+munge_JR3_data <- function(raw_uncut_timeseries_data,JR3_to_fingertip_distance = 0.02){
   JR3_sensor_null <- colMeans(head(raw_uncut_timeseries_data, 100))
   zeroed_uncut_timeseries_data <- zero_out_JR3_sensors(raw_uncut_timeseries_data, JR3_sensor_null)
-  noise_response <- jr3_coordinate_transformation_along_z(zeroed_uncut_timeseries_data, JR3_to_fingertip_distance)
+  zeroed_uncut_timeseries_data_calibrated <- jr3_voltages_to_forces(zeroed_uncut_timeseries_data)
+  noise_response <- jr3_coordinate_transformation_along_z(zeroed_uncut_timeseries_data_calibrated, JR3_to_fingertip_distance)
   # make sure the JR3 signals respond in some way to the changes.
   noise_response_wo_null <- noise_response[noise_response$map_creation_id != 0, ]
   return(noise_response_wo_null)

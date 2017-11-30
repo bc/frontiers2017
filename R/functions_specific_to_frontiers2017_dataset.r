@@ -11,6 +11,16 @@ stabilization_err_99_percentile <- 0.4
 ##' @return muscle_names list of strings of names, i.e. 'M0, ...'
 muscle_names <- function() c("M0", "M1", "M2", "M3", "M4", "M5", "M6")
 
+##' Path to output folder
+##' @return path to output folder if it is in '"~/Documents/GitHub/bc/frontiers2017/output/"
+path_to_output_folder <- function(){
+  "~/Documents/GitHub/bc/frontiers2017/output/"
+}
+##' Filepath in the frontiers2017 output folder
+##' @return path to output folder if it is in '"~/Documents/GitHub/bc/frontiers/output/"
+to_output_folder <- function(filename){
+  paste0(path_to_output_folder(),filename)
+}
 
 maximum_tendon_force <- 20
 minimum_tendon_force <- 3

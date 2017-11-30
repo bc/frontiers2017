@@ -1,53 +1,5 @@
 context("test_nov10data.r")
 
-
-#Testing JR3 force directions with Francisco Nov28
- test_xyz_forces <- as.data.frame(fread(get_Resilio_filepath("noiseResponse2017_11_28_12_44_14.txt")))
- p <- plot_measured_command_reference_over_time(test_xyz_forces)
- ggsave("../../output/xyz_test_with_fingertip_manual_force.pdf", p, width=90, height=30, limitsize=FALSE)
-
- #Testing by-muscle generators (2 replicates per muscle, from M0:M6) with Francisco Nov28
-  test_muscle_forces_raw <- as.data.frame(fread(get_Resilio_filepath("noiseResponse2017_11_28_12_54_39.txt")))
-  JR3_sensor_null <- colMeans(head(test_muscle_forces_raw, 100))
-  test_muscle_forces <- zero_out_JR3_sensors(test_muscle_forces_raw, JR3_sensor_null)
-  p <- plot_measured_command_reference_over_time(test_muscle_forces)
-  ggsave("../../output/muscle_test_with_100g_2replicates.pdf", p, width=90, height=30, limitsize=FALSE)
-
-
-
- #Testing by-muscle generators (2 replicates per muscle, from M0:M6) with Francisco Nov28
-  jr3_test_no_input <- as.data.frame(fread(get_Resilio_filepath("noiseResponse2017_11_28_13_03_28.txt")))
-
-  p <- plot_measured_command_reference_over_time(jr3_test_no_input)
-  ggsave("../../output/jr3_no_input_noise_check_raw.pdf", p, width=90, height=30, limitsize=FALSE)
-
-
-  JR3_sensor_null <- colMeans(head(jr3_test_no_input, 10000))
-  jr3_test_no_input_zero <- zero_out_JR3_sensors(jr3_test_no_input, JR3_sensor_null)
-  p <- plot_measured_command_reference_over_time(jr3_test_no_input_zero)
-  ggsave("../../output/jr3_no_input_noise_check_zeroed.pdf", p, width=90, height=30, limitsize=FALSE)
-# zero'd out
-
- #Second Test by-muscle generators (2 replicates per muscle, from M0:M6) with Francisco Nov28
-  jr3_test_no_input <- as.data.frame(fread(get_Resilio_filepath("noiseResponse2017_11_28_13_14_55.txt")))
-  jr3_test_no_input <- head(jr3_test_no_input,10000)
-  ggplot(jr3_test_no_input[2000:3000,]) + geom_line(aes(time, JR3_FX), col="red")
-  p <- plot_measured_command_reference_over_time(jr3_test_no_input)
-  ggsave("../../output/jr3_no_input_noise_check_raw.pdf", p, width=90, height=30, limitsize=FALSE)
-
-  JR3_sensor_null <- colMeans(head(jr3_test_no_input, 10000))
-  jr3_test_no_input_zero <- zero_out_JR3_sensors(jr3_test_no_input, JR3_sensor_null)
-  p <- plot_measured_command_reference_over_time(jr3_test_no_input_zero)
-  ggsave("../../output/jr3_no_input_noise_check_zeroed.pdf", p, width=90, height=30, limitsize=FALSE)
-# zero'd out
-
-
-
-
-
-
-
-
 # Experiment Procedure:
 
 # no_spaces_noise_lo_0_hi_20_nmaps_500_replicates_1.csv --> Hand -->
@@ -70,7 +22,7 @@ force_names_to_predict <- c("JR3_FX","JR3_FY","JR3_FZ","JR3_MX","JR3_MY","JR3_MZ
 # no_spaces_noise_lo_0_hi_20_nmaps_500_replicates_1.csv
 
 untransformed_noise_response <- as.data.frame(fread(get_Resilio_filepath("noiseResponse2017_11_24_18_27_55_noiseResponse_MIT_test.txt")))
-noise_response_wo_null <- zero_and_coord_translate_JR3_z_and_trim_startup_parts(untransformed_noise_response)
+noise_response_wo_null <- munge_JR3_data(untransformed_noise_response)
 p <- plot_measured_command_reference_over_time(noise_response_wo_null)
 ggsave("../../output/xray_for_noiseReponse.pdf", p, width=90, height=30, limitsize=FALSE)
 noise_hand_responses <- split_by_map_and_remove_wrongly_lengthed_samples(noise_response_wo_null)
