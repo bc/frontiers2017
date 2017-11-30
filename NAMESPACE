@@ -3,7 +3,6 @@
 export(posture_dependency_plot)
 export(tension_settling_scatter)
 importFrom(GGally,ggparcoord)
-importFrom(Matrix,rankMatrix)
 importFrom(WVPlots,ScatterHistC)
 importFrom(geometry,convhulln)
 importFrom(hitandrun,createSeedPoint)

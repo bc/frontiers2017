@@ -337,10 +337,19 @@ plot_ffs_with_vertices <- function(binary_combination_ffs_points, generators, ..
   rgl.bg(color = "white")
   ffs_list <- list(binary_combination_ffs_points)
   axes_for_multiple_sets(ffs_list, sizes=c(3,3,3))
-  apply(generators, 1, function(x) arrow3d(c(0,0,0), x, type = "rotation", col = "#4daf4a", s=0.25, n=5))
-  for (i in seq(1:nrow(generators))) {
-    v <- generators[i,]*1.05
-    rgl.texts(v, text=muscle_names()[i], col="black")
+  ##' Generator Arrows in 3d
+  ##' for creating porcupine plots
+  ##' @param generators matrix where columns are forces. 3 columns. n rows for n generators
+  ##' @param labels logical, whether or not to print M0, M2, etc. alongside the generator arrow tips.
+  generator_arrows <- function(generators, labels=TRUE){
+    apply(generators, 1, function(x) arrow3d(c(0,0,0), x, type = "rotation", col = "#4daf4a", s=0.25, n=5))
+    if (labels){
+      sprite_placement_fraction_of_arrow <- 1.05
+      for (i in seq(1:nrow(generators))) {
+        v <- generators[i,]*sprite_placement_fraction_of_arrow
+        rgl.texts(v, text=muscle_names()[i], col="black")
+      }
+    }
   }
   points3d(binary_combination_ffs_points, col="gray", size=5)
   ffs_mats <- add_gradient_to_attrs(ffs_list, "#a8e843")
@@ -350,13 +359,15 @@ plot_ffs_with_vertices <- function(binary_combination_ffs_points, generators, ..
 ##' compute_ranks_of_A
 ##' just prints the ranks of the forces, torques, and forces + torques.
 ##' @param A_matrix Amatrix. see output of find_A_matrix
-##' @importFrom Matrix rankMatrix
+##' @return list_of_ranks list with numeric results for rank_of_A rank_of_A_forces rank_of_A_torques
 compute_ranks_of_A <- function(A_matrix){
-  library(Matrix)
-  rank_of_A <- rankMatrix(A_matrix)
+  rank_of_A <- Matrix:::rankMatrix(A_matrix)
   rank_of_A_forces <- rankMatrix(A_matrix[1:3,])
   rank_of_A_torques <- rankMatrix(A_matrix[4:6,])
   message(paste(paste("Ranks: A", rank_of_A),
   paste(", A_forces", rank_of_A_forces),
   paste(", A_torques", rank_of_A_torques)))
+  return(list(rank_of_A =   rank_of_A,
+rank_of_A_forces = rank_of_A_forces,
+rank_of_A_torques = rank_of_A_torques))
 }

@@ -68,6 +68,24 @@ axes_for_multiple_sets <- function(list_of_3d_matrices, cols = c("red", "green",
   rgl.texts(c(0,0, max(z)), text="Z", col="black")
 }
 
+##' axes for single set of 3d points
+##' also plots the XYZ at end of each axis
+##' @param list_of_3d_matrices each matrix has 3 columns for xyz
+##' @param cols list of 3 strings for the colors to use
+##' @param dimension_label string, either "F" or "M" to indicate forces or moments for the axes of XYZ.
+axes_for_set <- function(matrix_with_3_cols, cols = c("red", "green",
+  "blue"), sizes= c(1,1,1), dimension_label) {
+  x <- dcc(matrix_with_3_cols[,1])
+  y <- dcc(matrix_with_3_cols[,2])
+  z <- dcc(matrix_with_3_cols[,3])
+  rgl.lines(c(0, max(x)), c(0, 0), c(0, 0), color = cols[1], size=sizes[1])
+  rgl.lines(c(0, 0), c(0, max(y)), c(0, 0), color = cols[2], size=sizes[2])
+  rgl.lines(c(0, 0), c(0, 0), c(0, max(z)), color = cols[3], size=sizes[3])
+  rgl.texts(c(max(x),0,0), text=paste0(dimension_label,"X"), col="black")
+  rgl.texts(c(0,max(y),0), text=paste0(dimension_label,"Y"), col="black")
+  rgl.texts(c(0,0, max(z)),text=paste0(dimension_label,"Z"), col="black")
+}
+
 ##' RGL axes_for_defined_xyz_limits
 ##' @param xyz_range_vec vector of 3 elements, each a tuple of the range for i in xyz
 ##' @param cols vector of three colors that will be used for the XYZ axes. rgb by default.
