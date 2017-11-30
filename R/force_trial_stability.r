@@ -159,9 +159,9 @@ split_by_map_creation_id <- function(unique_map_creation_ids, maps_data_df){
 ##' @param raw_uncut_timeseries_data time series with the M0, M1, and JR3_FX, and time, etc.
 ##' @return timeseries_data time series with the M0, M1, and JR3_FX, and time, etc, but with transformations applied.
 zero_and_coord_translate_JR3_z_and_trim_startup_parts <- function(raw_uncut_timeseries_data,JR3_to_fingertip_distance = 0.02){
-  JR3_sensor_null <- colMeans(head(untransformed_noise_response, 100))
-  untransformed_noise_response <- zero_out_JR3_sensors(untransformed_noise_response, JR3_sensor_null)
-  noise_response <- jr3_coordinate_transformation_along_z(untransformed_noise_response, JR3_to_fingertip_distance)
+  JR3_sensor_null <- colMeans(head(raw_uncut_timeseries_data, 100))
+  zeroed_uncut_timeseries_data <- zero_out_JR3_sensors(raw_uncut_timeseries_data, JR3_sensor_null)
+  noise_response <- jr3_coordinate_transformation_along_z(zeroed_uncut_timeseries_data, JR3_to_fingertip_distance)
   # make sure the JR3 signals respond in some way to the changes.
   noise_response_wo_null <- noise_response[noise_response$map_creation_id != 0, ]
   return(noise_response_wo_null)

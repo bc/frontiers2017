@@ -353,9 +353,9 @@ plot_ffs_with_vertices <- function(binary_combination_ffs_points, generators, ..
 ##' @importFrom Matrix rankMatrix
 compute_ranks_of_A <- function(A_matrix){
   library(Matrix)
-  rank_of_A <- rankMatrix(generator_columns_A_matrix)
-  rank_of_A_forces <- rankMatrix(generator_columns_A_matrix[1:3,])
-  rank_of_A_torques <- rankMatrix(generator_columns_A_matrix[4:6,])
+  rank_of_A <- rankMatrix(A_matrix)
+  rank_of_A_forces <- rankMatrix(A_matrix[1:3,])
+  rank_of_A_torques <- rankMatrix(A_matrix[4:6,])
   message(paste(paste("Ranks: A", rank_of_A),
   paste(", A_forces", rank_of_A_forces),
   paste(", A_torques", rank_of_A_torques)))

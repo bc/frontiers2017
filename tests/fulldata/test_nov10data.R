@@ -9,7 +9,7 @@ context("test_nov10data.r")
  #Testing by-muscle generators (2 replicates per muscle, from M0:M6) with Francisco Nov28
   test_muscle_forces_raw <- as.data.frame(fread(get_Resilio_filepath("noiseResponse2017_11_28_12_54_39.txt")))
   JR3_sensor_null <- colMeans(head(test_muscle_forces_raw, 100))
-  test_muscle_forces <- zero_out_JR3_sensors(test_muscle_forces, JR3_sensor_null)
+  test_muscle_forces <- zero_out_JR3_sensors(test_muscle_forces_raw, JR3_sensor_null)
   p <- plot_measured_command_reference_over_time(test_muscle_forces)
   ggsave("../../output/muscle_test_with_100g_2replicates.pdf", p, width=90, height=30, limitsize=FALSE)
 
