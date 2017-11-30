@@ -39,14 +39,18 @@ points3d(input_output_data[,force_names_to_predict][,1:3], size=1, col="black", 
 title3d(main="FFS", xlab="Fx", ylab="Fy", zlab="Fz", col="black")
 
 
-message('pick the horizontal line endpoints')
+message('Pick 2 points to define the horizontal line endpoints.')
 
-horizontal_line_points <- identify_n_points_from_pointcloud(binary_combination_ffs_points[,1:3],2)
-line_tasks <- dcrb(draw_perpendicular_line(horizontal_line_points[1,],horizontal_line_points[2,],5))
-spheres3d(line_tasks, r=0.10, col="pink")
-
+horizontal_line_points <- identify_n_points_from_pointcloud(binary_combination_ffs_points[,1:3],n=2)
+horizontal_line_tasks <- dcrb(draw_perpendicular_line(horizontal_line_points[1,],horizontal_line_points[2,],5))
+spheres3d(horizontal_line_tasks, r=0.10, col="pink")
+message('Pick 1 point to define the scaling direction.')
+task_direction_to_scale <- identify_n_points_from_pointcloud(binary_combination_ffs_points[,1:3],n=1)
+scaling_line_tasks <- dcrb(equidistant_points_on_segment(c(0,0,0), task_direction_to_scale, 5))
+spheres3d(scaling_line_tasks, r=0.05, col="blue")
 
 #now show the torque fas
+rgl.init()
 plot_ffs_with_vertices(binary_combination_ffs_points[,4:6], generator_columns_A_matrix[,4:6], alpha_transparency=0.25)
 
 

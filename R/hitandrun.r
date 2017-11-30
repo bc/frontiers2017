@@ -242,5 +242,5 @@ draw_perpendicular_line <- function(x1, x2, length_out) {
 ##' @param matrix_3d matrix with 3 columns, corresponding to XYZ in the plot environment.
 ##' @return mini_matrix matrix with only the n points selected, resulting in n selected rows.
 identify_n_points_from_pointcloud <- function(matrix_3d, n=2){
-  matrix_3d[identify3d(matrix_3d,n=2),]
+  matrix_3d[identify3d(matrix_3d,n=n),]
 }
