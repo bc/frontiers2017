@@ -49,7 +49,7 @@ spheres3d(horizontal_line_tasks, r=0.10, col="pink")
 message('Pick 1 point to define the scaling direction.')
 ffs_vertex_rep20 <- t(generator_columns_A_matrix) %*% as.matrix(rep(20, 7))
 task_direction_to_scale <- identify_n_points_from_pointcloud(binary_combination_ffs_points[,1:3],n=1)
-binary_combinations[which(binary_combination_ffs_points==task_direction_to_scale),]
+map_that_created_task_dir <- binary_combinations[which(binary_combination_ffs_points[,1]==task_direction_to_scale[1]),]
 #Now show the torque FAS
 rgl.init()
 plot_ffs_with_vertices(binary_combination_ffs_points[,4:6], generator_columns_A_matrix[,4:6], alpha_transparency=0.25, range_tension=range_tension)
@@ -57,36 +57,40 @@ plot_ffs_with_vertices(binary_combination_ffs_points[,4:6], generator_columns_A_
 
 
 ############ MANUAL: IDENTIFY TASK MULTIPLIER BOUNDS FOR SCALING
-pdf(to_output_folder("histogram_by_muscle_projections_over_5_tasks.pdf"), width = 100, height = 100)
-par(mfrow = c(nrow(task_df), num_muscles))
 task_multiplier_bounds <- c(0, 1.0)
 task_multiplier_list <- seq(task_multiplier_bounds[1], task_multiplier_bounds[2],
-  length.out = 10)
+  length.out = 5)
 task_df <- t(task_direction_to_scale %*% t(task_multiplier_list))
 colnames(task_df) <- force_names_to_predict[1:3]
-num_samples_desired <- 100
+num_samples_desired <- 1000
 sset <- lapply(df_to_list_of_rows(task_df), function(task_i) {
   constraints_inc_torque_to_points(muscle_column_generators = t(A_fit$AMatrix), range_tension,
     task_i, num_samples_desired, thin = 100,torque_max_deviation=5.0)
 })
 
+pdf(to_output_folder("histogram_by_muscle_projections_over_5_tasks.pdf"), width = 100, height = 100)
+  par(mfrow = c(nrow(task_df), num_muscles))
+  lapply(seq(1, length(sset)), function(i){
+    fas_histogram(sset[[i]], range_tension, task_df[i, ], breaks = 50, col = "black", cex = 0.25)
+  })
+dev.off()
+ ##TODO turn this into a funciton that takes in the sset list and plots the
+ ## sset_eval_if_reasonable => T or F whether the vals are good.
+
 for (i in seq(1, length(sset))) {
   samples <- sset[[i]]
   task <- task_df[i, ]
   predicted_forces <- t(t(A_fit$AMatrix) %*% t(samples))
-  points3d(predicted_forces)
   euclidian_errors_vector <- apply(predicted_forces, 1, function(row) norm_vec(row -
     task))
-    maps_match_desired <- max(abs(euclidian_errors_vector)) < 1e-2
+    maps_match_desired <- max(abs(euclidian_errors_vector)) < 10
     message(task)
-    message(paste("good?", maps_match_desired))
+    message(paste("Good?", maps_match_desired))
 
   if(maps_match_desired){
-  # fas_histogram(samples, range_tension, task, breaks = 50, col = "black", cex = 0.25)
-  show_l1_costs(samples, task)}
+  show_l1_costs(samples, task)
+  spheres3d(predicted_forces, r=0.1, col="green")}
 }
-dev.off()
-##############
 
 ####### Expect to see five distinct points. one for each task.
 rgl.init()
@@ -122,7 +126,7 @@ expected_forces <- t(as.matrix(A_fit$AMatrix)) %*% t(as.matrix(maps_without_ids[
   muscles_of_interest]))
   # , xlim = c(-0.5, 0), ylim = c(-2, 2), zlim = c(-2, 2)
 plot3d(t(expected_forces))
-## QUickly make sure that the saved file has only 5 output points expected.
+## Quickly make sure that the saved file has only 5 output points expected.
 
 ## TODO GET data from the cadaver finger from big_har_set_to_test_on_finger this
 ## is the response when you push in the maps for 5 tasks through the finger
