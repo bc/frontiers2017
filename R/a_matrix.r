@@ -327,30 +327,31 @@ pass_unit_cube_to_A <- function(big_A, num_output_dimensions, range_tension){
   forces<- t(output_b_matrix[1:num_output_dimensions,])
   return(forces)
 }
-
+##' Generator Arrows in 3d
+##' for creating porcupine plots
+##' @param generators matrix where columns are forces. 3 columns. n rows for n generators
+##' @param labels logical, whether or not to print M0, M2, etc. alongside the generator arrow tips.
+generator_arrows <- function(generators, labels=TRUE){
+  apply(generators, 1, function(x) arrow3d(c(0,0,0), x, type = "rotation", col = "#4daf4a", s=0.25, n=5))
+  if (labels){
+    sprite_placement_fraction_of_arrow <- 1.05
+    for (i in seq(1:nrow(generators))) {
+      v <- generators[i,]*sprite_placement_fraction_of_arrow
+      rgl.texts(v, text=muscle_names()[i], col="black")
+    }
+  }
+}
 ##' plot_ffs_with_vertices
 ##' conv hull of FFS, with points for all n combinations,
 ##' with observed output forces to see how many landed in the computed ffs.
 ##' @param binary_combination_ffs_points matrix with n columns (number of muscles) and 2^n rows.
 ##' @param generators the A matrix generators to plot. each column is a unique output force dimension. Make sure ncol==3
-plot_ffs_with_vertices <- function(binary_combination_ffs_points, generators, ...){
+##' @param range_tension, 1st val lowest force put on strings, 2nd val is max newton tension. i.e. c(0,20)
+plot_ffs_with_vertices <- function(binary_combination_ffs_points, generators, range_tension, ...){
   rgl.bg(color = "white")
   ffs_list <- list(binary_combination_ffs_points)
   axes_for_multiple_sets(ffs_list, sizes=c(3,3,3))
-  ##' Generator Arrows in 3d
-  ##' for creating porcupine plots
-  ##' @param generators matrix where columns are forces. 3 columns. n rows for n generators
-  ##' @param labels logical, whether or not to print M0, M2, etc. alongside the generator arrow tips.
-  generator_arrows <- function(generators, labels=TRUE){
-    apply(generators, 1, function(x) arrow3d(c(0,0,0), x, type = "rotation", col = "#4daf4a", s=0.25, n=5))
-    if (labels){
-      sprite_placement_fraction_of_arrow <- 1.05
-      for (i in seq(1:nrow(generators))) {
-        v <- generators[i,]*sprite_placement_fraction_of_arrow
-        rgl.texts(v, text=muscle_names()[i], col="black")
-      }
-    }
-  }
+  generator_arrows(generators*range_tension[2], labels=TRUE)
   points3d(binary_combination_ffs_points, col="gray", size=5)
   ffs_mats <- add_gradient_to_attrs(ffs_list, "#a8e843")
   rgl_convhulls(ffs_mats, points=TRUE,...)

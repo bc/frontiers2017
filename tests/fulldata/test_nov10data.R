@@ -14,6 +14,7 @@ set.seed(4)
 last_n_milliseconds <- 100
 range_tension <- c(0, 20)
 muscles_of_interest <- muscle_names()[1:7]
+num_muscles <- length(muscles_of_interest)
 force_names_to_predict <- c("JR3_FX","JR3_FY","JR3_FZ","JR3_MX","JR3_MY","JR3_MZ")
 #######PARAMS##############
 
@@ -28,13 +29,14 @@ ggsave(to_output_folder("xray_for_noiseReponse.pdf"), p, width=90, height=30, li
 noise_hand_responses <- split_by_map_and_remove_wrongly_lengthed_samples(noise_response_wo_null)
 input_output_data <- df_of_hand_response_input_output(noise_hand_responses, last_n_milliseconds)
 A_fit <- A_fit_from_80_20_split(input_output_data, muscles_of_interest, force_names_to_predict)
-generator_columns_A_matrix <- t(t(A_fit$AMatrix) %*% diag(7)*range_tension[2])
+generator_columns_A_matrix <- t(t(A_fit$AMatrix) %*% diag(7))
 compute_ranks_of_A(A_fit$AMatrix)
 # Here, identify a force vector of interest and apply it to the generated A
 # ffs_vertex <- generator_columns_A_matrix %*% c(rep(20, 7))  #this is used to get one viable force for the model.
 # ffs_vertex2 <- generator_columns_A_matrix %*% c(c(10,5,15,10,5,10,20))  #this is used to get one viable force for the model.
-binary_combination_ffs_points <- custom_binary_combinations(7,c(0,1)) %*% generator_columns_A_matrix
-plot_ffs_with_vertices(binary_combination_ffs_points[,1:3], generator_columns_A_matrix[,1:3], alpha_transparency=0.25)
+binary_combinations <- custom_binary_combinations(7,c(0,20))
+binary_combination_ffs_points <- binary_combinations %*% generator_columns_A_matrix
+plot_ffs_with_vertices(binary_combination_ffs_points[,1:3], generator_columns_A_matrix[,1:3], alpha_transparency=0.25, range_tension=range_tension)
 points3d(input_output_data[,force_names_to_predict][,1:3], size=1, col="black", alpha=1)
 title3d(main="FFS", xlab="Fx", ylab="Fy", zlab="Fz", col="black")
 
@@ -45,27 +47,27 @@ horizontal_line_points <- identify_n_points_from_pointcloud(binary_combination_f
 horizontal_line_tasks <- dcrb(draw_perpendicular_line(horizontal_line_points[1,],horizontal_line_points[2,],5))
 spheres3d(horizontal_line_tasks, r=0.10, col="pink")
 message('Pick 1 point to define the scaling direction.')
+ffs_vertex_rep20 <- t(generator_columns_A_matrix) %*% as.matrix(rep(20, 7))
 task_direction_to_scale <- identify_n_points_from_pointcloud(binary_combination_ffs_points[,1:3],n=1)
-scaling_line_tasks <- dcrb(equidistant_points_on_segment(c(0,0,0), task_direction_to_scale, 5))
-spheres3d(scaling_line_tasks, r=0.05, col="blue")
-
-#now show the torque fas
+binary_combinations[which(binary_combination_ffs_points==task_direction_to_scale),]
+#Now show the torque FAS
 rgl.init()
-plot_ffs_with_vertices(binary_combination_ffs_points[,4:6], generator_columns_A_matrix[,4:6], alpha_transparency=0.25)
+plot_ffs_with_vertices(binary_combination_ffs_points[,4:6], generator_columns_A_matrix[,4:6], alpha_transparency=0.25, range_tension=range_tension)
 
 
-############ MANUAL: IDENTIFY TASK MULTIPLIER BOUNDS
+
+############ MANUAL: IDENTIFY TASK MULTIPLIER BOUNDS FOR SCALING
 pdf(to_output_folder("histogram_by_muscle_projections_over_5_tasks.pdf"), width = 100, height = 100)
 par(mfrow = c(nrow(task_df), num_muscles))
-task_multiplier_bounds <- c(0.0, 0.7)
+task_multiplier_bounds <- c(0, 1.0)
 task_multiplier_list <- seq(task_multiplier_bounds[1], task_multiplier_bounds[2],
-  length.out = 5)
-task_df <- t(task_force %*% t(task_multiplier_list))
-colnames(task_df) <- force_names_to_predict
+  length.out = 10)
+task_df <- t(task_direction_to_scale %*% t(task_multiplier_list))
+colnames(task_df) <- force_names_to_predict[1:3]
 num_samples_desired <- 100
 sset <- lapply(df_to_list_of_rows(task_df), function(task_i) {
   constraints_inc_torque_to_points(muscle_column_generators = t(A_fit$AMatrix), range_tension,
-    task_i, num_samples_desired, thin = 100)
+    task_i, num_samples_desired, thin = 100,torque_max_deviation=5.0)
 })
 
 for (i in seq(1, length(sset))) {
@@ -75,12 +77,13 @@ for (i in seq(1, length(sset))) {
   points3d(predicted_forces)
   euclidian_errors_vector <- apply(predicted_forces, 1, function(row) norm_vec(row -
     task))
-  print(task)
-  expect_equal(max(euclidian_errors_vector), 0, tol = 1e-2)
-  context("expect no residual from target endpoint force with the produced points")
-  # expect_equal(sum(apply(predicted_forces, 2, sd)), 0, tol = 1e-05)
-  fas_histogram(samples, range_tension, task, breaks = 50, col = "black", cex = 0.25)
-  show_l1_costs(samples, task)
+    maps_match_desired <- max(abs(euclidian_errors_vector)) < 1e-2
+    message(task)
+    message(paste("good?", maps_match_desired))
+
+  if(maps_match_desired){
+  # fas_histogram(samples, range_tension, task, breaks = 50, col = "black", cex = 0.25)
+  show_l1_costs(samples, task)}
 }
 dev.off()
 ##############
