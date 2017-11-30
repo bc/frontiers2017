@@ -22,9 +22,9 @@ force_names_to_predict <- c("JR3_FX","JR3_FY","JR3_FZ","JR3_MX","JR3_MY","JR3_MZ
 # no_spaces_noise_lo_0_hi_20_nmaps_500_replicates_1.csv
 
 untransformed_noise_response <- as.data.frame(fread(get_Resilio_filepath("noiseResponse2017_11_24_18_27_55_noiseResponse_MIT_test.txt")))
-noise_response_wo_null <- munge_JR3_data(untransformed_noise_response)
+noise_response_wo_null <- munge_JR3_data(untransformed_noise_response, input_are_voltages=FALSE)
 p <- plot_measured_command_reference_over_time(noise_response_wo_null)
-ggsave("../../output/xray_for_noiseReponse.pdf", p, width=90, height=30, limitsize=FALSE)
+ggsave(to_output_folder("xray_for_noiseReponse.pdf"), p, width=90, height=30, limitsize=FALSE)
 noise_hand_responses <- split_by_map_and_remove_wrongly_lengthed_samples(noise_response_wo_null)
 input_output_data <- df_of_hand_response_input_output(noise_hand_responses, last_n_milliseconds)
 A_fit <- A_fit_from_80_20_split(input_output_data, muscles_of_interest, force_names_to_predict)
@@ -40,7 +40,8 @@ title3d(main="FFS", xlab="Fx", ylab="Fy", zlab="Fz", col="black")
 
 
 message('pick the horizontal line endpoints')
-horizontal_line_points <- ffs_mats[[1]][identify3d(ffs_mats[[1]],n=2),]
+
+horizontal_line_points <- identify_n_points_from_pointcloud(binary_combination_ffs_points[,1:3],2)
 line_tasks <- dcrb(draw_perpendicular_line(horizontal_line_points[1,],horizontal_line_points[2,],5))
 spheres3d(line_tasks, r=0.10, col="pink")
 
@@ -50,7 +51,7 @@ plot_ffs_with_vertices(binary_combination_ffs_points[,4:6], generator_columns_A_
 
 
 ############ MANUAL: IDENTIFY TASK MULTIPLIER BOUNDS
-pdf("histogram_by_muscle_projections_over_5_tasks.pdf", width = 100, height = 100)
+pdf(to_output_folder("histogram_by_muscle_projections_over_5_tasks.pdf"), width = 100, height = 100)
 par(mfrow = c(nrow(task_df), num_muscles))
 task_multiplier_bounds <- c(0.0, 0.7)
 task_multiplier_list <- seq(task_multiplier_bounds[1], task_multiplier_bounds[2],
@@ -105,10 +106,10 @@ rgl_convhulls(list_of_mats, points = TRUE)
 
 res <- lapply(sset, create_and_cbind_map_creation_ids, muscle_names())
 big_har_set_to_test_on_finger <- dcrb(res)
-write.csv(big_har_set_to_test_on_finger, "../../output/scaling_task_n100_per_outputvec_of_interest_5_steps_no_replicates.csv",
+write.csv(big_har_set_to_test_on_finger, to_output_folder("scaling_task_n100_per_outputvec_of_interest_5_steps_no_replicates.csv"),
   row.names = FALSE, quote = FALSE)
 # Make sure the output looks correct
-prescribed_maps <- as.data.frame(fread("../../output/scaling_task_n100_per_outputvec_of_interest_5_steps_no_replicates.csv"))
+prescribed_maps <- as.data.frame(fread(to_output_folder("scaling_task_n100_per_outputvec_of_interest_5_steps_no_replicates.csv")))
 maps_without_ids <- unique(prescribed_maps[muscle_names()])
 expected_forces <- t(as.matrix(A_fit$AMatrix)) %*% t(as.matrix(maps_without_ids[,
   muscles_of_interest]))

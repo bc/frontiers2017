@@ -171,18 +171,23 @@ jr3_voltages_to_forces <- function(dataframe_with_jr3_voltage_columns){
   return(dataframe_with_jr3_voltage_columns)
 }
 
-##' munge_JR3_data
-##' apply all relevant data cleaning processes to munge it into high quality format
+##' Munge JR3 Data from raw voltages into bias-removed forces and torques.
+##' Applies all relevant data cleaning processes to munge it into high quality format
 ##' 1. Zero out sensors from first 100ms of data
-##' 2. translate the coordinate frame from the JR3 surface to the fingertip location
+##' 1. Use calibration matrix provided by JR3 datasheet to convert from voltages to forces.
+##' 2. Translate the coordinate frame from the JR3 surface to the fingertip location
 ##' 3. Remove all map_creation_id values that are 0.0 (used in setup and teardown)
 ##' @param raw_uncut_timeseries_data time series with the M0, M1, and JR3_FX, and time, etc.
+##' @param input_are_voltages logical, by default FALSE. If you put in raw voltages then make this TRUE. It will use the calibration matrix to fix values to their N and Nm equivalents.
 ##' @return timeseries_data time series with the M0, M1, and JR3_FX, and time, etc, but with transformations applied.
-munge_JR3_data <- function(raw_uncut_timeseries_data,JR3_to_fingertip_distance = 0.02){
+munge_JR3_data <- function(raw_uncut_timeseries_data,JR3_to_fingertip_distance = 0.02, input_are_voltages=FALSE){
   JR3_sensor_null <- colMeans(head(raw_uncut_timeseries_data, 100))
   zeroed_uncut_timeseries_data <- zero_out_JR3_sensors(raw_uncut_timeseries_data, JR3_sensor_null)
-  zeroed_uncut_timeseries_data_calibrated <- jr3_voltages_to_forces(zeroed_uncut_timeseries_data)
-  noise_response <- jr3_coordinate_transformation_along_z(zeroed_uncut_timeseries_data_calibrated, JR3_to_fingertip_distance)
+  if(input_are_voltages){
+    message("Converting voltages into forces and torques")
+    zeroed_uncut_timeseries_data <- jr3_voltages_to_forces(zeroed_uncut_timeseries_data)
+  }
+  noise_response <- jr3_coordinate_transformation_along_z(zeroed_uncut_timeseries_data, JR3_to_fingertip_distance)
   # make sure the JR3 signals respond in some way to the changes.
   noise_response_wo_null <- noise_response[noise_response$map_creation_id != 0, ]
   return(noise_response_wo_null)
