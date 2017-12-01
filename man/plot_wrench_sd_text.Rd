@@ -2,7 +2,9 @@
 % Please edit documentation in R/data_description.r
 \name{plot_wrench_sd_text}
 \alias{plot_wrench_sd_text}
-\title{Plot wrench text for SD}
+\title{plot_wrench_sd_text
+Plot text for standard deviation of wrench
+TODO Create Test'}
 \usage{
 plot_wrench_sd_text(wrench_sd_vector, x = -2, y = 5)
 }
@@ -14,5 +16,7 @@ plot_wrench_sd_text(wrench_sd_vector, x = -2, y = 5)
 \item{wrench}{six-element vector of numeric values}
 }
 \description{
-Plot wrench text for SD
+plot_wrench_sd_text
+Plot text for standard deviation of wrench
+TODO Create Test'
 }

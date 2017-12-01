@@ -2,7 +2,9 @@
 % Please edit documentation in R/data_description.r
 \name{plot_endpoint_force_vectors}
 \alias{plot_endpoint_force_vectors}
-\title{Plot endpoint force vectors}
+\title{Plot endpoint force vectors
+Create multi panneled plot of force vectors '
+TODO Create Test'}
 \usage{
 plot_endpoint_force_vectors(list_of_wrenches, list_of_sd_for_wrenches,
   xlim = c(-5, 5), ylim = c(-5, 5), zlim = c(-5, 5))
@@ -20,4 +22,6 @@ plot_endpoint_force_vectors(list_of_wrenches, list_of_sd_for_wrenches,
 }
 \description{
 Plot endpoint force vectors
+Create multi panneled plot of force vectors '
+TODO Create Test'
 }

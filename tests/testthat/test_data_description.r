@@ -1,4 +1,4 @@
-context("Data Description Figure")
+context("test_data_description.r")
 require(testthat)
 source("../../R/data_description.r")
 source("../../R/time_series_functions.r")

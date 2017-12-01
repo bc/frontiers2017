@@ -3,7 +3,7 @@
 \name{discrete_diff}
 \alias{discrete_diff}
 \title{discrete_diff
-TODO test}
+Given an array of values, you take the difference between each pair of values, the you return an array of the same size of the original array but -1.}
 \usage{
 discrete_diff(vector)
 }
@@ -15,5 +15,5 @@ differentiated vector of values, with a displacement of 1 index. length 1 less t
 }
 \description{
 discrete_diff
-TODO test
+Given an array of values, you take the difference between each pair of values, the you return an array of the same size of the original array but -1.
 }

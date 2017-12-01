@@ -3,7 +3,8 @@
 \name{slow_stabilized_index}
 \alias{slow_stabilized_index}
 \title{Brute force stabilized index
-TODO test, and confirm that it gets the same answer as stabilized_index}
+Each snip to check is the time series starting at x
+This algorithm checks for every index, essentially O(n), n=number of samples in the timeseries. Brute force.}
 \usage{
 slow_stabilized_index(ts, desired, err)
 }

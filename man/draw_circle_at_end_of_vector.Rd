@@ -2,9 +2,10 @@
 % Please edit documentation in R/data_description.r
 \name{draw_circle_at_end_of_vector}
 \alias{draw_circle_at_end_of_vector}
-\title{Draw a circle at a specific location
+\title{Draw a circle at end of force vector
 This is used to create a circle at the end of a force vector.
-By default, if the diameter is positive, then the circle_color is made green, but if negative, it will make the circle black.}
+By default, if the diameter is positive, then the circle_color is made green, but if negative, it will make the circle black.
+TODO Create Test'}
 \usage{
 draw_circle_at_end_of_vector(x, y, diameter)
 }
@@ -13,10 +14,11 @@ draw_circle_at_end_of_vector(x, y, diameter)
 
 \item{y}{coordinates of the center of the cirlce}
 
-\item{diameter}{diameter of the circle in user units.}
+\item{diameter}{the diameter of the circle in user units.}
 }
 \description{
-Draw a circle at a specific location
+Draw a circle at end of force vector
 This is used to create a circle at the end of a force vector.
 By default, if the diameter is positive, then the circle_color is made green, but if negative, it will make the circle black.
+TODO Create Test'
 }

@@ -4,12 +4,14 @@
 \alias{mask_settled_force_trials}
 \title{mask_settled_force_trials}
 \usage{
-mask_settled_force_trials(list_of_force_trials, err)
+mask_settled_force_trials(list_of_force_trials, err, ...)
 }
 \arguments{
 \item{list_of_force_trials}{List of force trials, each a df with cols for each measured/reference force}
 
 \item{err}{highest acceptable error residual from desired tension}
+
+\item{...}{params passed to all_muscles_stabilized}
 }
 \value{
 l_dfs list of force trials without the force trials that did not converge for all muscles

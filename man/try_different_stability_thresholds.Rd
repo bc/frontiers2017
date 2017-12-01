@@ -4,7 +4,8 @@
 \alias{try_different_stability_thresholds}
 \title{How many force trials meet the spec}
 \usage{
-try_different_stability_thresholds(force_trials, err_lenout = 20)
+try_different_stability_thresholds(force_trials, err_lenout = 20,
+  muscles_of_interest)
 }
 \arguments{
 \item{force_trials}{a list of raw force timeseries_DFs. has_settled has not been applied yet}

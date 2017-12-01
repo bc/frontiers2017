@@ -1,3 +1,4 @@
+context('test_linear_fit.r')
 last_n_milliseconds = 100
 
 test_that("a_matrix with fewer than all samples trained on <- forcetrial_list <- rds",

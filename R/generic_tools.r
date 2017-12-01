@@ -6,11 +6,26 @@ hyphens_to_underscores <- function(str){
 }
 
 ##' hyphens_to_dots
-##' @param str string or list of string to do replacement upon
+##' @param str string or list of strings to do replacement upon
 ##' @return str_prime string with dot
 hyphens_to_dots <- function(str){
   gsub("-", ".", str)
 }
+##' dots_to_underscores
+##' @param str string or list of strings to do replacement upon
+##' @return str2 dots replaced with underscores
+dots_to_underscores <- function(str){
+  gsub(".", "_", str, fixed = TRUE)
+}
+
+##' Maximum absolute residual
+##' TODO test
+##' Of all of the absolute residuals from a desired value, this function returns the maximums
+##' This is a good measure of the maximum variance.
+##' @param vector vector of numeric values
+##' @param desired_value numeric, the desired value that all values of the vector should match closely
+##' @return max_abs_diff maximum absolute residual
+maximum_absolute_residual <- function(vector, desired_val) max(abs(vector - desired_val))
 
 ##' Read RDS from package extdata folder
 ##' @param filename string, for the file within the extdata folder of the analytics package.
@@ -39,6 +54,14 @@ save_rds_to_Resilio <- function(object, filename){
   # path <- system.file("extdata", filename, package="analytics")
   saveRDS(object, filename)
 }
+
+##' Get Resilio File Path
+##' @param filename string of the object of interest, i.e. 'realTimeData2017_08_16_13_23_42.txt'
+##' @param filepath string of the object with the path
+get_Resilio_filepath <- function(filename){
+  paste0("~/Resilio Sync/data/",filename)
+}
+
 ##' Do call concatenate
 ##' when output of lapply is a list of elements, where each element is a string or number or integer, this will create a simpified list
 ##' @param input_list input vector or list that will be concatenated

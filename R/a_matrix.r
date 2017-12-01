@@ -1,6 +1,6 @@
 ##' This function estimates the A matrix from measured tendon forces and output forces. performs 6D linear fit.
 ##' The regressor matrix is concatenation of tendon forces
-## ' TODO Test Directly'
+##' TODO Test Directly'
 ##' @param data vector of input and output data that matches measured_muscle_col_names and force_column_names.
 ##' @param regressor_names array of muscle names'
 ##' @return fit_object list of AMatrix, endpointForceObservation, endpointForcePrediction, regressor_means, response_means
@@ -9,6 +9,19 @@ find_A_matrix <- function(data, regressor_names = measured(muscle_names()), forc
   num_response_columns = length(forces_of_interest)
   regressor <- as.matrix(data[regressor_names])
   regressor <- add_offset_vector_to_regressor(regressor)
+  endpointForceObservation <- data[forces_of_interest]
+  AMatrix <- lin_qr_solve(regressor, endpointForceObservation)
+  endpointForcePrediction <- predict_against_input_data(regressor, AMatrix)
+  fit <- list(AMatrix = AMatrix, endpointForceObservation = endpointForceObservation,
+    endpointForcePrediction = endpointForcePrediction)
+  return(fit)
+}
+
+find_A_matrix_without_offset <- function(data, regressor_names = simplify2array(lapply(muscle_names(),
+  measured)), forces_of_interest = force_column_names) {
+  num_regressor_columns = length(regressor_names)  #inc regressor
+  num_response_columns = length(forces_of_interest)
+  regressor <- as.matrix(data[regressor_names])
   endpointForceObservation <- data[forces_of_interest]
   AMatrix <- lin_qr_solve(regressor, endpointForceObservation)
   endpointForcePrediction <- predict_against_input_data(regressor, AMatrix)
@@ -146,7 +159,16 @@ fit_evaluation <- function(A_fit, test_data, ...) {
   fit_summary(A_fit)
   evaluate_fit_wrt_test_data(A_fit, test_data)
 }
-
+##' Fit Evaluation without an offset generator
+##' Evaluation of fit of A matrix
+##' TODO Implement or Retire Function'
+##' @param A_fit object as returned from find_A_matrix
+##' @param test_data dataset with the input and output columns matching the regressors and outputs of A_fit
+fit_evaluation_without_offset <- function(A_fit, test_data, ...) {
+  par(mfcol = c(3, 2))
+  fit_summary(A_fit)
+  evaluate_fit_wrt_test_data_without_offset(A_fit, test_data)
+}
 ##' evaluate_fit_wrt_test_data
 ##' Evaluation of fit with respect to test data'
 ##' TODO Create Test or Retire Function'
@@ -161,6 +183,27 @@ evaluate_fit_wrt_test_data <- function(A_fit, test_data) {
   vector_one <- as.matrix(rep(1, num_observation), num_observation, 1)
   colnames(vector_one) <- "offset"
   test_input <- cbind(vector_one, as.matrix(test_data[regressor_names_without_offset]))
+  test_predicted_response <- predict_output_force(A_fit$AMatrix, test_input)
+  test_observed_response <- test_data[force_col_names]
+  hist_force_magnitudes(test_observed_response, "Force observations from test data ")
+  hist_force_magnitudes(test_predicted_response, "Force Predictions from test data")
+  res_test <- test_observed_response - test_predicted_response
+  hist_euclidian_errors(magnitudes(res_test), forces_of_interest, regressor_names,
+    source_of_vals="test data")
+  message('Summary of residuals when predicting model against test set')
+  print(summary(res_test))
+  print(column_ranges(res_test))
+  message('summary of euclidian magnitudes of residuals in model vs test set ')
+  print(summary(magnitudes(res_test)))
+}
+
+evaluate_fit_wrt_test_data_without_offset <- function(A_fit, test_data) {
+  num_observation <- nrow(test_data)
+  regressor_names <- rownames(A_fit$AMatrix)
+  force_col_names <- colnames(A_fit$AMatrix)
+  forces_of_interest <- paste0(force_col_names, collapse=",")
+  vector_one <- as.matrix(rep(1, num_observation), num_observation, 1)
+  test_input <- as.matrix(test_data[regressor_names])
   test_predicted_response <- predict_output_force(A_fit$AMatrix, test_input)
   test_observed_response <- test_data[force_col_names]
   hist_force_magnitudes(test_observed_response, "Force observations from test data ")
@@ -224,6 +267,41 @@ custom_binary_combinations <- function(n, tension_range){
   dimnames(mat) <- NULL
   return(mat)
 }
+
+##' Custom Binary combinations
+##' Creates a set of unique identifiers for when the MAP was created.
+##' use this to see what time the MAP was created in your time zone. E.g.
+##' https://www.wolframalpha.com/input/?i=unixtime+1510379473228.8129883*1e-3+to+PST
+##' @param n length of the vector
+##' @param tension_range the range that the inputs can be at
+##' @return M matrix where each row is a unique combination of tension_range[1] min and tension_range[2] max
+compose_binary_combination_df <- function(n,tension_range){
+  newton_values <- custom_binary_combinations(n, tension_range)
+  id_vec <- format(dcc(lapply(1:nrow(newton_values), function(x) as.numeric(Sys.time())*1000)), digits=16)
+  reference_value_colnames <- paste0("M",0:(n-1))
+  colnames(newton_values) <- reference_value_colnames
+  df <- cbind(map_creation_id = id_vec, newton_values)
+  rownames(df) <- c()
+  return(df)
+}
+##' generate_map_creation_ids
+##' @param n number of ids to create
+##' @return m vector of map_creation_id strings (unixtime in ms with 16 digits)
+generate_map_creation_ids <- function(n){
+  return(format(dcc(lapply(1:n, function(x) as.numeric(Sys.time())*1000)), digits=16))
+}
+##' Custom Binary combinations to CSV, ready for input to NI cpu
+##' Creates a set of unique identifiers for when the MAP was created.
+##' use this to see what time the MAP was created in your time zone. E.g.
+##' https://www.wolframalpha.com/input/?i=unixtime+1510379473228.8129883*1e-3+to+PST
+##' @param n length of the vector
+##' @param tension_range the range that the inputs can be at
+##' @param filename desired output directory filepath
+write_binary_combination_csv <- function(n, tension_range, filename){
+  df <- compose_binary_combination_df(n,tension_range)
+  write.csv(df, filename, row.names=FALSE,quote=FALSE)
+}
+
 
 ##' stop_if_min_equals_max
 ##' Tells you when function stops if the min equals the max'
