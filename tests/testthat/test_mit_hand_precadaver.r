@@ -19,7 +19,7 @@ test_that("500g recorded forces give correct FFS for forces", {
 
 test_that("500g recorded forces give correct FFS for forces", {
   rgl.init()
-  plot_ffs_with_vertices(ffs_binary[,4:6], generators_force_columns_500g[,4:6], alpha_transparency=0.25, range_tension=range_tension)
+  plot_ffs_with_vertices(ffs_binary[,4:6], t(matrix_version_of_generators)[,4:6], alpha_transparency=0.25, range_tension=range_tension)
   # input_output_data <- get from random noise experiments
   # points3d(input_output_data[,force_names_to_predict][,1:3], size=1, col="black", alpha=1)
   title3d(main="FFS for Torques", xlab="Mx", ylab="My", zlab="Mz", col="black")
