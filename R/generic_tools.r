@@ -168,7 +168,7 @@ left_pad_zeros <- function(mat) left_pad(mat, 0)
 create_output_folder <- function() dir.create(file.path("../../", "output"), showWarnings = FALSE)
 
 ##
-spin_around_rgl_plot <- function(n_frames) {
+spin_around_rgl_plot <- function(n_frames=120) {
   start <- proc.time()[3]
   while ((i <- n_frames * (proc.time()[3] - start)) < 360) {
     rgl.viewpoint(i, i/4)
