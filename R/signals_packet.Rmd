@@ -1,0 +1,348 @@
+---
+title: "Signals packet"
+author: "Brian Cohn"
+date: "11/28/2017"
+output:
+  html_document:
+    highlight: kate
+    theme: united
+    toc: yes
+  pdf_document:
+    toc: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(out.width='750px', dpi=200)
+devtools::load_all()
+jr3_at_rest_filename <- "noiseResponse2017_11_28_15_55_30.txt"
+jr3_test_no_input <- as.data.frame(fread(get_Resilio_filepath(jr3_at_rest_filename)))
+elapsed_time <- tail(jr3_test_no_input$time,1) - head(jr3_test_no_input$time,1)
+num_samples <-  nrow(jr3_test_no_input)
+empirical_sampling_frequency <- num_samples/elapsed_time
+```
+
+#Basement Muscles
+`r jr3_at_rest_filename ` features `r num_samples` samples, over `r elapsed_time` seconds. Empirical sampling frequency is `r empirical_sampling_frequency`
+
+
+```{r, echo=FALSE}
+measured_signals <- jr3_test_no_input[,measured(muscle_names())]
+measured_signals_zeroed <- scale(measured_signals, scale=FALSE)
+```
+
+```{r}
+boxplot(measured_signals, xlab="Muscle", ylab="Force (N)", names=muscle_names())
+boxplot(measured_signals_zeroed, xlab="Muscle", ylab="Force (N); Mean-Centered", names=muscle_names())
+```
+
+
+##Spectral Properties of the muscle forces on load cells
+
+```{r, echo=TRUE}
+time_series_to_harmonics_psd <- function(ts, acq_freq=1000,...){
+library(GeneCycle)
+f.data <- GeneCycle::periodogram(ts)
+harmonics <- 1:(acq_freq/2)
+plot(f.data$freq[harmonics]*length(ts), 
+     f.data$spec[harmonics]/sum(f.data$spec), 
+     xlab="Harmonics (Hz)", ylab="Amplitute Density",type="l",...)
+}
+
+```
+
+
+```{r, echo=TRUE}
+muscle_sample <- as.data.frame(measured_signals_zeroed)
+m_names <- measured(muscle_names())
+time_series_to_harmonics_psd(muscle_sample[,1], acq_freq=1000, main="measured_M0")
+time_series_to_harmonics_psd(muscle_sample[,2], acq_freq=1000, main="measured_M1")
+time_series_to_harmonics_psd(muscle_sample[,3], acq_freq=1000, main="measured_M2")
+time_series_to_harmonics_psd(muscle_sample[,4], acq_freq=1000, main="measured_M3")
+time_series_to_harmonics_psd(muscle_sample[,5], acq_freq=1000, main="measured_M4")
+time_series_to_harmonics_psd(muscle_sample[,6], acq_freq=1000, main="measured_M5")
+time_series_to_harmonics_psd(muscle_sample[,7], acq_freq=1000, main="measured_M6")
+```
+
+#Akira BICE JR3 Sensor SysID
+
+#Akira's JR3 Before and after calibration &/or mean-centering
+
+NOTE: Akira does not know moment labels and calibration matrix has not arrived yet.
+```{r include=FALSE}
+jr3_akira_at_rest <- "akira_jr3_at_rest.csv" #akira leaving bice jr3 at rest
+akira_jr3_rest <- as.data.frame(fread(get_Resilio_filepath(jr3_akira_at_rest)))[,7:12]
+colnames(akira_jr3_rest) <- dots_to_underscores(force_column_names)
+akira_jr3_rest$time <- seq(0,by=0.001, length.out = nrow(akira_jr3_rest))
+just_jr3_cols_akira <- akira_jr3_rest[,dots_to_underscores(force_column_names)]
+
+
+calibration_matrix_akira <-as.matrix(rbind(
+    c(12.6690,0.2290,0.1050,-0.272,0.060,0.865),
+    c(0.1600,13.2370,-0.3870,-0.027,-0.396,-0.477),
+    c(1.084,0.6050,27.0920,-2.88,-0.106,1.165),
+    c(-.007,-.003,-0.001,0.676,-0.002,-0.038),
+    c(0.004,-0.004,0.001,0.000,0.688,-0.012),
+    c(0.004,0.003,0.003,-0.006,0.013,0.665)))
+
+just_jr3_cols_calibrated_akira <- t(calibration_matrix_akira %*% t(as.matrix(just_jr3_cols_akira)))
+colnames(just_jr3_cols_calibrated_akira) <- dots_to_underscores(force_column_names)
+elapsed_time <- tail(akira_jr3_rest$time,1) - head(akira_jr3_rest$time,1)
+num_samples <-  nrow(akira_jr3_rest)
+empirical_sampling_frequency <- num_samples/elapsed_time
+```
+`r jr3_akira_at_rest ` features `r num_samples` samples, over `r elapsed_time` seconds. Empirical sampling frequency is `r empirical_sampling_frequency`
+##Raw Akira JR3 signals over 1s from 2s to 3s
+```{r, echo=TRUE}
+summary(just_jr3_cols_akira[2000:3000,])
+```
+##Akira JR3 Before and after mean-centering. TODO: after calibration & calibration+mean-centering
+```{r,echo=TRUE}
+boxplot(just_jr3_cols_akira[2000:3000,], xlab="Force dimension", ylab="Uncalibrated, Raw Analog Volts", main="JR3 Uncalibrated, Uncentered")
+boxplot(scale(just_jr3_cols_akira[2000:3000,], scale=FALSE), xlab="Force dimension", ylab="Volts", main="JR3 Uncalibrated & Mean-Centered")
+boxplot(just_jr3_cols_calibrated_akira[2000:3000,], xlab="Force Signal", ylab="Force (N, Nm)", main="JR3 Calibrated, Uncentered")
+boxplot(scale(just_jr3_cols_calibrated_akira[2000:3000,], scale=FALSE), xlab="Force Signal", ylab="Force (N, Nm)", main="JR3 Calibrated & Mean-Centered")
+```
+
+```{r}
+mean_centered_jr3 <- as.data.frame(scale(akira_jr3_rest, scale=FALSE))
+one_second_sample <- mean_centered_jr3[mean_centered_jr3$time < 3.0 & mean_centered_jr3$time > 2.0,]
+summary(one_second_sample)
+column_ranges(one_second_sample)
+```
+
+
+##Mean-Centered Akira-JR3 Voltages
+```{r}
+ggplot(one_second_sample) + geom_line(aes(time, JR3_FX), col="red") + geom_line(aes(time, 1e-3)) + geom_line(aes(time, -1e-3))
+time_series_to_harmonics_psd(one_second_sample[,'JR3_FX'], acq_freq=1000, main="JR3_FX", xlim=c(0,100))
+ggplot(one_second_sample) + geom_line(aes(time, JR3_FY), col="green")+ geom_line(aes(time, 1e-3))+ geom_line(aes(time, -1e-3))
+time_series_to_harmonics_psd(one_second_sample[,'JR3_FY'], acq_freq=1000, main="JR3_FY", xlim=c(0,100))
+ggplot(one_second_sample) + geom_line(aes(time, JR3_FZ), col="blue")+ geom_line(aes(time, 1e-3))+ geom_line(aes(time, -1e-3))
+time_series_to_harmonics_psd(one_second_sample[,'JR3_FZ'], acq_freq=1000, main="JR3_FZ")
+ggplot(one_second_sample) + geom_line(aes(time, JR3_MX)) + geom_line(aes(time, 1e-3))+ geom_line(aes(time, -1e-3))
+time_series_to_harmonics_psd(one_second_sample[,'JR3_MX'], acq_freq=1000, main="JR3_MX", xlim=c(0,100))
+ggplot(one_second_sample) + geom_line(aes(time, JR3_MY)) + geom_line(aes(time, 1e-3))+ geom_line(aes(time, -1e-3))
+time_series_to_harmonics_psd(one_second_sample[,'JR3_MY'], acq_freq=1000, main="JR3_MY", xlim=c(0,100))
+ggplot(one_second_sample) + geom_line(aes(time, JR3_MZ)) + geom_line(aes(time, 1e-3))+ geom_line(aes(time, -1e-3))
+time_series_to_harmonics_psd(one_second_sample[,'JR3_MZ'], acq_freq=1000, main="JR3_MZ", xlim=c(0,100))
+```
+
+
+##Calibrated & Mean-Centered Akira-JR3 Voltages
+```{r}
+one_second_sample_akira_cal <- as.data.frame(cbind(time = akira_jr3_rest$time, center_scale(just_jr3_cols_calibrated_akira)))[2000:3000,]
+ggplot(one_second_sample_akira_cal) + geom_line(aes(time, JR3_FX), col="red") + geom_line(aes(time, 1e-3)) + geom_line(aes(time, -1e-3))
+time_series_to_harmonics_psd(one_second_sample_akira_cal[,'JR3_FX'], acq_freq=1000, main="JR3_FX", xlim=c(0,100))
+ggplot(one_second_sample_akira_cal) + geom_line(aes(time, JR3_FY), col="green")+ geom_line(aes(time, 1e-3))+ geom_line(aes(time, -1e-3))
+time_series_to_harmonics_psd(one_second_sample_akira_cal[,'JR3_FY'], acq_freq=1000, main="JR3_FY", xlim=c(0,100))
+ggplot(one_second_sample_akira_cal) + geom_line(aes(time, JR3_FZ), col="blue")+ geom_line(aes(time, 1e-3))+ geom_line(aes(time, -1e-3))
+time_series_to_harmonics_psd(one_second_sample_akira_cal[,'JR3_FZ'], acq_freq=1000, main="JR3_FZ")
+ggplot(one_second_sample_akira_cal) + geom_line(aes(time, JR3_MX)) + geom_line(aes(time, 1e-3))+ geom_line(aes(time, -1e-3))
+time_series_to_harmonics_psd(one_second_sample_akira_cal[,'JR3_MX'], acq_freq=1000, main="JR3_MX", xlim=c(0,100))
+ggplot(one_second_sample_akira_cal) + geom_line(aes(time, JR3_MY)) + geom_line(aes(time, 1e-3))+ geom_line(aes(time, -1e-3))
+time_series_to_harmonics_psd(one_second_sample_akira_cal[,'JR3_MY'], acq_freq=1000, main="JR3_MY", xlim=c(0,100))
+ggplot(one_second_sample_akira_cal) + geom_line(aes(time, JR3_MZ)) + geom_line(aes(time, 1e-3))+ geom_line(aes(time, -1e-3))
+time_series_to_harmonics_psd(one_second_sample_akira_cal[,'JR3_MZ'], acq_freq=1000, main="JR3_MZ", xlim=c(0,100))
+
+```
+
+
+
+
+
+
+
+
+
+
+
+#Basement JR3 Signal SysID
+
+```{r pressure, echo=FALSE}
+just_jr3_cols <- jr3_test_no_input[,dots_to_underscores(force_column_names)]
+calibration_matrix <-as.matrix(rbind(c(13.669,0.229,0.105,-0.272,0.060,0.865),
+    c(0.160,13.237,-0.387,-0.027,-0.396,-0.477),
+    c(1.084,0.605,27.092,-2.88,-0.106,1.165),
+    c(-.007,-.003,-0.001,0.676,-0.002,-0.038),
+    c(0.004,-0.004,0.001,0.000,0.688,-0.012),
+    c(0.004,0.003,0.003,-0.006,0.013,0.665)))
+
+jr3_cols_calibrated <- t(calibration_matrix %*% t(as.matrix(just_jr3_cols)))
+summary(just_jr3_cols)
+```
+##BasementJR3 Before and after calibration &/or mean-centering
+```{r}
+boxplot(just_jr3_cols, xlab="Force Signal", ylab="Analog Volts (uncalibrated)")
+boxplot(scale(just_jr3_cols, scale=FALSE), xlab="Force Signal", ylab="Analog Volts (uncalibrated)")
+boxplot(jr3_cols_calibrated, xlab="Force Signal", ylab="Analog Volts (calibrated)", main="JR3 Calibrated")
+boxplot(scale(jr3_cols_calibrated, scale=FALSE), xlab="Force Signal", ylab="Force (N, Nm)", main="JR3 Calibrated & Mean-Centered")
+```
+##Snapshots of BasementJR3 force signals at rest, mean-centered, uncalibrated
+```{r}
+mean_centered_jr3 <- as.data.frame(scale(just_jr3_cols, scale=FALSE))
+colnames(mean_centered_jr3) <- dots_to_underscores(force_column_names)
+mean_centered_jr3 <- cbind(time=jr3_test_no_input$time, mean_centered_jr3)
+one_second_sample <- mean_centered_jr3[mean_centered_jr3$time < 3.0 & mean_centered_jr3$time > 2.0,]
+summary(one_second_sample)
+column_ranges(one_second_sample)
+```
+##Mean-Centered Basement JR3 Voltages
+```{r,echo=FALSE}
+ggplot(one_second_sample) + geom_line(aes(time, JR3_FX), col="red") + geom_line(aes(time, 1e-3)) + geom_line(aes(time, -1e-3))
+ggplot(one_second_sample) + geom_line(aes(time, JR3_FY), col="green")+ geom_line(aes(time, 1e-3))+ geom_line(aes(time, -1e-3))
+ggplot(one_second_sample) + geom_line(aes(time, JR3_FZ), col="blue")+ geom_line(aes(time, 1e-3))+ geom_line(aes(time, -1e-3))
+ggplot(one_second_sample) + geom_line(aes(time, JR3_MX)) + geom_line(aes(time, 1e-3))+ geom_line(aes(time, -1e-3))
+ggplot(one_second_sample) + geom_line(aes(time, JR3_MY)) + geom_line(aes(time, 1e-3))+ geom_line(aes(time, -1e-3))
+ggplot(one_second_sample) + geom_line(aes(time, JR3_MZ)) + geom_line(aes(time, 1e-3))+ geom_line(aes(time, -1e-3))
+```
+##Summary of calibrated basement JR3 Forces (Newtons, N*m)
+```{r, echo=FALSE}
+calibrated_mean_centered_jr3 <- as.data.frame(scale(jr3_cols_calibrated, scale=FALSE))
+colnames(calibrated_mean_centered_jr3) <- dots_to_underscores(force_column_names)
+calibrated_mean_centered_jr3 <- cbind(time=jr3_test_no_input$time, calibrated_mean_centered_jr3)
+one_second_sample_cal <- calibrated_mean_centered_jr3[calibrated_mean_centered_jr3$time < 3.0 & calibrated_mean_centered_jr3$time > 2.0,]
+summary(one_second_sample_cal)
+column_ranges(one_second_sample_cal)
+```
+##Calibrated and Mean-Centered Basement JR3 Forces
+```{r}
+ggplot(one_second_sample_cal) + geom_line(aes(time, JR3_FX), col="red")+ geom_line(aes(time, 1e-2))+ geom_line(aes(time, -1e-2))
+time_series_to_harmonics_psd(one_second_sample_cal[,'JR3_FX'], acq_freq=1000, main="JR3_FX", xlim=c(0,100))
+ggplot(one_second_sample_cal) + geom_line(aes(time, JR3_FY), col="green")+ geom_line(aes(time, 1e-2))+ geom_line(aes(time, -1e-2))
+time_series_to_harmonics_psd(one_second_sample_cal[,'JR3_FY'], acq_freq=1000, main="JR3_FY", xlim=c(0,100))
+ggplot(one_second_sample_cal) + geom_line(aes(time, JR3_FZ), col="blue")+ geom_line(aes(time, 1e-2))+ geom_line(aes(time, -1e-2))
+time_series_to_harmonics_psd(one_second_sample_cal[,'JR3_FZ'], acq_freq=1000, main="JR3_FZ", xlim=c(0,100))
+ggplot(one_second_sample_cal) + geom_line(aes(time, JR3_MX))+ geom_line(aes(time, 1e-2))+ geom_line(aes(time, -1e-2))
+time_series_to_harmonics_psd(one_second_sample_cal[,'JR3_MX'], acq_freq=1000, main="JR3_MX", xlim=c(0,100))
+ggplot(one_second_sample_cal) + geom_line(aes(time, JR3_MY))+ geom_line(aes(time, 1e-2))+ geom_line(aes(time, -1e-2))
+time_series_to_harmonics_psd(one_second_sample_cal[,'JR3_MY'], acq_freq=1000, main="JR3_MY", xlim=c(0,100))
+ggplot(one_second_sample_cal) + geom_line(aes(time, JR3_MZ))+ geom_line(aes(time, 1e-2))+ geom_line(aes(time, -1e-2))
+time_series_to_harmonics_psd(one_second_sample_cal[,'JR3_MZ'], acq_freq=1000, main="JR3_MZ", xlim=c(0,100))
+```
+
+
+
+
+##How does Basement JR3 respond when pressing on the 20mm-displaced mount port where the fingertip will rest?
+```{r include=FALSE}
+jr3_brian_presses <- "noiseResponse2017_11_28_17_10_48.txt" # 11_28_17_10_48 press on fingertip mount location
+jr3_brian_presses_directions <- as.data.frame(fread(get_Resilio_filepath(jr3_brian_presses)))
+elapsed_time <- tail(jr3_brian_presses_directions$time,1) - head(jr3_brian_presses_directions$time,1)
+num_samples <-  nrow(jr3_brian_presses_directions)
+empirical_sampling_frequency <- num_samples/elapsed_time
+```
+
+
+`r jr3_brian_presses ` features `r num_samples` samples, over `r elapsed_time` seconds. Empirical sampling frequency is `r empirical_sampling_frequency`
+
+```{r}
+ggplot(jr3_brian_presses_directions) + geom_line(aes(time, JR3_FX), col="red") + geom_line(aes(time, JR3_FY),col="green") + geom_line(aes(time, JR3_FZ), col="blue") + geom_line(aes(time, JR3_MX),col="orange") + geom_line(aes(time, JR3_MY),col="gray") + geom_line(aes(time, JR3_MZ),col="purple")
+```
+
+
+##How does Basement JR3 respond when fingertip presses near the JR3 baseplate?
+```{r include=FALSE}
+jr3_close_to_base_presses <- "noiseResponse2017_11_28_18_01_19.txt" #11_28_18_01_19 close to JR3 base
+jr3_brian_presses_directions_near_base <- as.data.frame(fread(get_Resilio_filepath(jr3_close_to_base_presses)))
+elapsed_time <- tail(jr3_brian_presses_directions_near_base$time,1) - head(jr3_brian_presses_directions_near_base$time,1)
+num_samples <-  nrow(jr3_brian_presses_directions_near_base)
+empirical_sampling_frequency <- num_samples/elapsed_time
+```
+
+`r jr3_close_to_base_presses ` features `r num_samples` samples, over `r elapsed_time` seconds. Empirical sampling frequency is `r empirical_sampling_frequency`
+
+```{r}
+ggplot(jr3_brian_presses_directions_near_base) + geom_line(aes(time, JR3_FX), col="red") + geom_line(aes(time, JR3_FY),col="green") + geom_line(aes(time, JR3_FZ), col="blue") + geom_line(aes(time, JR3_MX),col="orange") + geom_line(aes(time, JR3_MY),col="gray") + geom_line(aes(time, JR3_MZ),col="purple")
+```
+
+
+
+
+
+##How does Basement JR3 respond when muscles motor-collars are twisted, 3x ea, by hand?
+```{r include=FALSE}
+jr3_muscle_collar_twists <- "noiseResponse2017_11_28_18_10_16.txt" #noiseResponse2017_11_28_18_15_09 brian screw-turn the collars with my fingers directly
+muscle_generator_twists <- as.data.frame(fread(get_Resilio_filepath(jr3_muscle_collar_twists)))
+elapsed_time <- tail(muscle_generator_twists$time,1) - head(muscle_generator_twists$time,1)
+num_samples <-  nrow(muscle_generator_twists)
+empirical_sampling_frequency <- num_samples/elapsed_time
+```
+
+`r jr3_muscle_collar_twists ` features `r num_samples` samples, over `r elapsed_time` seconds. Empirical sampling frequency is `r empirical_sampling_frequency`
+
+###Muscle inputs
+| M0 	| red 	|  	|  	|  	|
+|----	|--------	|---	|---	|---	|
+| M1 	| orange 	|  	|  	|  	|
+| M2 	| yellow 	|  	|  	|  	|
+| M3 	| green 	|  	|  	|  	|
+| M4 	| blue 	|  	|  	|  	|
+| M5 	| violet 	|  	|  	|  	|
+| M6 	| gray 	|  	|  	|  	|
+
+```{r, echo=FALSE}
+ggplot(muscle_generator_twists) + geom_line(aes(time, measured_M0), col="red") + geom_line(aes(time, measured_M1),col="orange") + geom_line(aes(time, measured_M2), col="yellow") + geom_line(aes(time, measured_M3),col="green") + geom_line(aes(time, measured_M4),col="blue") + geom_line(aes(time, measured_M5),col="purple")+ geom_line(aes(time, measured_M6),col="grey") + xlab("Tendon force recorded at load cells (N)")
+```
+
+###Muscle Outputs
+
+```{r}
+ggplot(muscle_generator_twists) + geom_line(aes(time, JR3_FX), col="red") + geom_line(aes(time, JR3_FY),col="green") + geom_line(aes(time, JR3_FZ), col="blue") + geom_line(aes(time, JR3_MX),col="orange") + geom_line(aes(time, JR3_MY),col="gray") + geom_line(aes(time, JR3_MZ),col="purple")
+```
+
+
+
+## How does Basement JR3 respond when tensioned by a static 500 g force hung from the kevlar?
+Importantly, all lengths of the muscles were approximately equal. Three replicates per muscle, in order from M0 to M6.
+```{r include=FALSE}
+jr3_muscle_collar_twists <- "noiseResponse2017_11_28_18_15_09.txt" #noiseResponse2017_11_28_18_15_09 move with 500G weight
+muscle_generator_500g <- as.data.frame(fread(get_Resilio_filepath(jr3_muscle_collar_twists)))
+  
+JR3_sensor_null_500g <- colMeans(head(muscle_generator_500g, 3000))
+zeroed_500g_df <- zero_out_JR3_sensors(muscle_generator_500g, JR3_sensor_null_500g)
+  
+  
+elapsed_time <- tail(zeroed_500g_df$time,1) - head(zeroed_500g_df$time,1)
+num_samples <-  nrow(zeroed_500g_df)
+empirical_sampling_frequency <- num_samples/elapsed_time
+```
+
+
+`r jr3_muscle_collar_twists ` features `r num_samples` samples, over `r elapsed_time` seconds. Empirical sampling frequency is `r empirical_sampling_frequency`
+
+```{r}
+#Small verison to get the seven hold indices
+ggplot(zeroed_500g_df) + geom_line(aes(time, JR3_FY), col="red")  + geom_vline(xintercept=c(13,24,36,50,63,77,91)) +
+  scale_x_continuous(breaks = round(seq(min(zeroed_500g_df$time), max(zeroed_500g_df$time), by = 2),1))
+```
+
+The vertical slices are the points from which I grabbed 30 datapoints, low pass filtered, got the mean, and used the resultant value as the generator.
+```{r}
+generator_indices <- c(13, 24,36,50,63,77,91)
+ggplot(zeroed_500g_df) + geom_line(aes(time, JR3_FX), col="red") + geom_line(aes(time, JR3_FY),col="green") + geom_line(aes(time, JR3_FZ), col="blue") + geom_line(aes(time, JR3_MX),col="orange") + geom_line(aes(time, JR3_MY),col="gray") + geom_line(aes(time, JR3_MZ),col="purple") + geom_vline(xintercept=generator_indices) + xlab("Time") + ylab('Force Voltage')
+```
+
+Muscle forces were recorded but should not have any change over time. Seems good. Notice how there are specific bands in Y that the signal hops to- that means we are pushing the precision boundary of the sensor. This means signal variance at rest is low.
+## Low pass filtered output porcupine of FXYZ VOLTAGES at a 50Hz critical frequency
+
+```{r}
+force_df <- zeroed_500g_df[,dots_to_underscores(force_column_names)] 
+muscle_500g_generators <- take_running_mean_snapshots(force_df,zeroed_500g_df$time, generator_indices, n_samples_for_running_mean=30)
+colnames(muscle_500g_generators) <- measured(muscle_names())
+generators <- t(as.data.frame(as.matrix(muscle_500g_generators)))
+axes_for_set(generators[,1:3], sizes=c(3,3,3), dimension_label="F")
+apply(generators[,1:3], 1, function(x) arrow3d(c(0,0,0), x, type = "rotation", col = "#4daf4a", s=0.25, n=5))
+```
+
+## Low pass filtered output porcupine of MXYZ VOLTAGES at a 50Hz critical frequency
+
+```{r}
+axes_for_set(generators[,4:6], sizes=c(3,3,3), dimension_label="M")
+  apply(generators[,4:6], 1, function(x) arrow3d(c(0,0,0), x, type = "rotation", col = "#4daf4a", s=0.25, n=5))
+```
+# TODO create FFS from generators via n_binary_combinations
+```{r}
+#binary_combination_ffs_points <- custom_binary_combinations(7,c(0,1)) %*% generators
+```
+
