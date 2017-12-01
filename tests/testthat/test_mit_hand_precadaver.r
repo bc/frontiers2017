@@ -26,19 +26,13 @@ test_that("500g recorded forces give correct FFS for forces", {
 
 
 test_that("500g second trial done on Nov30 works for FFS for forces", {
-
-  timeseries_with_500g_3reps <- fread(get_Resilio_filepath("noiseResponse2017_11_30_19_07_22_500g_mit_hand.txt"), data.table=FALSE)
-
-#plot to find the best time to zero jr3 signals output
-ggplot(timeseries_with_500g_3reps) + geom_line(aes(time, JR3_FX), col="red") + geom_line(aes(time, JR3_FY),col="green") + geom_line(aes(time, JR3_FZ), col="blue")
-
-  zeroed_500g_df <- munge_JR3_data(timeseries_with_500g_3reps, input_are_voltages = TRUE, indices_for_null = 1:4000, remove_nonzero_map_creation_ids = FALSE)
+  brian_timeseries_with_500g_3reps <- fread(get_Resilio_filepath("noiseResponse2017_11_30_19_07_22_500g_mit_hand.txt"), data.table=FALSE)
+  ggplot(brian_timeseries_with_500g_3reps) + geom_line(aes(time, JR3_FX), col="red") + geom_line(aes(time, JR3_FY),col="green") + geom_line(aes(time, JR3_FZ), col="blue") + ggtitle("#plot to find the best time to zero jr3 signals output")
+  zeroed_500g_df <- munge_JR3_data(brian_timeseries_with_500g_3reps, input_are_voltages = TRUE, indices_for_null = 1:4000, remove_nonzero_map_creation_ids = FALSE)
   generator_indices <- c(19,31,42,53,65,76,88)
-
   ggplot(zeroed_500g_df) + geom_line(aes(time, JR3_FX), col="red")  + geom_vline(xintercept=generator_indices) +
-    scale_x_continuous(breaks = round(seq(min(zeroed_500g_df$time), max(zeroed_500g_df$time), by = 2),1))
-  ggplot(zeroed_500g_df) + geom_line(aes(time, JR3_FX), col="red") + geom_line(aes(time, JR3_FY),col="green") + geom_line(aes(time, JR3_FZ), col="blue") + geom_line(aes(time, JR3_MX),col="orange") + geom_line(aes(time, JR3_MY),col="gray") + geom_line(aes(time, JR3_MZ),col="purple") + geom_vline(xintercept=generator_indices) + xlab("Time") + ylab('Force in Newtons, Newton-Meters')
-
+    scale_x_continuous(breaks = round(seq(min(zeroed_500g_df$time), max(zeroed_500g_df$time), by = 2),1)) + ggtitle("#plot to find the time slices where we should grab the JR3 wrench for each of 7 muscles")
+  ggplot(zeroed_500g_df) + geom_line(aes(time, JR3_FX), col="red") + geom_line(aes(time, JR3_FY),col="green") + geom_line(aes(time, JR3_FZ), col="blue") + geom_line(aes(time, JR3_MX),col="orange") + geom_line(aes(time, JR3_MY),col="gray") + geom_line(aes(time, JR3_MZ),col="purple") + geom_vline(xintercept=generator_indices) + xlab("Time") + ylab('Force in Newtons, Newton-Meters') + ggtitle('show forces at each trial, with slice for each wrench')
     snapshots <- take_running_mean_snapshots(zeroed_500g_df,zeroed_500g_df$time, generator_indices, n_samples_for_running_mean=30)
     colnames(snapshots) <- measured(muscle_names())
     matrix_version_of_generators <- matrix(sapply(snapshots, as.numeric), ncol=7)
@@ -46,6 +40,22 @@ ggplot(timeseries_with_500g_3reps) + geom_line(aes(time, JR3_FX), col="red") + g
     colnames(forces_from_the_vertices_of_feasible_activation_space) <- dots_to_underscores(force_column_names)
 
     plot_ffs_with_vertices(forces_from_the_vertices_of_feasible_activation_space[,1:3], t(matrix_version_of_generators)[,1:3], alpha_transparency=0.25, range_tension=c(0,20))
+    plot_ffs_with_vertices(forces_from_the_vertices_of_feasible_activation_space[,4:6], t(matrix_version_of_generators)[,4:6], alpha_transparency=0.25, range_tension=c(0,20))
+})
+
+test_that("noiseResponse vectors can be plotted in 3D for 500 maps, 1 replicate per map", {
+  brian_noiseresponse_mit_500_maps_rep_1 <- fread(get_Resilio_filepath("noiseResponse2017_11_30_20_16_06_500_maps_reps_1.txt"), data.table=FALSE)
+  jr3_null_indices <- c(500:750) #estimated by eye Dec 1, 2017, BAC
+  p <- ggplot(brian_noiseresponse_mit_500_maps_rep_1[jr3_null_indices,]) + geom_line(aes(time, JR3_FX), col="red") + geom_line(aes(time, JR3_FY),col="green") + geom_line(aes(time, JR3_FZ), col="blue") + ggtitle("#plot to find the best time to zero jr3 signals output")
+  p
+  ##TODO add shaded part to show the part used for zeroing out sensors
+  # p + geom_rect(data=data.frame(xmin=time[jr3_null_indices[1]],
+  #                           xmax=time[jr3_null_indices[2],
+  #                           ymin=-Inf,
+  #                           ymax=Inf),
+  #           aes(xmin=xmin,xmax=xmax,ymin=ymin,ymax=ymax),
+  #           fill="grey",alpha=0.5)
+
 })
 
 
