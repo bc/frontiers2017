@@ -38,23 +38,58 @@ test_that("500g second trial done on Nov30 works for FFS for forces", {
     matrix_version_of_generators <- matrix(sapply(snapshots, as.numeric), ncol=7)
     forces_from_the_vertices_of_feasible_activation_space <- t(matrix_version_of_generators %*% t(binary_combinations))
     colnames(forces_from_the_vertices_of_feasible_activation_space) <- dots_to_underscores(force_column_names)
-
+    animation_time = 120
+    aspect3d(1/5,1/5,1/5); par3d(windowRect=c(0,0,10000,10000))
     plot_ffs_with_vertices(forces_from_the_vertices_of_feasible_activation_space[,1:3], t(matrix_version_of_generators)[,1:3], alpha_transparency=0.25, range_tension=c(0,20))
+    rgl.snapshot(to_output_folder("plot_ffs_forces_with_vertices_noiseResponse2017_11_30_19_07_22_500g_mit_hand.png"))
+    spin_around_rgl_plot(animation_time)
+    rgl.clear()
+    aspect3d(1,1,1); par3d(windowRect=c(0,0,10000,10000))
     plot_ffs_with_vertices(forces_from_the_vertices_of_feasible_activation_space[,4:6], t(matrix_version_of_generators)[,4:6], alpha_transparency=0.25, range_tension=c(0,20))
+    rgl.snapshot(to_output_folder("plot_ffs_torques_with_vertices_noiseResponse2017_11_30_19_07_22_500g_mit_hand.png"))
+    spin_around_rgl_plot(animation_time)
 })
 
+
+
 test_that("noiseResponse vectors can be plotted in 3D for 500 maps, 1 replicate per map", {
-  brian_noiseresponse_mit_500_maps_rep_1 <- fread(get_Resilio_filepath("noiseResponse2017_11_30_20_16_06_500_maps_reps_1.txt"), data.table=FALSE)
-  jr3_null_indices <- c(500:750) #estimated by eye Dec 1, 2017, BAC
-  p <- ggplot(brian_noiseresponse_mit_500_maps_rep_1[jr3_null_indices,]) + geom_line(aes(time, JR3_FX), col="red") + geom_line(aes(time, JR3_FY),col="green") + geom_line(aes(time, JR3_FZ), col="blue") + ggtitle("#plot to find the best time to zero jr3 signals output")
+  generators_from_noise_response <- function(noiseResponse_filename = "noiseResponse2017_11_30_20_16_06_500_maps_reps_1.txt",jr3_null_indices = c(500:750),JR3_to_fingertip_distance=0.02, last_n_milliseconds=100, muscles_of_interest, force_names_to_predict){
+
+  }
+
+  brian_noiseresponse_mit_500_maps_rep_1 <- fread(get_Resilio_filepath(), data.table=FALSE)
+   #estimated by eye Dec 1, 2017, BAC
+  time_bounds <- list(tic=brian_noiseresponse_mit_500_maps_rep_1$time[head(jr3_null_indices,1)],toc=brian_noiseresponse_mit_500_maps_rep_1$time[tail(jr3_null_indices,1)])
+  brian_noiseresponse_mit_500_maps_rep_1$time[tail(jr3_null_indices,1) )
+  p <- ggplot(head(brian_noiseresponse_mit_500_maps_rep_1, 5000)) + geom_line(aes(time, JR3_FX), col="red") + geom_line(aes(time, JR3_FY),col="green") + geom_line(aes(time, JR3_FZ), col="blue") + ggtitle("#plot to find the best time to zero jr3 signals output")
   p
   ##TODO add shaded part to show the part used for zeroing out sensors
-  # p + geom_rect(data=data.frame(xmin=time[jr3_null_indices[1]],
-  #                           xmax=time[jr3_null_indices[2],
-  #                           ymin=-Inf,
-  #                           ymax=Inf),
-  #           aes(xmin=xmin,xmax=xmax,ymin=ymin,ymax=ymax),
-  #           fill="grey",alpha=0.5)
+  p + geom_rect(data=data.frame(xmin=time_bounds$tic,
+                            xmax=time_bounds$toc,
+                            ymin=-Inf,
+                            ymax=Inf),
+            aes(xmin=xmin,xmax=xmax,ymin=ymin,ymax=ymax),
+            fill="grey",alpha=0.5)
+            noise_response_wo_null <- munge_JR3_data(brian_noiseresponse_mit_500_maps_rep_1, JR3_to_fingertip_distance = JR3_to_fingertip_distance, input_are_voltages=TRUE, indices_for_null=jr3_null_indices, remove_nonzero_map_creation_ids = TRUE)
+
+            p <- plot_measured_command_reference_over_time(noise_response_wo_null)
+            ggsave(to_output_folder(paste0("xray_for_", noiseResponse_filename,".pdf")), p, width=90, height=30, limitsize=FALSE)
+            noise_hand_responses <- split_by_map_and_remove_wrongly_lengthed_samples(noise_response_wo_null)
+            input_output_data <- df_of_hand_response_input_output(noise_hand_responses, last_n_milliseconds)
+            A_fit <- A_fit_from_80_20_split(input_output_data, muscles_of_interest, force_names_to_predict)
+            generator_columns_A_matrix <- t(t(A_fit$AMatrix) %*% diag(7))
+            compute_ranks_of_A(A_fit$AMatrix)
+            # Here, identify a force vector of interest and apply it to the generated A
+            # ffs_vertex <- generator_columns_A_matrix %*% c(rep(20, 7))  #this is used to get one viable force for the model.
+            # ffs_vertex2 <- generator_columns_A_matrix %*% c(c(10,5,15,10,5,10,20))  #this is used to get one viable force for the model.
+            binary_combinations <- custom_binary_combinations(7,c(0,20))
+            binary_combination_ffs_points <- binary_combinations %*% generator_columns_A_matrix
+            plot_ffs_with_vertices(binary_combination_ffs_points[,1:3], generator_columns_A_matrix[,1:3], alpha_transparency=0.25, range_tension=range_tension)
+            points3d(input_output_data[,force_names_to_predict][,1:3], size=1, col="black", alpha=1)
+            title3d(main="FFS", xlab="Fx", ylab="Fy", zlab="Fz", col="black")
+
+
+
 
 })
 
