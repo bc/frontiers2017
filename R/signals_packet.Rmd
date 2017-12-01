@@ -301,8 +301,7 @@ muscle_generator_500g <- as.data.frame(fread(get_Resilio_filepath(jr3_muscle_col
   
 JR3_sensor_null_500g <- colMeans(head(muscle_generator_500g, 3000))
 zeroed_500g_df <- zero_out_JR3_sensors(muscle_generator_500g, JR3_sensor_null_500g)
-  
-  
+
 elapsed_time <- tail(zeroed_500g_df$time,1) - head(zeroed_500g_df$time,1)
 num_samples <-  nrow(zeroed_500g_df)
 empirical_sampling_frequency <- num_samples/elapsed_time
@@ -315,20 +314,27 @@ empirical_sampling_frequency <- num_samples/elapsed_time
 #Small verison to get the seven hold indices
 ggplot(zeroed_500g_df) + geom_line(aes(time, JR3_FY), col="red")  + geom_vline(xintercept=c(13,24,36,50,63,77,91)) +
   scale_x_continuous(breaks = round(seq(min(zeroed_500g_df$time), max(zeroed_500g_df$time), by = 2),1))
+
+zeroed_500g_df_calibrated<- munge_JR3_data(zeroed_500g_df, input_are_voltages = TRUE,indices_for_null=1:2000)
+ggplot(zeroed_500g_df_calibrated) + geom_line(aes(time, JR3_FY), col="red")  + geom_vline(xintercept=c(13,24,36,50,63,77,91)) +
+  scale_x_continuous(breaks = round(seq(min(zeroed_500g_df_calibrated$time), max(zeroed_500g_df_calibrated$time), by = 2),1)) + ylab("Force N")
+
 ```
 
 The vertical slices are the points from which I grabbed 30 datapoints, low pass filtered, got the mean, and used the resultant value as the generator.
 ```{r}
 generator_indices <- c(13, 24,36,50,63,77,91)
 ggplot(zeroed_500g_df) + geom_line(aes(time, JR3_FX), col="red") + geom_line(aes(time, JR3_FY),col="green") + geom_line(aes(time, JR3_FZ), col="blue") + geom_line(aes(time, JR3_MX),col="orange") + geom_line(aes(time, JR3_MY),col="gray") + geom_line(aes(time, JR3_MZ),col="purple") + geom_vline(xintercept=generator_indices) + xlab("Time") + ylab('Force Voltage')
+
+ggplot(zeroed_500g_df_calibrated) + geom_line(aes(time, JR3_FX), col="red") + geom_line(aes(time, JR3_FY),col="green") + geom_line(aes(time, JR3_FZ), col="blue") + geom_line(aes(time, JR3_MX),col="orange") + geom_line(aes(time, JR3_MY),col="gray") + geom_line(aes(time, JR3_MZ),col="purple") + geom_vline(xintercept=generator_indices) + xlab("Time") + ylab("Force N")
 ```
 
 Muscle forces were recorded but should not have any change over time. Seems good. Notice how there are specific bands in Y that the signal hops to- that means we are pushing the precision boundary of the sensor. This means signal variance at rest is low.
 ## Low pass filtered output porcupine of FXYZ VOLTAGES at a 50Hz critical frequency
 
 ```{r}
-force_df <- zeroed_500g_df[,dots_to_underscores(force_column_names)] 
-muscle_500g_generators <- take_running_mean_snapshots(force_df,zeroed_500g_df$time, generator_indices, n_samples_for_running_mean=30)
+force_df <- zeroed_500g_df_calibrated[,dots_to_underscores(force_column_names)] 
+muscle_500g_generators <- take_running_mean_snapshots(force_df,zeroed_500g_df_calibrated$time, generator_indices, n_samples_for_running_mean=30)
 colnames(muscle_500g_generators) <- measured(muscle_names())
 generators <- t(as.data.frame(as.matrix(muscle_500g_generators)))
 axes_for_set(generators[,1:3], sizes=c(3,3,3), dimension_label="F")
