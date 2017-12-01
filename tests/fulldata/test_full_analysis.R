@@ -1,5 +1,11 @@
 context("Testing full-scale full-data tests. Set a timer because it'll be time intensive!")
 
+context("Resilio filepath composition")
+test_that("get resilio filepath creates correct path", {
+  filepath <- get_Resilio_filepath('noPostureNeutralForceTrials2017_11_12_14_53_25.txt')
+  expect_true(file.exists(filepath))
+})
+
 sample_posture_ForceTrials <- read_rds_from_package_extdata("force_trial_adept_x_-527.463336_adept_y_68.rds")
 force_trials_list <- lapply(sample_posture_ForceTrials, ft_to_df)
 print("Loading full_df. Expect 2'")
@@ -46,6 +52,6 @@ test_that("we can plot stability_df for all postures in X", {
   along_x_stability <- produce_stability_plots(fix_y, adept_dimension_that_changes='adept_x')
   along_y_stability <- produce_stability_plots(fix_x, adept_dimension_that_changes='adept_y')
   g <- arrangeGrob(grobs = c(along_x_stability, along_y_stability), nrow = 2)
-  ggsave("../../../output/static_motor_control_properties.pdf", g, device = "pdf", width = 8, height = 4,
+  ggsave("../../output/static_motor_control_properties.pdf", g, device = "pdf", width = 8, height = 4,
   scale = 4, limitsize = FALSE, dpi = 100)
 })

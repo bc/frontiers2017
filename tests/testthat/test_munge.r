@@ -9,6 +9,7 @@ source("../../R/force_trial_stability.r")
 sample_posture_ForceTrials <- read_rds_from_package_extdata("force_trial_adept_x_-527.463336_adept_y_68.rds")
 force_trials_list <- lapply(sample_posture_ForceTrials, ft_to_df)
 muscles_of_interest <- muscle_names() #including all of the muscles for these tests
+#remove parallelization for testing
 pbmclapply <- pblapply
 pbmcapply <- pbapply
 mclapply <- pblapply

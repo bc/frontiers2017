@@ -254,16 +254,16 @@ n_binary_combinations <- function(n) {
 ##' Returns matrix of unique binary combinations '
 ##' TODO Create Test or Retire Function'
 ##' @param n length of the vector
-##' @param tension_range the range that the inputs can be at
-##' @return M matrix where each row is a unique combination of tension_range[1] min and tension_range[2] max
-custom_binary_combinations <- function(n, tension_range){
-  stop_if_min_equals_max(tension_range)
+##' @param range_tension the range that the inputs can be at
+##' @return M matrix where each row is a unique combination of range_tension[1] min and range_tension[2] max
+custom_binary_combinations <- function(n, range_tension){
+  stop_if_min_equals_max(range_tension)
   mat <- n_binary_combinations(n)
   mask_for_ones <- mat == 1
   mask_for_zeros <- mat == 0
   mat[,] <- NA
-  mat[mask_for_ones] <- tension_range[1]
-  mat[mask_for_zeros] <- tension_range[2]
+  mat[mask_for_ones] <- range_tension[1]
+  mat[mask_for_zeros] <- range_tension[2]
   dimnames(mat) <- NULL
   return(mat)
 }
@@ -273,10 +273,10 @@ custom_binary_combinations <- function(n, tension_range){
 ##' use this to see what time the MAP was created in your time zone. E.g.
 ##' https://www.wolframalpha.com/input/?i=unixtime+1510379473228.8129883*1e-3+to+PST
 ##' @param n length of the vector
-##' @param tension_range the range that the inputs can be at
-##' @return M matrix where each row is a unique combination of tension_range[1] min and tension_range[2] max
-compose_binary_combination_df <- function(n,tension_range){
-  newton_values <- custom_binary_combinations(n, tension_range)
+##' @param range_tension the range that the inputs can be at
+##' @return M matrix where each row is a unique combination of range_tension[1] min and range_tension[2] max
+compose_binary_combination_df <- function(n,range_tension){
+  newton_values <- custom_binary_combinations(n, range_tension)
   id_vec <- format(dcc(lapply(1:nrow(newton_values), function(x) as.numeric(Sys.time())*1000)), digits=16)
   reference_value_colnames <- paste0("M",0:(n-1))
   colnames(newton_values) <- reference_value_colnames
@@ -295,10 +295,10 @@ generate_map_creation_ids <- function(n){
 ##' use this to see what time the MAP was created in your time zone. E.g.
 ##' https://www.wolframalpha.com/input/?i=unixtime+1510379473228.8129883*1e-3+to+PST
 ##' @param n length of the vector
-##' @param tension_range the range that the inputs can be at
+##' @param range_tension the range that the inputs can be at
 ##' @param filename desired output directory filepath
-write_binary_combination_csv <- function(n, tension_range, filename){
-  df <- compose_binary_combination_df(n,tension_range)
+write_binary_combination_csv <- function(n, range_tension, filename){
+  df <- compose_binary_combination_df(n,range_tension)
   write.csv(df, filename, row.names=FALSE,quote=FALSE)
 }
 
@@ -318,8 +318,8 @@ stop_if_min_equals_max <- function(input_range){
 ##' @param num_output_dimensions an integer, i.e. 3 if you want to get Fx, Fy and Fz
 ##' @param big_A matrix representing translation of tensions into forces. includes offset vector
 ##' @return forces matrix of endpoint forces'
-pass_unit_cube_to_A <- function(big_A, num_output_dimensions, tension_range){
-  output_b_matrix <- big_A %*% t(left_pad_ones(custom_binary_combinations(ncol(big_A)-1,tension_range)))
+pass_unit_cube_to_A <- function(big_A, num_output_dimensions, range_tension){
+  output_b_matrix <- big_A %*% t(left_pad_ones(custom_binary_combinations(ncol(big_A)-1,range_tension)))
   forces<- t(output_b_matrix[1:num_output_dimensions,])
   return(forces)
 }

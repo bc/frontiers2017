@@ -2,7 +2,8 @@
 % Please edit documentation in R/settling_time_analysis.r
 \name{integer_midpoint}
 \alias{integer_midpoint}
-\title{integer midpoint}
+\title{integer_midpoint
+Gives the floor value for even tuples and center value for odd tuples'}
 \usage{
 integer_midpoint(tuple_of_lower_and_upper)
 }

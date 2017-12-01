@@ -3,6 +3,7 @@ source("R/a_matrix.r")
 source("R/data_description.r")
 source("R/feasible_activation_set.r")
 source("R/feasible_force_set.r")
+source("R/force_vector_replicability.r")
 source("R/force_trial_stability.r")
 source("R/ForceTrial.r")
 source("R/functions_specific_to_frontiers2017_dataset.r")
@@ -12,6 +13,8 @@ source("R/linear_fit.r")
 source("R/settling_time_analysis.r")
 source("R/time_series_functions.r")
 library(gridExtra)
+
+create_output_folder()
 #Having multicore issues? use this to nullify functions that try to parallelize
 # pbmclapply <- pblapply
 # mclapply <- pblapply
@@ -21,7 +24,6 @@ options(error = NULL)
 
 nov12_realTimeDataFormatting <- function(filepath){
   as.data.frame(fread("filepath"))
-  # browser()
 }
 
 

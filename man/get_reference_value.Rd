@@ -2,7 +2,8 @@
 % Please edit documentation in R/settling_time_analysis.r
 \name{get_reference_value}
 \alias{get_reference_value}
-\title{Get reference value from specific row of dataframe
+\title{get_reference_value
+Gets reference value from specific row of dataframe
 TODO test}
 \usage{
 get_reference_value(index_target, full_df, muscle_of_interest)
@@ -14,7 +15,11 @@ get_reference_value(index_target, full_df, muscle_of_interest)
 
 \item{muscle_of_interest}{string, e.g. 'M0'}
 }
+\value{
+full_df numeric reference value from muscle of interest '
+}
 \description{
-Get reference value from specific row of dataframe
+get_reference_value
+Gets reference value from specific row of dataframe
 TODO test
 }
