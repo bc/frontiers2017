@@ -43,3 +43,30 @@ test_that("samples_from_2d_square in Q1 successfully", {
   plot(samples, xlab = "x1", ylab = "x2", pch = 19, cex = 0.25, main = "This should look like a uniformly-sampled square in Q1")
   fas_histogram(samples, range_tension=c(0,1), task=1, breaks=100)
 })
+
+test_that("draw_perpendicular_line", {
+	x1 <- c(1,1)
+	x2 <- c(1,2)
+  draw_perpendicular_line(x1,x2,length_out=5)
+})
+
+test_that('equidistant_points_on_segment', {
+  x1 <- c(1,1)
+  x2 <- c(1,3)
+  xy <- list(x1,x2)
+  pointset <- equidistant_points_on_segment(xy[[1]], xy[[2]], length_out=5)
+
+  expect_equal(pointset[[1]], x1)
+  expect_equal(pointset[[5]], x2)
+})
+
+test_that('point_on_a_segment', {
+  expect_equal(point_on_a_segment(0, 1, lambda=0.5),0.5)
+  expect_equal(point_on_a_segment(c(1,1),c(2,1), lambda=0.5),c(1.5,1))
+  expect_equal(point_on_a_segment(c(1,-1),c(2,1), lambda=0.5),c(1.5,0))
+  expect_equal(point_on_a_segment(c(-1,0),c(2,-1), lambda=0.5),c(1/2,-.5))
+  expect_equal(point_on_a_segment(c(1,1,1),c(2,2,2), lambda=0.5),c(3/2,3/2,3/2))
+  expect_equal(point_on_a_segment(c(0,1),c(2,1), 1),  c(2,1))
+  expect_equal(point_on_a_segment(c(0,1),c(2,1), 0),  c(0,1))
+  expect_equal(point_on_a_segment(c(0,1),c(2,1), 0.5),c(1,1))
+})

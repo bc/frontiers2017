@@ -17,6 +17,10 @@ find_A_matrix <- function(data, regressor_names = measured(muscle_names()), forc
   return(fit)
 }
 
+##' find_A_matrix_without_offset
+##' @param regressor_names,forces_of_interest vector of strings, corresponding to the data.
+##' @param data data frame with inputs and outputs, named the same as regressor_names and forces_of_interest
+##' @param fit fit list with AMatrix, endpointForceObservation and endpointForcePrediction vectors.
 find_A_matrix_without_offset <- function(data, regressor_names = simplify2array(lapply(muscle_names(),
   measured)), forces_of_interest = force_column_names) {
   num_regressor_columns = length(regressor_names)  #inc regressor
@@ -84,8 +88,7 @@ predict_output_force <- function(A, x) {
 ##' TODO Create Test or Retire Function'
 ##' @param A_fit linear A matrix fit element with endpointForceObservation and endpointForcePrediction
 observed_predicted_segments3d <- function(A_fit) {
-  endpoints <- interleave_two_dataframes_as_segments(cbind(A_fit$endpointForceObservation,
-    A_fit$endpointForcePrediction))
+  endpoints <- interleave_two_dataframes_as_segments(cbind(A_fit$endpointForceObservation,A_fit$endpointForcePrediction))
   segments3d(endpoints)
 }
 
@@ -95,8 +98,9 @@ observed_predicted_segments3d <- function(A_fit) {
 ##' @param df dataframe with 3 columns for xyz
 ##' @return df_interleaved df with 3 columns, where every other point is the starting endpoint, and the second (rep) are the ending endpoint.
 interleave_two_dataframes_as_segments <- function(df) {
-  df_interleaved <- data.frame(x = as.vector(t(markers[, c(1, 4)])), y = as.vector(t(markers[,
-    c(2, 5)])), z = as.vector(t(markers[, c(3, 6)])))
+  num_output_dimensions <- ncol(df)/2
+  df_interleaved <- data.frame(x = as.vector(t(df[, c(1, num_output_dimensions+1)])), y = as.vector(t(df[,
+    c(2, num_output_dimensions+2)])), z = as.vector(t(df[, c(3, num_output_dimensions+3)])))
   return(df_interleaved)
 }
 
@@ -322,4 +326,49 @@ pass_unit_cube_to_A <- function(big_A, num_output_dimensions, range_tension){
   output_b_matrix <- big_A %*% t(left_pad_ones(custom_binary_combinations(ncol(big_A)-1,range_tension)))
   forces<- t(output_b_matrix[1:num_output_dimensions,])
   return(forces)
+}
+##' Generator Arrows in 3d
+##' for creating porcupine plots
+##' @param generators matrix where columns are forces. 3 columns. n rows for n generators
+##' @param labels logical, whether or not to print M0, M2, etc. alongside the generator arrow tips.
+generator_arrows <- function(generators, labels=TRUE){
+  apply(generators, 1, function(x) arrow3d(c(0,0,0), x, type = "rotation", col = "#4daf4a", s=0.25, n=5))
+  if (labels){
+    sprite_placement_fraction_of_arrow <- 1.05
+    for (i in seq(1:nrow(generators))) {
+      v <- generators[i,]*sprite_placement_fraction_of_arrow
+      rgl.texts(v, text=muscle_names()[i], col="black")
+    }
+  }
+}
+##' plot_ffs_with_vertices
+##' conv hull of FFS, with points for all n combinations,
+##' with observed output forces to see how many landed in the computed ffs.
+##' @param binary_combination_ffs_points matrix with n columns (number of muscles) and 2^n rows.
+##' @param generators the A matrix generators to plot. each column is a unique output force dimension. Make sure ncol==3
+##' @param range_tension, 1st val lowest force put on strings, 2nd val is max newton tension. i.e. c(0,20)
+plot_ffs_with_vertices <- function(binary_combination_ffs_points, generators, range_tension, ...){
+  rgl.bg(color = "white")
+  ffs_list <- list(binary_combination_ffs_points)
+  axes_for_multiple_sets(ffs_list, sizes=c(3,3,3))
+  generator_arrows(generators*range_tension[2], labels=TRUE)
+  points3d(binary_combination_ffs_points, col="gray", size=5)
+  ffs_mats <- add_gradient_to_attrs(ffs_list, "#a8e843")
+  rgl_convhulls(ffs_mats, points=TRUE,...)
+}
+
+##' compute_ranks_of_A
+##' just prints the ranks of the forces, torques, and forces + torques.
+##' @param A_matrix Amatrix. see output of find_A_matrix
+##' @return list_of_ranks list with numeric results for rank_of_A rank_of_A_forces rank_of_A_torques
+compute_ranks_of_A <- function(A_matrix){
+  rank_of_A <- Matrix:::rankMatrix(A_matrix)
+  rank_of_A_forces <- Matrix:::rankMatrix(A_matrix[1:3,])
+  rank_of_A_torques <- Matrix:::rankMatrix(A_matrix[4:6,])
+  message(paste(paste("Ranks: A", rank_of_A),
+  paste(", A_forces", rank_of_A_forces),
+  paste(", A_torques", rank_of_A_torques)))
+  return(list(rank_of_A =   rank_of_A,
+rank_of_A_forces = rank_of_A_forces,
+rank_of_A_torques = rank_of_A_torques))
 }
