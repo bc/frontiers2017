@@ -179,9 +179,11 @@ jr3_voltages_to_forces <- function(dataframe_with_jr3_voltage_columns){
 ##' 3. Remove all map_creation_id values that are 0.0 (used in setup and teardown)
 ##' @param raw_uncut_timeseries_data time series with the M0, M1, and JR3_FX, and time, etc.
 ##' @param input_are_voltages logical, by default FALSE. If you put in raw voltages then make this TRUE. It will use the calibration matrix to fix values to their N and Nm equivalents.
+##' @param indices_for_null indices of the time series (row indices) that will be used to compute the 0'ing out of the JR3 sensor.
+##' @param remove_nonzero_map_creation_ids logical, only put this in if you prescribed maps with the input CSV. if you were messing around while the motors were at rest, or the motors were off, just set this to false.
 ##' @return timeseries_data time series with the M0, M1, and JR3_FX, and time, etc, but with transformations applied.
-munge_JR3_data <- function(raw_uncut_timeseries_data,JR3_to_fingertip_distance = 0.02, input_are_voltages=FALSE){
-  JR3_sensor_null <- colMeans(head(raw_uncut_timeseries_data, 100))
+munge_JR3_data <- function(raw_uncut_timeseries_data,JR3_to_fingertip_distance = 0.02, input_are_voltages=FALSE, indices_for_null=1:100, remove_nonzero_map_creation_ids = TRUE){
+  JR3_sensor_null <- colMeans(raw_uncut_timeseries_data[indices_for_null,])
   zeroed_uncut_timeseries_data <- zero_out_JR3_sensors(raw_uncut_timeseries_data, JR3_sensor_null)
   if(input_are_voltages){
     message("Converting voltages into forces and torques")
@@ -189,8 +191,10 @@ munge_JR3_data <- function(raw_uncut_timeseries_data,JR3_to_fingertip_distance =
   }
   noise_response <- jr3_coordinate_transformation_along_z(zeroed_uncut_timeseries_data, JR3_to_fingertip_distance)
   # make sure the JR3 signals respond in some way to the changes.
-  noise_response_wo_null <- noise_response[noise_response$map_creation_id != 0, ]
-  return(noise_response_wo_null)
+  if (remove_nonzero_map_creation_ids){
+    noise_response <- noise_response[noise_response$map_creation_id != 0, ]
+  }
+  return(noise_response)
 }
 ##' length of element is within range (takes in list)
 ##' We only want the forcetrials that have the correct length to continue on for analysis.

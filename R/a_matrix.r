@@ -23,8 +23,8 @@ find_A_matrix <- function(data, regressor_names = measured(muscle_names()), forc
 ##' @param fit fit list with AMatrix, endpointForceObservation and endpointForcePrediction vectors.
 find_A_matrix_without_offset <- function(data, regressor_names = simplify2array(lapply(muscle_names(),
   measured)), forces_of_interest = force_column_names) {
-  num_regressor_columns = length(regressor_names)  #inc regressor
-  num_response_columns = length(forces_of_interest)
+  num_regressor_columns <- length(regressor_names)  #inc regressor
+  num_response_columns <- length(forces_of_interest)
   regressor <- as.matrix(data[regressor_names])
   endpointForceObservation <- data[forces_of_interest]
   AMatrix <- lin_qr_solve(regressor, endpointForceObservation)

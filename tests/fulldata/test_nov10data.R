@@ -22,8 +22,8 @@ force_names_to_predict <- c("JR3_FX","JR3_FY","JR3_FZ","JR3_MX","JR3_MY","JR3_MZ
 # hand. noise input 100 = num_maps input:
 # no_spaces_noise_lo_0_hi_20_nmaps_500_replicates_1.csv
 
-untransformed_noise_response <- as.data.frame(fread(get_Resilio_filepath("noiseResponse2017_11_24_18_27_55_noiseResponse_MIT_test.txt")))
-noise_response_wo_null <- munge_JR3_data(untransformed_noise_response, input_are_voltages=FALSE)
+untransformed_noise_response <- as.data.frame(fread(get_Resilio_filepath("noiseResponse2017_11_30_20_16_06_500_maps_reps_1.txt")))
+noise_response_wo_null <- munge_JR3_data(untransformed_noise_response, input_are_voltages=TRUE, indices_for_null=50:250)
 p <- plot_measured_command_reference_over_time(noise_response_wo_null)
 ggsave(to_output_folder("xray_for_noiseReponse.pdf"), p, width=90, height=30, limitsize=FALSE)
 noise_hand_responses <- split_by_map_and_remove_wrongly_lengthed_samples(noise_response_wo_null)
