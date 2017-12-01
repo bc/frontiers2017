@@ -1,4 +1,4 @@
-generators_from_noise_response <- function(noiseResponse_filename = "noiseResponse2017_11_30_20_16_06_500_maps_reps_1.txt",jr3_null_indices = c(500:750),JR3_to_fingertip_distance=0.02, last_n_milliseconds=100, muscles_of_interest=muscle_names(), force_names_to_predict=dots_to_underscores(force_column_names), range_tension=c(0,20)){
+generators_from_noise_response <- function(noiseResponse_filename,jr3_null_indices,JR3_to_fingertip_distance=0.02, last_n_milliseconds=100, muscles_of_interest=muscle_names(), force_names_to_predict=dots_to_underscores(force_column_names), range_tension=c(0,20)){
     brian_noiseresponse_mit_500_maps_rep_1 <- fread(get_Resilio_filepath(noiseResponse_filename), data.table=FALSE)
      #estimated by eye Dec 1, 2017, BAC
     time_bounds <- list(tic=brian_noiseresponse_mit_500_maps_rep_1$time[head(jr3_null_indices,1)],toc=brian_noiseresponse_mit_500_maps_rep_1$time[tail(jr3_null_indices,1)])
@@ -53,4 +53,14 @@ generators_from_noise_response <- function(noiseResponse_filename = "noiseRespon
 
 
               return(noise_response_data_fit)
+}
+
+##' helper_plot_for_finding_generator_timepoints
+##' userful for getting the right indices and showing a vertical line at each one.
+##' @param timeseries_df has time column and JR3_FX column at least.
+##' @param generator_indices list of numeric values representing the time point that vertical lines will be drawn. put 1 to start with something at the first second.
+##' @return p ggplot line plot of JR3 signal over the full course of nrow(timeseries_df)
+helper_plot_for_finding_generator_timepoints <- function(timeseries_df, generator_indices){
+  ggplot(timeseries_df) + geom_line(aes(time, JR3_FX), col="red")  + geom_vline(xintercept=generator_indices) +
+    scale_x_continuous(breaks = round(seq(min(timeseries_df$time), max(timeseries_df$time), by = 2),1)) + ggtitle("#plot to find the time slices where we should grab the JR3 wrench for each muscle")
 }

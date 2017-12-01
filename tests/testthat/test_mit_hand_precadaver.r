@@ -30,8 +30,8 @@ test_that("500g second trial done on Nov30 works for FFS for forces", {
   ggplot(brian_timeseries_with_500g_3reps) + geom_line(aes(time, JR3_FX), col="red") + geom_line(aes(time, JR3_FY),col="green") + geom_line(aes(time, JR3_FZ), col="blue") + ggtitle("#plot to find the best time to zero jr3 signals output")
   zeroed_500g_df <- munge_JR3_data(brian_timeseries_with_500g_3reps, input_are_voltages = TRUE, indices_for_null = 1:4000, remove_nonzero_map_creation_ids = FALSE)
   generator_indices <- c(19,31,42,53,65,76,88)
-  ggplot(zeroed_500g_df) + geom_line(aes(time, JR3_FX), col="red")  + geom_vline(xintercept=generator_indices) +
-    scale_x_continuous(breaks = round(seq(min(zeroed_500g_df$time), max(zeroed_500g_df$time), by = 2),1)) + ggtitle("#plot to find the time slices where we should grab the JR3 wrench for each of 7 muscles")
+  helper_plot_for_finding_generator_indices(zeroed_500g_df,generator_indices)
+
   ggplot(zeroed_500g_df) + geom_line(aes(time, JR3_FX), col="red") + geom_line(aes(time, JR3_FY),col="green") + geom_line(aes(time, JR3_FZ), col="blue") + geom_line(aes(time, JR3_MX),col="orange") + geom_line(aes(time, JR3_MY),col="gray") + geom_line(aes(time, JR3_MZ),col="purple") + geom_vline(xintercept=generator_indices) + xlab("Time") + ylab('Force in Newtons, Newton-Meters') + ggtitle('show forces at each trial, with slice for each wrench')
     snapshots <- take_running_mean_snapshots(zeroed_500g_df,zeroed_500g_df$time, generator_indices, n_samples_for_running_mean=30)
     colnames(snapshots) <- measured(muscle_names())
@@ -50,21 +50,20 @@ test_that("500g second trial done on Nov30 works for FFS for forces", {
     plot_ffs_with_vertices(forces_from_the_vertices_of_feasible_activation_space[,4:6], t(matrix_version_of_generators)[,4:6], alpha_transparency=0.25, range_tension=c(0,20))
     rgl.snapshot(to_output_folder("plot_ffs_torques_with_vertices_noiseResponse2017_11_30_19_07_22_500g_mit_hand.png"))
     spin_around_rgl_plot(animation_time)
+
 })
 
 
 
 test_that("noiseResponse vectors can be plotted in 3D for 500 maps, 1 replicate per map", {
-  generators_from_noise_response()
+  noise_response_model_and_data <- generators_from_noise_response("noiseResponse2017_11_30_20_16_06_500_maps_reps_1.txt", jr3_null_indices = c(500:750))
+})
 
-
-
-
-
+test_that("compare noiseResponse2017_11_30_20_16_06_500_maps_reps_1.txt with 500g manual generators", {
+  noise_response_model_and_data <- generators_from_noise_response()
 
 
 })
-
 
 test_that("when tendons are fixed to posts the signals look acceptable",{
     timeseries_tendons_to_posts <- fread(get_Resilio_filepath("noiseResponse2017_11_30_19_59_30_tendons_to_posts_mit8pm.txt"), data.table=FALSE)
