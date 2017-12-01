@@ -30,8 +30,7 @@ test_that("500g second trial done on Nov30 works for FFS for forces", {
   ggplot(brian_timeseries_with_500g_3reps) + geom_line(aes(time, JR3_FX), col="red") + geom_line(aes(time, JR3_FY),col="green") + geom_line(aes(time, JR3_FZ), col="blue") + ggtitle("#plot to find the best time to zero jr3 signals output")
   zeroed_500g_df <- munge_JR3_data(brian_timeseries_with_500g_3reps, input_are_voltages = TRUE, indices_for_null = 1:4000, remove_nonzero_map_creation_ids = FALSE)
   generator_indices <- c(19,31,42,53,65,76,88)
-  helper_plot_for_finding_generator_indices(zeroed_500g_df,generator_indices)
-
+  helper_plot_for_finding_generator_timepoints(zeroed_500g_df,generator_indices)
   ggplot(zeroed_500g_df) + geom_line(aes(time, JR3_FX), col="red") + geom_line(aes(time, JR3_FY),col="green") + geom_line(aes(time, JR3_FZ), col="blue") + geom_line(aes(time, JR3_MX),col="orange") + geom_line(aes(time, JR3_MY),col="gray") + geom_line(aes(time, JR3_MZ),col="purple") + geom_vline(xintercept=generator_indices) + xlab("Time") + ylab('Force in Newtons, Newton-Meters') + ggtitle('show forces at each trial, with slice for each wrench')
     snapshots <- take_running_mean_snapshots(zeroed_500g_df,zeroed_500g_df$time, generator_indices, n_samples_for_running_mean=30)
     colnames(snapshots) <- measured(muscle_names())
@@ -53,14 +52,46 @@ test_that("500g second trial done on Nov30 works for FFS for forces", {
 
 })
 
-
-
 test_that("noiseResponse vectors can be plotted in 3D for 500 maps, 1 replicate per map", {
   noise_response_model_and_data <- generators_from_noise_response("noiseResponse2017_11_30_20_16_06_500_maps_reps_1.txt", jr3_null_indices = c(500:750))
 })
 
 test_that("compare noiseResponse2017_11_30_20_16_06_500_maps_reps_1.txt with 500g manual generators", {
-  noise_response_model_and_data <- generators_from_noise_response()
+  noise_response_model_and_data <- generators_from_noise_response("noiseResponse2017_11_30_20_16_06_500_maps_reps_1.txt", jr3_null_indices = c(500:750))
+
+  animation_time = 120
+  brian_timeseries_with_500g_3reps <- fread(get_Resilio_filepath("noiseResponse2017_11_30_19_07_22_500g_mit_hand.txt"), data.table=FALSE)
+  ggplot(brian_timeseries_with_500g_3reps) + geom_line(aes(time, JR3_FX), col="red") + geom_line(aes(time, JR3_FY),col="green") + geom_line(aes(time, JR3_FZ), col="blue") + ggtitle("#plot to find the best time to zero jr3 signals output")
+  zeroed_500g_df <- munge_JR3_data(brian_timeseries_with_500g_3reps, input_are_voltages = TRUE, indices_for_null = 1:4000, remove_nonzero_map_creation_ids = FALSE)
+  generator_indices <- c(19,31,42,53,65,76,88)
+  helper_plot_for_finding_generator_timepoints(zeroed_500g_df,generator_indices)
+  ggplot(zeroed_500g_df) + geom_line(aes(time, JR3_FX), col="red") + geom_line(aes(time, JR3_FY),col="green") + geom_line(aes(time, JR3_FZ), col="blue") + geom_line(aes(time, JR3_MX),col="orange") + geom_line(aes(time, JR3_MY),col="gray") + geom_line(aes(time, JR3_MZ),col="purple") + geom_vline(xintercept=generator_indices) + xlab("Time") + ylab('Force in Newtons, Newton-Meters') + ggtitle('show forces at each trial, with slice for each wrench')
+    snapshots <- take_running_mean_snapshots(zeroed_500g_df,zeroed_500g_df$time, generator_indices, n_samples_for_running_mean=30)
+    colnames(snapshots) <- measured(muscle_names())
+    matrix_version_of_generators <- matrix(sapply(snapshots, as.numeric), ncol=7)
+    scaled_matrix_version_of_generators <- matrix_version_of_generators*0.05
+    forces_from_the_vertices_of_feasible_activation_space <- t(scaled_matrix_version_of_generators %*% t(binary_combinations))
+    colnames(forces_from_the_vertices_of_feasible_activation_space) <- dots_to_underscores(force_column_names)
+
+
+    #FFS Forces from 500g
+    rgl.clear(); aspect3d(1/5,1/5,1/5); par3d(windowRect=c(0,0,10000,10000))
+    plot_ffs_with_vertices(forces_from_the_vertices_of_feasible_activation_space[,1:3], t(scaled_matrix_version_of_generators)[,1:3], alpha_transparency=0.25, range_tension=c(0,20))
+    rgl.snapshot(to_output_folder("plot_ffs_forces_with_vertices_noiseResponse2017_11_30_19_07_22_500g_mit_hand.png"))
+    # spin_around_rgl_plot(animation_time)
+    #FFS forces from noiseResponse
+    observed_forces <- noise_response_model_and_data$input_output_data[,force_names_to_predict]
+    points3d(observed_forces[,1:3], col="blue", size=7)
+
+    #FTS torques from 500g
+    rgl.clear(); aspect3d(1/5,1/5,1/5); par3d(windowRect=c(0,0,10000,10000))
+    plot_ffs_with_vertices(forces_from_the_vertices_of_feasible_activation_space[,4:6], t(scaled_matrix_version_of_generators)[,4:6], alpha_transparency=0.25, range_tension=c(0,20))
+    rgl.snapshot(to_output_folder("plot_ffs_forces_with_vertices_noiseResponse2017_11_30_19_07_22_500g_mit_hand.png"))
+    # spin_around_rgl_plot(animation_time)
+    #FTS torques from noiseResponse
+    observed_forces <- noise_response_model_and_data$input_output_data[,force_names_to_predict]
+    points3d(observed_forces[,4:6], col="black", size=7)
+
 
 
 })

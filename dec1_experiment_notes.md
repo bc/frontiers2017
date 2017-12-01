@@ -7,3 +7,5 @@
 - Mount a camera above the dissection area.
 - Mount a camera above the hand during experiment with clock
 - Mount a GoPro very close to the endpoint location to see minor movements in the fingertip/joints.
+- Put a paper towel underneath the hand when moving it from dissection table to Neuromorphic mount.
+- Replace nuts with wing nuts for the cadaver mounts so they can be moved quickly.

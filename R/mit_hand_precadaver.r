@@ -1,3 +1,4 @@
+##' includes munging of jr3
 generators_from_noise_response <- function(noiseResponse_filename,jr3_null_indices,JR3_to_fingertip_distance=0.02, last_n_milliseconds=100, muscles_of_interest=muscle_names(), force_names_to_predict=dots_to_underscores(force_column_names), range_tension=c(0,20)){
     brian_noiseresponse_mit_500_maps_rep_1 <- fread(get_Resilio_filepath(noiseResponse_filename), data.table=FALSE)
      #estimated by eye Dec 1, 2017, BAC
