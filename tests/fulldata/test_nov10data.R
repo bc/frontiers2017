@@ -45,98 +45,90 @@ title3d(main="FFS", xlab="Fx", ylab="Fy", zlab="Fz", col="black")
 message('Pick 2 points to define the horizontal line endpoints.')
 
 horizontal_line_points <- identify_n_points_from_pointcloud(binary_combination_ffs_points[,1:3],n=2)
-horizontal_line_tasks <- dcrb(draw_perpendicular_line(horizontal_line_points[1,],horizontal_line_points[2,],5))
+horizontal_line_tasks <- dcrb(draw_perpendicular_line(horizontal_line_points[1,],horizontal_line_points[2,],10))
 spheres3d(horizontal_line_tasks, r=0.10, col="pink")
 message('Pick 1 point to define the scaling direction.')
 task_direction_to_scale <- identify_n_points_from_pointcloud(binary_combination_ffs_points[,1:3],n=1)
 map_that_created_task_dir <- binary_combinations[which(binary_combination_ffs_points[,1]==task_direction_to_scale[1]),]
 
-
 #Now show the torque FAS just to show what dimensions it is constrained in.
 rgl.init()
 plot_ffs_with_vertices(binary_combination_ffs_points[,4:6], generator_columns_A_matrix[,4:6], alpha_transparency=0.25, range_tension=range_tension)
 
-
-
 ############ MANUAL: IDENTIFY TASK MULTIPLIER BOUNDS FOR SCALING
-task_bounds <- c(0, 0.2)
-num_samples_desired <- 10
-num_tasks <- 30
+task_bounds <- c(0, 1)
+num_samples_desired <- 100
+num_tasks <- 10
 task_multiplier_list <- seq(task_bounds[1], task_bounds[2], length.out = num_tasks)
 task_df <- t(task_direction_to_scale %*% t(task_multiplier_list))
 colnames(task_df) <- force_names_to_predict[1:3]
-sset <- multiple_tasks_to_sset(A_fit$AMatrix,task_df, thin=100, torque_max_deviation=0.1, num_samples_desired=num_samples_desired)
-sset_feasible <- filter_infeasible_tasks(sset, A_fit$AMatrix, max_allowable_residual_from_expected=1e-3)
+sset_scaling <- multiple_tasks_to_sset(A_fit$AMatrix,task_df, thin=100, torque_max_deviation=0.1, num_samples_desired=num_samples_desired)
+sset_feasible_scaling <- filter_infeasible_tasks(sset_scaling, A_fit$AMatrix, max_allowable_residual_from_expected=1e-3)
 
+dcc(lapply(sset_feasible_scaling, function(samples){
+  boxplot(samples)
+  return(attr(samples,'task')[3])
+}))
 
-##' Filter Infeasible Tasks
-##' This is useful when you find that the hit and run algorithm doesn't always
-##' have a solution that will meet the torque and force criteria. but it will
-##' silently pass through some muscle activation patterns that are way over
-##' the range_tension.
-##' @param sset,AMatrix,max_allowable_residual_from_expected see multiple_tasks_to_sset for example input classes
-##' @return sset_feasible same list but only with the feasible ones remaining.
-filter_infeasible_tasks <- function(sset, AMatrix, max_allowable_residual_from_expected=1e-3){
-  which_tasks_are_feasible <- indices_of_feasible_samples(sset, AMatrix, max_allowable_residual_from_expected)
-  sset_feasible <- sset[which_tasks_are_feasible]
-  feasible_proportion_message(sset, sset_feasible, task_bounds)
-  return(sset_feasible)
-}
-
-
-independent_torque_max_deviation <- seq(1e-1,10, length.out=20)
-propostion_response <- pblapply(independent_torque_max_deviation, function(e){
-  which_tasks_are_feasible <- indices_of_feasible_samples(sset, A_fit$AMatrix, max_allowable_residual_from_expected=1e-3)
-  sset <- multiple_tasks_to_sset(A_fit$AMatrix,task_df, thin=100, torque_max_deviation=e, num_samples_desired=num_samples_desired)
-  which_tasks_are_feasible <- indices_of_feasible_samples(sset, A_fit$AMatrix, max_allowable_residual_from_expected=1e-3)
-
-
-  browser()
-  return(proportion_of_tasks_are_feasible)
-})
-
-plot(independent_torque_max_deviation, propostion_response)
-
-sset_feasible <- sset[which_tasks_are_feasible]
-proportion_of_tasks_are_feasible <- length(sset_feasible) / length(sset)
-l1_cost_limits <- lapply(sset_feasible, l1_cost_limits)
+l1_cost_limits <- lapply(sset_feasible_scaling, l1_cost_limits)
 how_muscle_lower_bound_changes <- dcc(lapply(l1_cost_limits, function(lo_hi){
   lo_hi[1,2]
 }))
-
 #sanity check plots
 plot(how_muscle_lower_bound_changes, type='l',ylab="M0 in lowest l1 soln", xlab="Task Intensity")
-histogram_muscle_projections(sset, range_tension)
-expect_five_points_in_row(sset)
+histogram_muscle_projections(sset_scaling, range_tension)
+expect_five_points_in_row(sset_scaling)
 
 
-
+browser()
 ####### Visualize the FAS sets that are produced by feeding in the noiseResponse data.
-rgl.init()
-num_tasks <- length(sset)
+rgl.clear()
+num_tasks <- length(sset_feasible_scaling)
 rgl_init(bg = "white")
-extract_3cols <- lapply(sset, function(x) x[, c(2, 3, 4)])
+extract_3cols <- lapply(sset_feasible_scaling, function(x) x[, c(1, 2, 3)])
+extract_3cols[[1]] <- NULL #remove the 00000 force
 gradient <- colorRampPalette(c("#a6cee3", "#1f78b4", "#b2df8a", "#fc8d62", "#ffffb3",
   "#bebada"))
 list_of_mats <- add_gradient_to_attrs(extract_3cols, gradient(length(extract_3cols)))
-list_of_mats <- lapply(list_of_mats, function(x) x/1e5)
-rgl.clear()
+list_of_mats <- lapply(list_of_mats, function(x) x)
+
 axes_for_multiple_sets(list_of_mats)
 axes_for_defined_xyz_limits(rep(list(c(0, 20)), 3))
 rgl_convhulls(list_of_mats, points = TRUE)
 
-res <- lapply(sset, create_and_cbind_map_creation_ids, muscle_names())
+
+##########PREP CSV MAPS FOR SCALING ###############
+res <- lapply(sset_feasible_scaling, create_and_cbind_map_creation_ids, muscle_names())
 big_har_set_to_test_on_finger <- dcrb(res)
 write.csv(big_har_set_to_test_on_finger, to_output_folder("scaling_task_n100_per_outputvec_of_interest_5_steps_no_replicates.csv"),
   row.names = FALSE, quote = FALSE)
-# Make sure the output looks correct
-prescribed_maps <- as.data.frame(fread(to_output_folder("scaling_task_n100_per_outputvec_of_interest_5_steps_no_replicates.csv")))
-maps_without_ids <- unique(prescribed_maps[muscle_names()])
-expected_forces <- t(as.matrix(A_fit$AMatrix)) %*% t(as.matrix(maps_without_ids[,
-  muscles_of_interest]))
-  # , xlim = c(-0.5, 0), ylim = c(-2, 2), zlim = c(-2, 2)
-plot3d(t(expected_forces))
-## Quickly make sure that the saved file has only 5 output points expected.
+
+#sanity check:
+expect_five_points_in_row_for_csv_maps(filename = "scaling_task_n100_per_outputvec_of_interest_5_steps_no_replicates.csv", A_fit=A_fit)
+
+
+
+
+############ MANUAL: IDENTIFY TASK MULTIPLIER BOUNDS FOR HORIZONTAL
+  num_samples_desired <- 100
+  colnames(horizontal_line_tasks) <- force_names_to_predict[1:3]
+  sset_scaling_horizontal <- multiple_tasks_to_sset(A_fit$AMatrix,horizontal_line_tasks, thin=100, torque_max_deviation=0.1, num_samples_desired=num_samples_desired)
+  sset_feasible_horizontal <- filter_infeasible_tasks(sset_scaling_horizontal, A_fit$AMatrix, max_allowable_residual_from_expected=1e-3)
+
+#wait, which ones were feasible?
+  dcc(lapply(sset_feasible_horizontal, function(samples){
+    boxplot(samples)
+    return(attr(samples,'task')[3])
+  }))
+
+  ##########PREP CSV MAPS FOR HORIZONTAL REDIRECTION TASK ###############
+  res <- lapply(sset_feasible_horizontal, create_and_cbind_map_creation_ids, muscle_names())
+  big_har_set_to_test_on_finger <- dcrb(res)
+  write.csv(big_har_set_to_test_on_finger, to_output_folder("horizontal_task_n100_per_outputvec_of_interest_6_steps_no_replicates.csv"),
+  row.names = FALSE, quote = FALSE)
+
+
+########################DO ALL OF THE STUFF BELOW ON ANOTHER DAY AFTER LOTS OF SLEEP ###############################################
 
 ## TODO GET data from the cadaver finger from big_har_set_to_test_on_finger this
 ## is the response when you push in the maps for 5 tasks through the finger

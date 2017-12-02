@@ -167,3 +167,32 @@ test_that('we can produce binary combinations csv to run alonside noise', {
   write.csv(binary_table, to_output_folder("binary_combinations_no_replicates.csv"),
     row.names = FALSE, quote = FALSE)
 })
+
+
+test_that("evaluate different threshlds for 0-torque requirements", {
+  set.seed(4)
+  AMatrix <- read_rds_from_package_extdata("AMatrix_from_noiseResponse2017_11_30_20_16_06_500_maps_reps_1.rds")
+  task_direction_to_scale <- structure(c(-0.721932856327753, 0.238452819934866, -3.86312115412912), .Names = c("JR3_FX", "JR3_FY", "JR3_FZ"))
+  task_bounds <- c(0, 0.15)
+  num_samples_desired <- 10
+  num_tasks <- 4
+  task_multiplier_list <- seq(task_bounds[1], task_bounds[2], length.out = num_tasks)
+  task_df<- t(task_direction_to_scale %*% t(task_multiplier_list))
+  colnames(task_df) <- force_names_to_predict[1:3]
+  sset <- multiple_tasks_to_sset(A_fit$AMatrix,task_df, thin=100, torque_max_deviation=0.01, num_samples_desired=num_samples_desired)
+  sset_feasible <- filter_infeasible_tasks(sset, A_fit$AMatrix, max_allowable_residual_from_expected=1e-3)
+
+
+  independent_torque_max_deviation <- seq(0,10, length.out=100)
+
+  propostion_response <- pblapply(independent_torque_max_deviation, function(e){
+    sset <- multiple_tasks_to_sset(AMatrix,task_df, thin=100, torque_max_deviation=0.1, num_samples_desired=num_samples_desired)
+    sset_feasible <- filter_infeasible_tasks(sset, AMatrix, max_allowable_residual_from_expected=1e-3)
+    proportion_of_tasks_are_feasible <- length(sset_feasible)/length(sset)
+    return(proportion_of_tasks_are_feasible)
+  })
+
+plot(independent_torque_max_deviation, propostion_response)
+
+
+})
