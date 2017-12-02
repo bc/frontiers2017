@@ -57,7 +57,7 @@ rgl.init()
 plot_ffs_with_vertices(binary_combination_ffs_points[,4:6], generator_columns_A_matrix[,4:6], alpha_transparency=0.25, range_tension=range_tension)
 
 ############ MANUAL: IDENTIFY TASK MULTIPLIER BOUNDS FOR SCALING
-task_bounds <- c(0, 0.5)
+task_bounds <- c(1e-2, 0.5)
 num_samples_desired <- 100
 num_tasks <- 10
 task_multiplier_list <- seq(task_bounds[1], task_bounds[2], length.out = num_tasks)
@@ -99,7 +99,7 @@ rgl_convhulls(list_of_mats, points = TRUE)
 
 
 ##########PREP CSV MAPS FOR SCALING ###############
-res <- lapply(sset_feasible_scaling, create_and_cbind_map_creation_ids, muscle_names())
+res <- lapply(tail(sset_feasible_scaling,5), create_and_cbind_map_creation_ids, muscle_names())
 big_har_set_to_test_on_finger <- dcrb(res)
 write.csv(big_har_set_to_test_on_finger, to_output_folder("scaling_task_n100_per_outputvec_of_interest_5_steps_no_replicates.csv"),
   row.names = FALSE, quote = FALSE)
