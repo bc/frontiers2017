@@ -11,6 +11,16 @@ stabilization_err_99_percentile <- 0.4
 ##' @return muscle_names list of strings of names, i.e. 'M0, ...'
 muscle_names <- function() c("M0", "M1", "M2", "M3", "M4", "M5", "M6")
 
+##' Path to output folder
+##' @return path to output folder if it is in '"~/Documents/GitHub/bc/frontiers2017/output/"
+path_to_output_folder <- function(){
+  "~/Documents/GitHub/bc/frontiers2017/output/"
+}
+##' Filepath in the frontiers2017 output folder
+##' @return path to output folder if it is in '"~/Documents/GitHub/bc/frontiers/output/"
+to_output_folder <- function(filename){
+  paste0(path_to_output_folder(),filename)
+}
 
 maximum_tendon_force <- 20
 minimum_tendon_force <- 3
@@ -216,7 +226,7 @@ create_and_cbind_map_creation_ids <- function(df_of_maps, muscles_of_interest) {
 
 ##' df_of_hand_response_input_output
 ##' takes in the hand responses, outputs a dataframe that you can use to interpret
-##' the static tension-force relationship.
+##' the static tension-force relationship. takes colMeans of last N milliseconds
 ##' result typically passed to df_split_into_training_and_testing
 ##' TODO Test or retire'
 ##' @param noise_hand_responses a list of multiple timeseries dataframes, each with the input muscle columns and output columns.
@@ -228,14 +238,16 @@ df_of_hand_response_input_output <- function(noise_hand_responses, last_n_millis
 ##' plot_measured_command_reference_over_time
 ##' used to visualize whether the data is being collected across each of the muscles. Visual inspection of settling time too.'
 ##' @param sample_maps_data raw timeseries DF, with measured, command, and JR3_FX columns, etc.
-plot_measured_command_reference_over_time <- function(sample_maps_data){
+##' @param ... passed parameters (e.g. include_forces)
+##' @return grob that contains all six of the points. ready for ggsave.
+plot_measured_command_reference_over_time <- function(sample_maps_data,...){
 plot_list <- list(
-  plot_input_output_signals(head(sample_maps_data, 10000)),
-  plot_input_output_signals(head(sample_maps_data, 10000), command),
-  plot_input_output_signals(head(sample_maps_data, 10000), reference),
-  plot_input_output_signals(downsampled_df(sample_maps_data, 100)),
-  plot_input_output_signals(downsampled_df(sample_maps_data, 100), reference),
-  plot_input_output_signals(downsampled_df(sample_maps_data,100), command)
+  plot_input_output_signals(head(sample_maps_data, 10000), ...),
+  plot_input_output_signals(head(sample_maps_data, 10000), command, ...),
+  plot_input_output_signals(head(sample_maps_data, 10000), reference, ...),
+  plot_input_output_signals(downsampled_df(sample_maps_data, 100), ...),
+  plot_input_output_signals(downsampled_df(sample_maps_data, 100), reference, ...),
+  plot_input_output_signals(downsampled_df(sample_maps_data,100), command, ...)
 )
-  ggsave("../../output/xray_for_noiseReponse.pdf", arrangeGrob(grobs=plot_list, nrow = 2), width=90, height=30, limitsize=FALSE)
+  return(arrangeGrob(grobs=plot_list, nrow = 2))
 }

@@ -8,8 +8,8 @@ r:
   - 3.4.2
 notifications:
      slack:          kaspectscientists:OFGveqm4qxt26CPytZrHUxSV
-r_packages:
-  - covr
+r_github_packages:
+  - r-lib/covr
 after_success:
-  - Rscript -e 'library(covr); codecov()'
-  # - Rscript -e 'lintr::lint_package(".", linters = lintr::with_defaults(lintr::line_length_linter(120)))'
+  - Rscript -e 'covr::coveralls()'
+    - Rscript -e 'covr::codecov()'

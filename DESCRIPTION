@@ -1,7 +1,7 @@
 Package: frontiers2017
 Title: Prepares and analyzes all data for frontiers2017 paper.
-Version: 0.0.4
-Authors@R: person("First", "Last", email = "first.last@example.com",
+Version: 0.0.5
+Authors@R: person("Brian", "Cohn", email = "brian.cohn@usc.edu",
                   role = c("aut", "cre"))
 Description: Analyzes muscle tension to endpoint force relationships
 Depends:
@@ -23,9 +23,11 @@ Depends:
   hitandrun,
   pbapply,
   rgl,
-  geometry
-Suggests:
-  lintr
+  geometry,
+  covr
+Suggests: 
+    lintr,
+    covr
 License: USC
 Encoding: UTF-8
 LazyData: true
