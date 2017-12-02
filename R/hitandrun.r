@@ -128,7 +128,7 @@ constraints_to_points <- function(muscle_column_generators, range_tension, task,
 ##' @param thin mixing time integer
 ##' @return samples matrix of samples, ncol == muscle_column_generators, nrow == num_samples_desired
 constraints_inc_torque_to_points <- function(muscle_column_generators, range_tension,
-  task, num_samples_desired, thin, torque_max_deviation = 0.01) {
+  task, num_samples_desired, thin, torque_max_deviation) {
   num_muscles <- ncol(muscle_column_generators)
   bound_constraints <- mergeConstraints(create_bound_constraints(constraints_width = num_muscles,
     range_tension))
@@ -157,17 +157,13 @@ fas_histogram <- function(samples, range_tension, task, ...) {
 }
 
 
-##' Print show_l1_costs to help idenfity which tasks have multiple solutions
-##' @param samples see constraints_to_points
-##' @param task see constraints_to_points
-show_l1_costs <- function(samples, task) {
-  message(paste("TASK:", task))
-  message("-------------------------")
-  message("Lowest l1 cost solution:")
-  message(as.data.frame(lowest_l1_cost_soln(samples)))
-  message("Highest l1 cost solution:")
-  message(as.data.frame(highest_l1_cost_soln(samples)))
-  message("===========================")
+##' Print l1_cost_limits to help idenfity which tasks have multiple solutions
+##' @param samples see constraints_to_points, but make sure these samples have an attribute called task
+##' @param lo_hi_cost_table with attr task. shows lo cost and hi cost solutions(2 columns) for each muscle(col1, across the N rows)
+l1_cost_limits <- function(samples) {
+  lo_hi_cost_table <- data.frame(muscle = muscle_names()[1:ncol(samples)], lowest_l1 = lowest_l1_cost_soln(samples), highest_l1 = highest_l1_cost_soln(samples))
+  attr(lo_hi_cost_table,'task') <- attr(samples,'task')
+  return(lo_hi_cost_table)
 }
 
 ##' Point between line segment endpoints'

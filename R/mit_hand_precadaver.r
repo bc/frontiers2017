@@ -65,3 +65,69 @@ helper_plot_for_finding_generator_timepoints <- function(timeseries_df, generato
   ggplot(timeseries_df) + geom_line(aes(time, JR3_FX), col="red")  + geom_vline(xintercept=generator_indices) +
     scale_x_continuous(breaks = round(seq(min(timeseries_df$time), max(timeseries_df$time), by = 2),1)) + ggtitle("#plot to find the time slices where we should grab the JR3 wrench for each muscle")
 }
+
+
+##' @inheritFrom is_task_feasible AMatrix,max_allowable_residual_from_expected sset_says_task_is_infeasible
+##' @return sset_list list of muscle activation pattern samples. See sset_says_task_is_infeasible
+which_ssets_are_feasible <- function(sset_list, AMatrix, max_allowable_residual_from_expected){
+  which(dcc(lapply(sset_list, is_task_feasible, AMatrix, max_allowable_residual_from_expected)))
+}
+##' based on the samples, A matrix, and the tol
+##' @param samples dataframe with 7 columns (muscles) has an attr(i, "task")== structure(c(-0.0176775988084152, -0.0092413107394463, -0.103785931872721
+##' '), .Names = c("JR3_FX", "JR3_FY", "JR3_FZ"))'
+##' @param AMatrix matrix with columns as JR3 forces, rows as muscles.
+##' @param range_tension 2 element tuple for min max across all muscles.
+##' @param max_allowable_residual_from_expected numeric limit for the maximum absolute residual tolerable.
+is_task_feasible <- function(samples, AMatrix, max_allowable_residual_from_expected=1e-2){
+  browser()
+  as.numeric(samples)
+  is_within_range()
+
+  cells_that_are_above_range <- as.logical(abs(sset[[10]])> 20)
+  task <- attr(samples, 'task')
+  is_feasible <- lapply(df_to_list_of_rows(samples), function(map){
+    predicted_force <- t(AMatrix) %*% as.matrix(map)
+    residual <- predicted_force[1:3] - task[1:3]
+    return(all(residual < max_allowable_residual_from_expected))
+  })
+    message(task)
+    message(paste("Good?", all(is_feasible)))
+    return(maps_match_desired)
+}
+
+
+
+##' Multiple_tasks_to_sset
+##' @param AMatrix result from find_A_matrix
+##' @param task_df dataframe where each row is a task, and the columns are the dimensions of force.
+##' @param thin mixing time for hitandrun
+##' @param torque_max_deviation we desire 0 torques, so this is the max you can go from that and still get a feasible solution.
+##' @param num_samples_desired number of hit and run feasible solutions to produce for each task.
+##' @return sset list of samples, where each sample is a df of muscle activation patterns (each col is a muscle), and each entry has an attr(e, 'task') == e.g. num [1:3] -1.347 0.291 -5.346
+multiple_tasks_to_sset <- function(AMatrix,task_df, thin=100, torque_max_deviation,num_samples_desired=1000){
+  sset <- lapply(df_to_list_of_rows(task_df), function(task_i) {
+    samples <- constraints_inc_torque_to_points(muscle_column_generators = t(AMatrix), range_tension=range_tension,
+    task_i, num_samples_desired=num_samples_desired, thin = thin,torque_max_deviation=torque_max_deviation)
+    attr(samples,'task') <- task_i
+    return(samples)
+  })
+  return(sset)
+}
+##' histogram_muscle_projections to PDF based on input sset.
+##' @param sset,range_tension make sure each element of sset has the attribute "task"
+histogram_muscle_projections <- function(sset, range_tension) {
+pdf(to_output_folder("histogram_by_muscle_projections_over_5_tasks.pdf"), width = 100, height = 100)
+  par(mfrow = c(length(sset), num_muscles))
+  lapply(sset, function(samples){
+    fas_histogram(samples, range_tension, attr(samples, "task"), breaks = 50, col = "black", cex = 0.25)
+  })
+dev.off()
+}
+
+expect_five_points_in_row <- function(sset){
+  rgl.init()
+  list_of_predicted_forces <- lapply(sset, function(samples) {
+    t(t(A_fit$AMatrix) %*% t(samples))
+  })
+  plot3d(dcrb(list_of_predicted_forces))
+}

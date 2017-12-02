@@ -74,6 +74,26 @@ test_that("compare noiseResponse2017_11_30_20_16_06_500_maps_reps_1.txt with 500
     colnames(forces_from_the_vertices_of_feasible_activation_space) <- dots_to_underscores(force_column_names)
 
 
+noise_A <- noise_response_model_and_data$generator_columns_A_matrix
+manual_A <- t(scaled_matrix_version_of_generators)
+message('Generators from ')
+boxplot(noise_A, main="What ranges are the forces used across all generators?")
+column_ranges(noise_A)
+summary(manual_A)
+boxplot(manual_A, main="What ranges are the forces used across all generators?")
+column_ranges(manual_A)
+
+
+rbind(noise_A,manual_A)
+boxplot(noise_A)
+
+#TODO look at the residuals more carefully & evaluate how different the vectors are.
+residuals_from_manual <- noise_A - manual_A
+boxplot(residuals_from_manual*20)
+message("How different are the muscle generators? Magnitude of residuals")
+magnitude_of_residuals <- data.frame(by_muscle_generator_distance = apply(residuals_from_manual, 1, norm_vec), row.names = muscle_names())
+print(magnitude_of_residuals)
+
     #FFS Forces from 500g
     rgl.clear(); aspect3d(1/5,1/5,1/5); par3d(windowRect=c(0,0,10000,10000))
     plot_ffs_with_vertices(forces_from_the_vertices_of_feasible_activation_space[,1:3], t(scaled_matrix_version_of_generators)[,1:3], alpha_transparency=0.25, range_tension=c(0,20))
@@ -82,6 +102,10 @@ test_that("compare noiseResponse2017_11_30_20_16_06_500_maps_reps_1.txt with 500
     #FFS forces from noiseResponse
     observed_forces <- noise_response_model_and_data$input_output_data[,force_names_to_predict]
     points3d(observed_forces[,1:3], col="blue", size=7)
+    title3d(main="Feasible Force Set", col="black")
+    generator_arrows(noise_response_model_and_data$generator_columns_A_matrix, labels=TRUE)
+    generator_arrows(noise_response_model_and_data$generator_columns_A_matrix, labels=TRUE)
+
 
     #FTS torques from 500g
     rgl.clear(); aspect3d(1/5,1/5,1/5); par3d(windowRect=c(0,0,10000,10000))
@@ -90,7 +114,8 @@ test_that("compare noiseResponse2017_11_30_20_16_06_500_maps_reps_1.txt with 500
     # spin_around_rgl_plot(animation_time)
     #FTS torques from noiseResponse
     observed_forces <- noise_response_model_and_data$input_output_data[,force_names_to_predict]
-    points3d(observed_forces[,4:6], col="black", size=7)
+    points3d(observed_forces[,4:6], col="blue", size=7)
+    title3d(main="Feasible Torque Set", col="black")
 
 
 

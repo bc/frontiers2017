@@ -315,7 +315,7 @@ empirical_sampling_frequency <- num_samples/elapsed_time
 ggplot(zeroed_500g_df) + geom_line(aes(time, JR3_FY), col="red")  + geom_vline(xintercept=c(13,24,36,50,63,77,91)) +
   scale_x_continuous(breaks = round(seq(min(zeroed_500g_df$time), max(zeroed_500g_df$time), by = 2),1))
 
-zeroed_500g_df_calibrated<- munge_JR3_data(zeroed_500g_df, input_are_voltages = TRUE,indices_for_null=1:2000)
+zeroed_500g_df_calibrated<- munge_JR3_data(zeroed_500g_df, input_are_voltages = TRUE,indices_for_null=1:2000,remove_nonzero_map_creation_ids = FALSE)
 ggplot(zeroed_500g_df_calibrated) + geom_line(aes(time, JR3_FY), col="red")  + geom_vline(xintercept=c(13,24,36,50,63,77,91)) +
   scale_x_continuous(breaks = round(seq(min(zeroed_500g_df_calibrated$time), max(zeroed_500g_df_calibrated$time), by = 2),1)) + ylab("Force N")
 

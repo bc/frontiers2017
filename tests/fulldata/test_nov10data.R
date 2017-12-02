@@ -36,6 +36,7 @@ compute_ranks_of_A(A_fit$AMatrix)
 # ffs_vertex2 <- generator_columns_A_matrix %*% c(c(10,5,15,10,5,10,20))  #this is used to get one viable force for the model.
 binary_combinations <- custom_binary_combinations(7,c(0,20))
 binary_combination_ffs_points <- binary_combinations %*% generator_columns_A_matrix
+aspect3d(1/5,1/5,1/5); par3d(windowRect=c(0,0,10000,10000))
 plot_ffs_with_vertices(binary_combination_ffs_points[,1:3], generator_columns_A_matrix[,1:3], alpha_transparency=0.25, range_tension=range_tension)
 points3d(input_output_data[,force_names_to_predict][,1:3], size=1, col="black", alpha=1)
 title3d(main="FFS", xlab="Fx", ylab="Fy", zlab="Fz", col="black")
@@ -47,10 +48,11 @@ horizontal_line_points <- identify_n_points_from_pointcloud(binary_combination_f
 horizontal_line_tasks <- dcrb(draw_perpendicular_line(horizontal_line_points[1,],horizontal_line_points[2,],5))
 spheres3d(horizontal_line_tasks, r=0.10, col="pink")
 message('Pick 1 point to define the scaling direction.')
-ffs_vertex_rep20 <- t(generator_columns_A_matrix) %*% as.matrix(rep(20, 7))
 task_direction_to_scale <- identify_n_points_from_pointcloud(binary_combination_ffs_points[,1:3],n=1)
 map_that_created_task_dir <- binary_combinations[which(binary_combination_ffs_points[,1]==task_direction_to_scale[1]),]
-#Now show the torque FAS
+
+
+#Now show the torque FAS just to show what dimensions it is constrained in.
 rgl.init()
 plot_ffs_with_vertices(binary_combination_ffs_points[,4:6], generator_columns_A_matrix[,4:6], alpha_transparency=0.25, range_tension=range_tension)
 
@@ -58,47 +60,31 @@ plot_ffs_with_vertices(binary_combination_ffs_points[,4:6], generator_columns_A_
 
 ############ MANUAL: IDENTIFY TASK MULTIPLIER BOUNDS FOR SCALING
 task_multiplier_bounds <- c(0, 1.0)
+num_samples_desired <- 4
+num_tasks <- 50
 task_multiplier_list <- seq(task_multiplier_bounds[1], task_multiplier_bounds[2],
-  length.out = 5)
+  length.out = num_tasks)
 task_df <- t(task_direction_to_scale %*% t(task_multiplier_list))
 colnames(task_df) <- force_names_to_predict[1:3]
-num_samples_desired <- 1000
-sset <- lapply(df_to_list_of_rows(task_df), function(task_i) {
-  constraints_inc_torque_to_points(muscle_column_generators = t(A_fit$AMatrix), range_tension,
-    task_i, num_samples_desired, thin = 100,torque_max_deviation=5.0)
-})
+sset <- multiple_tasks_to_sset(A_fit$AMatrix,task_df, thin=100, torque_max_deviation=0.0001, num_samples_desired=num_samples_desired)
 
-pdf(to_output_folder("histogram_by_muscle_projections_over_5_tasks.pdf"), width = 100, height = 100)
-  par(mfrow = c(nrow(task_df), num_muscles))
-  lapply(seq(1, length(sset)), function(i){
-    fas_histogram(sset[[i]], range_tension, task_df[i, ], breaks = 50, col = "black", cex = 0.25)
-  })
-dev.off()
- ##TODO turn this into a funciton that takes in the sset list and plots the
- ## sset_eval_if_reasonable => T or F whether the vals are good.
+#remove infeasible
+which_ssets_are_feasible(sset[10], A_fit$AMatrix, max_allowable_residual_from_expected=1e-3)
+which_tasks_are_feasible <- which_ssets_are_feasible(sset, A_fit$AMatrix, max_allowable_residual_from_expected=1e-3)
+sset_feasible <- sset[which_tasks_are_feasible]
+proportion_of_tasks_are_feasible <- length(which_tasks_are_feasible) / length(sset)
+l1_cost_limits <- lapply(sset_feasible, l1_cost_limits)
+how_muscle_lower_bound_changes <- dcc(lapply(l1_cost_limits, function(lo_hi){
+  lo_hi[1,2]
+}))
 
-for (i in seq(1, length(sset))) {
-  samples <- sset[[i]]
-  task <- task_df[i, ]
-  predicted_forces <- t(t(A_fit$AMatrix) %*% t(samples))
-  euclidian_errors_vector <- apply(predicted_forces, 1, function(row) norm_vec(row -
-    task))
-    maps_match_desired <- max(abs(euclidian_errors_vector)) < 10
-    message(task)
-    message(paste("Good?", maps_match_desired))
+proportion_of_tasks_are_feasible
 
-  if(maps_match_desired){
-  show_l1_costs(samples, task)
-  spheres3d(predicted_forces, r=0.1, col="green")}
-}
+#sanity check plots
+plot(how_muscle_lower_bound_changes, type='l',ylab="M0 in lowest l1 soln", xlab="Task Intensity")
+histogram_muscle_projections(sset, range_tension)
+expect_five_points_in_row(sset)
 
-####### Expect to see five distinct points. one for each task.
-rgl.init()
-list_of_predicted_forces <- lapply(sset, function(samples) {
-  t(t(A_fit$AMatrix) %*% t(samples))
-})
-plot3d(dcrb(list_of_predicted_forces))
-#######
 
 
 ####### Visualize the FAS sets that are produced by feeding in the noiseResponse data.
@@ -133,6 +119,7 @@ plot3d(t(expected_forces))
 
 # noiseResponse2017_11_22_16_24_55.txt
 # response_to_prescribed_har_maps <- as.data.frame(fread(get_Resilio_filepath("noiseTrial2017_11_19_20_21_33.txt")))
+
 response_to_prescribed_har_maps <- as.data.frame(fread(get_Resilio_filepath("noiseResponse2017_11_22_16_31_59_response_to_maps_5_tasks.txt")))
 JR3_sensor_null_for_prescribed_har_maps <- colMeans(head(response_to_prescribed_har_maps,
   30))
