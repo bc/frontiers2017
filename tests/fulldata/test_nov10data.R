@@ -22,10 +22,11 @@ force_names_to_predict <- c("JR3_FX","JR3_FY","JR3_FZ","JR3_MX","JR3_MY","JR3_MZ
 # hand. noise input 100 = num_maps input:
 # no_spaces_noise_lo_0_hi_20_nmaps_500_replicates_1.csv
 
-untransformed_noise_response <- as.data.frame(fread(get_Resilio_filepath("noiseResponse2017_11_30_20_16_06_500_maps_reps_1.txt")))
-noise_response_wo_null <- munge_JR3_data(untransformed_noise_response, input_are_voltages=TRUE, indices_for_null=50:250)
+#mit hand data that will match cadaver: noiseResponse2017_11_30_20_16_06_500_maps_reps_1.txt
+untransformed_noise_response <- as.data.frame(fread(get_Resilio_filepath("noiseResponse2017_12_02_10_57_15_BC_cadaver.txt")))
+noise_response_wo_null <- munge_JR3_data(untransformed_noise_response, input_are_voltages=TRUE, JR3_to_fingertip_distance=0.02, indices_for_null=50:250)
 p <- plot_measured_command_reference_over_time(noise_response_wo_null)
-ggsave(to_output_folder("xray_for_noiseReponse.pdf"), p, width=90, height=30, limitsize=FALSE)
+ggsave(to_output_folder("xray_for_noiseReponse2017_12_02_10_57_15.pdf"), p, width=90, height=30, limitsize=FALSE)
 noise_hand_responses <- split_by_map_and_remove_wrongly_lengthed_samples(noise_response_wo_null)
 input_output_data <- df_of_hand_response_input_output(noise_hand_responses, last_n_milliseconds)
 A_fit <- A_fit_from_80_20_split(input_output_data, muscles_of_interest, force_names_to_predict)
@@ -56,7 +57,7 @@ rgl.init()
 plot_ffs_with_vertices(binary_combination_ffs_points[,4:6], generator_columns_A_matrix[,4:6], alpha_transparency=0.25, range_tension=range_tension)
 
 ############ MANUAL: IDENTIFY TASK MULTIPLIER BOUNDS FOR SCALING
-task_bounds <- c(0, 1)
+task_bounds <- c(0, 0.5)
 num_samples_desired <- 100
 num_tasks <- 10
 task_multiplier_list <- seq(task_bounds[1], task_bounds[2], length.out = num_tasks)
@@ -65,9 +66,9 @@ colnames(task_df) <- force_names_to_predict[1:3]
 sset_scaling <- multiple_tasks_to_sset(A_fit$AMatrix,task_df, thin=100, torque_max_deviation=0.1, num_samples_desired=num_samples_desired)
 sset_feasible_scaling <- filter_infeasible_tasks(sset_scaling, A_fit$AMatrix, max_allowable_residual_from_expected=1e-3)
 
-dcc(lapply(sset_feasible_scaling, function(samples){
+dcrb(lapply(sset_feasible_scaling, function(samples){
   boxplot(samples)
-  return(attr(samples,'task')[3])
+  return(attr(samples,'task'))
 }))
 
 l1_cost_limits <- lapply(sset_feasible_scaling, l1_cost_limits)
@@ -76,8 +77,8 @@ how_muscle_lower_bound_changes <- dcc(lapply(l1_cost_limits, function(lo_hi){
 }))
 #sanity check plots
 plot(how_muscle_lower_bound_changes, type='l',ylab="M0 in lowest l1 soln", xlab="Task Intensity")
-histogram_muscle_projections(sset_scaling, range_tension)
-expect_five_points_in_row(sset_scaling)
+histogram_muscle_projections(sset_feasible_scaling, range_tension)
+expect_five_points_in_row(sset_feasible_scaling)
 
 
 browser()
@@ -111,21 +112,26 @@ expect_five_points_in_row_for_csv_maps(filename = "scaling_task_n100_per_outputv
 
 ############ MANUAL: IDENTIFY TASK MULTIPLIER BOUNDS FOR HORIZONTAL
   num_samples_desired <- 100
+  scale_factor_for_magnitude_of_all_horizontal_forces <- 0.8
   colnames(horizontal_line_tasks) <- force_names_to_predict[1:3]
-  sset_scaling_horizontal <- multiple_tasks_to_sset(A_fit$AMatrix,horizontal_line_tasks, thin=100, torque_max_deviation=0.1, num_samples_desired=num_samples_desired)
+  scaled_horizontal_line_tasks <- scale_factor_for_magnitude_of_all_horizontal_forces* horizontal_line_tasks
+  sset_scaling_horizontal <- multiple_tasks_to_sset(A_fit$AMatrix,scaled_horizontal_line_tasks, thin=100, torque_max_deviation=0.1, num_samples_desired=num_samples_desired)
   sset_feasible_horizontal <- filter_infeasible_tasks(sset_scaling_horizontal, A_fit$AMatrix, max_allowable_residual_from_expected=1e-3)
 
 #wait, which ones were feasible?
-  dcc(lapply(sset_feasible_horizontal, function(samples){
+  dcrb(lapply(sset_feasible_horizontal, function(samples){
     boxplot(samples)
-    return(attr(samples,'task')[3])
+    return(attr(samples,'task'))
   }))
 
   ##########PREP CSV MAPS FOR HORIZONTAL REDIRECTION TASK ###############
-  res <- lapply(sset_feasible_horizontal, create_and_cbind_map_creation_ids, muscle_names())
+  res <- lapply(head(sset_feasible_horizontal,5), create_and_cbind_map_creation_ids, muscle_names())
   big_har_set_to_test_on_finger <- dcrb(res)
-  write.csv(big_har_set_to_test_on_finger, to_output_folder("horizontal_task_n100_per_outputvec_of_interest_6_steps_no_replicates.csv"),
+  write.csv(big_har_set_to_test_on_finger, to_output_folder("horizontal_task_n100_per_outputvec_of_interest_5_steps_no_replicates.csv"),
   row.names = FALSE, quote = FALSE)
+
+#sanity check for horizontal
+expect_five_points_in_row_for_csv_maps(filename = "horizontal_task_n100_per_outputvec_of_interest_6_steps_no_replicates.csv", A_fit=A_fit)
 
 
 ########################DO ALL OF THE STUFF BELOW ON ANOTHER DAY AFTER LOTS OF SLEEP ###############################################
