@@ -240,3 +240,12 @@ draw_perpendicular_line <- function(x1, x2, length_out) {
 identify_n_points_from_pointcloud <- function(matrix_3d, n=2){
   matrix_3d[identify3d(matrix_3d,n=n),]
 }
+
+
+##' feasible_proportion_message'
+##' @param sset,sset_feasible list of dataframes, each a df of sample muscle activation patterns.
+##' @param task_multiplier_bounds 2 element vector detailing the scale factor to apply to a given task direction.
+feasible_proportion_message <- function(sset, sset_feasible, task_multiplier_bounds){
+  proportion_of_tasks_are_feasible <- length(sset_feasible) / length(sset)
+  message(paste0(proportion_of_tasks_are_feasible*100, "% of the tasks in the range [",task_multiplier_bounds[1],"-",task_multiplier_bounds[2],  "] have tenable feasible activation spaces"))
+}

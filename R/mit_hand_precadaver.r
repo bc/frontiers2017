@@ -69,8 +69,8 @@ helper_plot_for_finding_generator_timepoints <- function(timeseries_df, generato
 
 ##' @inheritFrom is_task_feasible AMatrix,max_allowable_residual_from_expected sset_says_task_is_infeasible
 ##' @return sset_list list of muscle activation pattern samples. See sset_says_task_is_infeasible
-which_ssets_are_feasible <- function(sset_list, AMatrix, max_allowable_residual_from_expected){
-  which(dcc(lapply(sset_list, is_task_feasible, AMatrix, max_allowable_residual_from_expected)))
+indices_of_feasible_samples <- function(sset_list, AMatrix, max_allowable_residual_from_expected){
+  which(dcc(lapply(sset_list, is_task_feasible, AMatrix=AMatrix, max_allowable_residual_from_expected=max_allowable_residual_from_expected)))
 }
 ##' based on the samples, A matrix, and the tol
 ##' @param samples dataframe with 7 columns (muscles) has an attr(i, "task")== structure(c(-0.0176775988084152, -0.0092413107394463, -0.103785931872721
@@ -78,21 +78,16 @@ which_ssets_are_feasible <- function(sset_list, AMatrix, max_allowable_residual_
 ##' @param AMatrix matrix with columns as JR3 forces, rows as muscles.
 ##' @param range_tension 2 element tuple for min max across all muscles.
 ##' @param max_allowable_residual_from_expected numeric limit for the maximum absolute residual tolerable.
-is_task_feasible <- function(samples, AMatrix, max_allowable_residual_from_expected=1e-2){
-  browser()
-  as.numeric(samples)
-  is_within_range()
-
-  cells_that_are_above_range <- as.logical(abs(sset[[10]])> 20)
-  task <- attr(samples, 'task')
-  is_feasible <- lapply(df_to_list_of_rows(samples), function(map){
-    predicted_force <- t(AMatrix) %*% as.matrix(map)
-    residual <- predicted_force[1:3] - task[1:3]
-    return(all(residual < max_allowable_residual_from_expected))
-  })
-    message(task)
-    message(paste("Good?", all(is_feasible)))
-    return(maps_match_desired)
+is_task_feasible <- function(samples, AMatrix, max_allowable_residual_from_expected){
+  if(!(all(samples<=range_tension[2]) && all(samples >= range_tension[1]))){
+    return(FALSE)
+  } else {
+    if(samples_create_expected_task(samples,AMatrix, max_allowable_residual_from_expected)) {
+      return(TRUE)
+    } else {
+    stop('Muscles are within range_tension but are not accurately producing task of interest. You need to check the hit and run constraint composition.')
+    }
+  }
 }
 
 
@@ -113,7 +108,9 @@ multiple_tasks_to_sset <- function(AMatrix,task_df, thin=100, torque_max_deviati
   })
   return(sset)
 }
+
 ##' histogram_muscle_projections to PDF based on input sset.
+##' saves to "histogram_by_muscle_projections_over_5_tasks.pdf" in output folder.
 ##' @param sset,range_tension make sure each element of sset has the attribute "task"
 histogram_muscle_projections <- function(sset, range_tension) {
 pdf(to_output_folder("histogram_by_muscle_projections_over_5_tasks.pdf"), width = 100, height = 100)
@@ -124,10 +121,41 @@ pdf(to_output_folder("histogram_by_muscle_projections_over_5_tasks.pdf"), width 
 dev.off()
 }
 
+##' Create plot to guarantee the many output forces from many muscle activation
+##' patterns land exactly on the desired task. Plots via rgl plot3d.
+##' @param sset set of feasible muscle activation points.
 expect_five_points_in_row <- function(sset){
   rgl.init()
   list_of_predicted_forces <- lapply(sset, function(samples) {
     t(t(A_fit$AMatrix) %*% t(samples))
   })
   plot3d(dcrb(list_of_predicted_forces))
+}
+##' samples_create_expected_task
+##' Do all of the samples create the task of interest?
+##' @param samples,AMatrix,max_allowable_residual_from_expected
+##' @return logical true or false.
+samples_create_expected_task <- function(samples,AMatrix, max_allowable_residual_from_expected){
+  task <- attr(samples, 'task')
+  all(dcc(lapply(df_to_list_of_rows(samples), function(map){
+    predicted_force <- t(AMatrix) %*% as.matrix(map)
+    residual <- predicted_force[1:3] - task[1:3]
+    return(all(residual < max_allowable_residual_from_expected))
+  })))
+}
+
+
+
+##' Filter Infeasible Tasks
+##' This is useful when you find that the hit and run algorithm doesn't always
+##' have a solution that will meet the torque and force criteria. but it will
+##' silently pass through some muscle activation patterns that are way over
+##' the range_tension.
+##' @param sset,AMatrix,max_allowable_residual_from_expected see multiple_tasks_to_sset for example input classes
+##' @return sset_feasible same list but only with the feasible ones remaining.
+filter_infeasible_tasks <- function(sset, AMatrix, max_allowable_residual_from_expected=1e-3){
+  which_tasks_are_feasible <- indices_of_feasible_samples(sset, AMatrix, max_allowable_residual_from_expected)
+  sset_feasible <- sset[which_tasks_are_feasible]
+  feasible_proportion_message(sset, sset_feasible, task_bounds)
+  return(sset_feasible)
 }

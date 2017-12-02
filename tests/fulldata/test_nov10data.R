@@ -59,26 +59,50 @@ plot_ffs_with_vertices(binary_combination_ffs_points[,4:6], generator_columns_A_
 
 
 ############ MANUAL: IDENTIFY TASK MULTIPLIER BOUNDS FOR SCALING
-task_multiplier_bounds <- c(0, 1.0)
-num_samples_desired <- 4
-num_tasks <- 50
-task_multiplier_list <- seq(task_multiplier_bounds[1], task_multiplier_bounds[2],
-  length.out = num_tasks)
+task_bounds <- c(0, 0.2)
+num_samples_desired <- 10
+num_tasks <- 30
+task_multiplier_list <- seq(task_bounds[1], task_bounds[2], length.out = num_tasks)
 task_df <- t(task_direction_to_scale %*% t(task_multiplier_list))
 colnames(task_df) <- force_names_to_predict[1:3]
-sset <- multiple_tasks_to_sset(A_fit$AMatrix,task_df, thin=100, torque_max_deviation=0.0001, num_samples_desired=num_samples_desired)
+sset <- multiple_tasks_to_sset(A_fit$AMatrix,task_df, thin=100, torque_max_deviation=0.1, num_samples_desired=num_samples_desired)
+sset_feasible <- filter_infeasible_tasks(sset, A_fit$AMatrix, max_allowable_residual_from_expected=1e-3)
 
-#remove infeasible
-which_ssets_are_feasible(sset[10], A_fit$AMatrix, max_allowable_residual_from_expected=1e-3)
-which_tasks_are_feasible <- which_ssets_are_feasible(sset, A_fit$AMatrix, max_allowable_residual_from_expected=1e-3)
+
+##' Filter Infeasible Tasks
+##' This is useful when you find that the hit and run algorithm doesn't always
+##' have a solution that will meet the torque and force criteria. but it will
+##' silently pass through some muscle activation patterns that are way over
+##' the range_tension.
+##' @param sset,AMatrix,max_allowable_residual_from_expected see multiple_tasks_to_sset for example input classes
+##' @return sset_feasible same list but only with the feasible ones remaining.
+filter_infeasible_tasks <- function(sset, AMatrix, max_allowable_residual_from_expected=1e-3){
+  which_tasks_are_feasible <- indices_of_feasible_samples(sset, AMatrix, max_allowable_residual_from_expected)
+  sset_feasible <- sset[which_tasks_are_feasible]
+  feasible_proportion_message(sset, sset_feasible, task_bounds)
+  return(sset_feasible)
+}
+
+
+independent_torque_max_deviation <- seq(1e-1,10, length.out=20)
+propostion_response <- pblapply(independent_torque_max_deviation, function(e){
+  which_tasks_are_feasible <- indices_of_feasible_samples(sset, A_fit$AMatrix, max_allowable_residual_from_expected=1e-3)
+  sset <- multiple_tasks_to_sset(A_fit$AMatrix,task_df, thin=100, torque_max_deviation=e, num_samples_desired=num_samples_desired)
+  which_tasks_are_feasible <- indices_of_feasible_samples(sset, A_fit$AMatrix, max_allowable_residual_from_expected=1e-3)
+
+
+  browser()
+  return(proportion_of_tasks_are_feasible)
+})
+
+plot(independent_torque_max_deviation, propostion_response)
+
 sset_feasible <- sset[which_tasks_are_feasible]
-proportion_of_tasks_are_feasible <- length(which_tasks_are_feasible) / length(sset)
+proportion_of_tasks_are_feasible <- length(sset_feasible) / length(sset)
 l1_cost_limits <- lapply(sset_feasible, l1_cost_limits)
 how_muscle_lower_bound_changes <- dcc(lapply(l1_cost_limits, function(lo_hi){
   lo_hi[1,2]
 }))
-
-proportion_of_tasks_are_feasible
 
 #sanity check plots
 plot(how_muscle_lower_bound_changes, type='l',ylab="M0 in lowest l1 soln", xlab="Task Intensity")
