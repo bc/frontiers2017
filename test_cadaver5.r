@@ -11,7 +11,7 @@
 set.seed(4)
 #######PARAMS##############
 last_n_milliseconds <- 100
-range_tension <- c(0, 20)
+range_tension <- c(0, 10)
 muscles_of_interest <- muscle_names()[1:7]
 num_muscles <- length(muscles_of_interest)
 force_names_to_predict <- c("JR3_FX","JR3_FY","JR3_FZ","JR3_MX","JR3_MY","JR3_MZ")
@@ -22,9 +22,12 @@ force_names_to_predict <- c("JR3_FX","JR3_FY","JR3_FZ","JR3_MX","JR3_MY","JR3_MZ
 # no_spaces_noise_lo_0_hi_20_nmaps_500_replicates_1.csv
 
 #mit hand data that will match cadaver: noiseResponse2017_11_30_20_16_06_500_maps_reps_1.txt
-noise_response_filename <- "noiseResponse2017_12_02_14_54_35.txt"
+noise_response_filename <- "noiseResponse2017_12_03_17_36_37_CADAV1_NO_RUPTURE.txt"
 untransformed_noise_response <- as.data.frame(fread(get_Resilio_filepath(noise_response_filename)))
-noise_response_wo_null <- munge_JR3_data(untransformed_noise_response, input_are_voltages=TRUE, JR3_to_fingertip_distance=0.02, indices_for_null=50:250)
+untransformed_p <- plot_measured_command_reference_over_time(untransformed_noise_response[3000:10000,])
+ggsave(to_output_folder(paste0("get_null_indices_via_this_plot_of_untransformed_xray_for_",noise_response_filename ,".pdf")), untransformed_p, width=90, height=30, limitsize=FALSE)
+
+noise_response_wo_null <- munge_JR3_data(untransformed_noise_response, input_are_voltages=TRUE, JR3_to_fingertip_distance=0.00956, indices_for_null=3000:10000)
 p <- plot_measured_command_reference_over_time(noise_response_wo_null)
 # p <- plot_measured_command_reference_over_time(noise_response_wo_null[1:10000,])
 ggsave(to_output_folder(paste0("xray_for_",noise_response_filename ,".pdf")), p, width=90, height=30, limitsize=FALSE)
@@ -34,9 +37,7 @@ A_fit <- A_fit_from_80_20_split(input_output_data, muscles_of_interest, force_na
 generator_columns_A_matrix <- t(t(A_fit$AMatrix) %*% diag(7))
 compute_ranks_of_A(A_fit$AMatrix)
 # Here, identify a force vector of interest and apply it to the generated A
-# ffs_vertex <- generator_columns_A_matrix %*% c(rep(20, 7))  #this is used to get one viable force for the model.
-# ffs_vertex2 <- generator_columns_A_matrix %*% c(c(10,5,15,10,5,10,20))  #this is used to get one viable force for the model.
-binary_combinations <- custom_binary_combinations(7,c(0,20))
+binary_combinations <- custom_binary_combinations(7,range_tension)
 binary_combination_ffs_points <- binary_combinations %*% generator_columns_A_matrix
 aspect3d(1/5,1/5,1/5); par3d(windowRect=c(0,0,10000,10000))
 plot_ffs_with_vertices(binary_combination_ffs_points[,1:3], generator_columns_A_matrix[,1:3], alpha_transparency=0.25, range_tension=range_tension)
@@ -58,14 +59,14 @@ rgl.init()
 plot_ffs_with_vertices(binary_combination_ffs_points[,4:6], generator_columns_A_matrix[,4:6], alpha_transparency=0.25, range_tension=range_tension)
 
 ############ MANUAL: IDENTIFY TASK MULTIPLIER BOUNDS FOR SCALING
-task_bounds <- c(1e-2, 0.5)
+task_bounds <- c(1e-2, 3)
 num_samples_desired <- 100
-num_tasks <- 10
+num_tasks <- 100
 task_multiplier_list <- seq(task_bounds[1], task_bounds[2], length.out = num_tasks)
 task_df <- t(task_direction_to_scale %*% t(task_multiplier_list))
 colnames(task_df) <- force_names_to_predict[1:3]
-sset_scaling <- multiple_tasks_to_sset(A_fit$AMatrix,task_df, thin=100, torque_max_deviation=0.1, num_samples_desired=num_samples_desired)
-sset_feasible_scaling <- filter_infeasible_tasks(sset_scaling, A_fit$AMatrix, max_allowable_residual_from_expected=1e-3)
+sset_scaling <- multiple_tasks_to_sset(A_fit$AMatrix,task_df, thin=100, torque_max_deviation=0.05, num_samples_desired=num_samples_desired)
+sset_feasible_scaling <- filter_infeasible_tasks(sset_scaling, A_fit$AMatrix, max_allowable_residual_from_expected=1e-3, task_bounds=task_bounds)
 
 dcrb(lapply(sset_feasible_scaling, function(samples){
   boxplot(samples)
@@ -76,10 +77,14 @@ l1_cost_limits <- lapply(sset_feasible_scaling, l1_cost_limits)
 how_muscle_lower_bound_changes <- dcc(lapply(l1_cost_limits, function(lo_hi){
   lo_hi[1,2]
 }))
+
+#TAKE EVERY 3rd POINT BC CAD 18h24
+sset_feasible_scaling <- sset_feasible_scaling[c(1,4,7,10,13)]
+
 #sanity check plots
 plot(how_muscle_lower_bound_changes, type='l',ylab="M0 in lowest l1 soln", xlab="Task Intensity")
 histogram_muscle_projections(sset_feasible_scaling, range_tension)
-expect_five_points_in_row(sset_feasible_scaling)
+expect_five_points_in_row(sset_feasible_scaling, A_fit$AMatrix)
 
 
 browser()
@@ -88,36 +93,36 @@ rgl.clear()
 num_tasks <- length(sset_feasible_scaling)
 rgl_init(bg = "white")
 extract_3cols <- lapply(sset_feasible_scaling, function(x) x[, c(1, 2, 3)])
-extract_3cols[[1]] <- NULL #remove the 00000 force
+# extract_3cols[[1]] <- NULL #remove the 00000 force
 gradient <- colorRampPalette(c("#a6cee3", "#1f78b4", "#b2df8a", "#fc8d62", "#ffffb3",
   "#bebada"))
 list_of_mats <- add_gradient_to_attrs(extract_3cols, gradient(length(extract_3cols)))
 list_of_mats <- lapply(list_of_mats, function(x) x)
 
 axes_for_multiple_sets(list_of_mats)
-axes_for_defined_xyz_limits(rep(list(c(0, 20)), 3))
+axes_for_defined_xyz_limits(rep(list(range_tension), 3))
 rgl_convhulls(list_of_mats, points = TRUE)
 
 
 ##########PREP CSV MAPS FOR SCALING ###############
 res <- lapply(tail(sset_feasible_scaling,5), create_and_cbind_map_creation_ids, muscle_names())
 big_har_set_to_test_on_finger <- dcrb(res)
-write.csv(big_har_set_to_test_on_finger, to_output_folder("scaling_task_n100_per_outputvec_of_interest_5_steps_no_replicates.csv"),
+write.csv(big_har_set_to_test_on_finger, to_output_folder("scaling_task_n100_per_outputvec_of_interest_5_steps_no_replicates_BC_CAD_18h10.csv"),
   row.names = FALSE, quote = FALSE)
 
 #sanity check:
-expect_five_points_in_row_for_csv_maps(filename = "scaling_task_n100_per_outputvec_of_interest_5_steps_no_replicates.csv", A_fit=A_fit)
+expect_five_points_in_row_for_csv_maps(filename = "scaling_task_n100_per_outputvec_of_interest_5_steps_no_replicates_BC_CAD_18h10.csv", A_fit=A_fit)
 
 
 
 
 ############ MANUAL: IDENTIFY TASK MULTIPLIER BOUNDS FOR HORIZONTAL
   num_samples_desired <- 100
-  scale_factor_for_magnitude_of_all_horizontal_forces <- 0.8
+  scale_factor_for_magnitude_of_all_horizontal_forces <- 1.0
   colnames(horizontal_line_tasks) <- force_names_to_predict[1:3]
   scaled_horizontal_line_tasks <- scale_factor_for_magnitude_of_all_horizontal_forces* horizontal_line_tasks
   sset_scaling_horizontal <- multiple_tasks_to_sset(A_fit$AMatrix,scaled_horizontal_line_tasks, thin=100, torque_max_deviation=0.1, num_samples_desired=num_samples_desired)
-  sset_feasible_horizontal <- filter_infeasible_tasks(sset_scaling_horizontal, A_fit$AMatrix, max_allowable_residual_from_expected=1e-3)
+  sset_feasible_horizontal <- filter_infeasible_tasks(sset_scaling_horizontal, A_fit$AMatrix, max_allowable_residual_from_expected=1e-3, task_bounds = c(scale_factor_for_magnitude_of_all_horizontal_forces, scale_factor_for_magnitude_of_all_horizontal_forces))
 
 #wait, which ones were feasible?
   dcrb(lapply(sset_feasible_horizontal, function(samples){
@@ -128,13 +133,23 @@ expect_five_points_in_row_for_csv_maps(filename = "scaling_task_n100_per_outputv
   ##########PREP CSV MAPS FOR HORIZONTAL REDIRECTION TASK ###############
   res <- lapply(head(sset_feasible_horizontal,5), create_and_cbind_map_creation_ids, muscle_names())
   big_har_set_to_test_on_finger <- dcrb(res)
-  write.csv(big_har_set_to_test_on_finger, to_output_folder("horizontal_task_n100_per_outputvec_of_interest_5_steps_no_replicates.csv"),
+  write.csv(big_har_set_to_test_on_finger, to_output_folder("horizontal_task_n100_per_outputvec_of_interest_5_steps_no_replicates_BC_CAD_18h31.csv"),
   row.names = FALSE, quote = FALSE)
 
 #sanity check for horizontal
-expect_five_points_in_row_for_csv_maps(filename = "horizontal_task_n100_per_outputvec_of_interest_6_steps_no_replicates.csv", A_fit=A_fit)
+expect_five_points_in_row_for_csv_maps(filename = "horizontal_task_n100_per_outputvec_of_interest_5_steps_no_replicates_BC_CAD_18h31.csv", A_fit=A_fit)
 
-
+##############################################################
+##############################################################
+##############################################################
+##############################################################
+##############################################################
+##############################################################
+##############################################################
+##############################################################
+##############################################################
+##############################################################
+# END EXPERIMENT
 ########################DO ALL OF THE STUFF BELOW ON ANOTHER DAY AFTER LOTS OF SLEEP ###############################################
 
 ## TODO GET data from the cadaver finger from big_har_set_to_test_on_finger this
