@@ -254,9 +254,9 @@ feasible_proportion_message <- function(sset, sset_feasible, task_multiplier_bou
 ##' expect_five_points_in_row_for_csv_maps
 ##' use this to make sure that all maps you run through the hand land in the precise desired task vector locations.
 ##' @param filename "scaling_task_n100_per_outputvec_of_interest_5_steps_no_replicates.csv"'
-expect_five_points_in_row_for_csv_maps <- function(filename,A_fit){
+expect_five_points_in_row_for_csv_maps <- function(filename,A_fit, muscles_of_interest=muscle_names()){
   prescribed_maps <- as.data.frame(fread(to_output_folder(filename)))
-  maps_without_ids <- unique(prescribed_maps[muscle_names()])
+  maps_without_ids <- unique(prescribed_maps[muscles_of_interest])
   expected_forces <- t(as.matrix(A_fit$AMatrix)) %*% t(as.matrix(maps_without_ids[,
     muscles_of_interest]))
     plot3d(t(expected_forces))

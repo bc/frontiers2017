@@ -124,10 +124,10 @@ dev.off()
 ##' Create plot to guarantee the many output forces from many muscle activation
 ##' patterns land exactly on the desired task. Plots via rgl plot3d.
 ##' @param sset set of feasible muscle activation points.
-expect_five_points_in_row <- function(sset){
+expect_five_points_in_row <- function(sset, AMatrix){
   rgl.init()
   list_of_predicted_forces <- lapply(sset, function(samples) {
-    t(t(A_fit$AMatrix) %*% t(samples))
+    t(t(AMatrix) %*% t(samples))
   })
   plot3d(dcrb(list_of_predicted_forces))
 }
@@ -152,8 +152,9 @@ samples_create_expected_task <- function(samples,AMatrix, max_allowable_residual
 ##' silently pass through some muscle activation patterns that are way over
 ##' the range_tension.
 ##' @param sset,AMatrix,max_allowable_residual_from_expected see multiple_tasks_to_sset for example input classes
+##' @param task_bounds = range_tension
 ##' @return sset_feasible same list but only with the feasible ones remaining.
-filter_infeasible_tasks <- function(sset, AMatrix, max_allowable_residual_from_expected=1e-3){
+filter_infeasible_tasks <- function(sset, AMatrix, max_allowable_residual_from_expected=1e-3,task_bounds){
   which_tasks_are_feasible <- indices_of_feasible_samples(sset, AMatrix, max_allowable_residual_from_expected)
   sset_feasible <- sset[which_tasks_are_feasible]
   feasible_proportion_message(sset, sset_feasible, task_bounds)
