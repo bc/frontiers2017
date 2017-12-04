@@ -67,7 +67,7 @@ helper_plot_for_finding_generator_timepoints <- function(timeseries_df, generato
 }
 
 
-##' @inheritFrom is_task_feasible AMatrix,max_allowable_residual_from_expected sset_says_task_is_infeasible
+##' @inheritParams is_task_feasible AMatrix,max_allowable_residual_from_expected sset_says_task_is_infeasible
 ##' @return sset_list list of muscle activation pattern samples. See sset_says_task_is_infeasible
 indices_of_feasible_samples <- function(sset_list, AMatrix, max_allowable_residual_from_expected){
   which(dcc(lapply(sset_list, is_task_feasible, AMatrix=AMatrix, max_allowable_residual_from_expected=max_allowable_residual_from_expected)))
