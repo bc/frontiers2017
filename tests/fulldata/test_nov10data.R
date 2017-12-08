@@ -23,7 +23,9 @@ force_names_to_predict <- c("JR3_FX","JR3_FY","JR3_FZ","JR3_MX","JR3_MY","JR3_MZ
 # no_spaces_noise_lo_0_hi_20_nmaps_500_replicates_1.csv
 
 #mit hand data that will match cadaver: noiseResponse2017_11_30_20_16_06_500_maps_reps_1.txt
-untransformed_noise_response <- as.data.frame(fread(get_Resilio_filepath("noiseResponse2017_12_02_10_57_15_BC_cadaver.txt")))
+# noiseResponse2017_12_02_10_57_15_BC_cadaver.txt WORKS
+
+untransformed_noise_response <- as.data.frame(fread(get_Resilio_filepath("noiseResponse2017_12_04_02_53_10_EXMECH_1A_oncadaver_all_good.txt")))
 noise_response_wo_null <- munge_JR3_data(untransformed_noise_response, input_are_voltages=TRUE, JR3_to_fingertip_distance=0.02, indices_for_null=50:250)
 p <- plot_measured_command_reference_over_time(noise_response_wo_null)
 ggsave(to_output_folder("xray_for_noiseReponse2017_12_02_10_57_15.pdf"), p, width=90, height=30, limitsize=FALSE)
