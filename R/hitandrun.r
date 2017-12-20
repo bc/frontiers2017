@@ -261,3 +261,11 @@ expect_five_points_in_row_for_csv_maps <- function(filename,A_fit, muscles_of_in
     muscles_of_interest]))
     plot3d(t(expected_forces))
 }
+
+
+##' TODO document, test
+task_list_from_sset_list <- function(sset_feasible_scaling_list){
+  dcrb(lapply(sset_feasible_scaling, function(samples){
+    return(attr(samples,'task'))
+  }))
+}
