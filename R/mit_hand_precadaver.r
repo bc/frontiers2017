@@ -66,7 +66,7 @@ helper_plot_for_finding_generator_timepoints <- function(timeseries_df, generato
     scale_x_continuous(breaks = round(seq(min(timeseries_df$time), max(timeseries_df$time), by = 2),1)) + ggtitle("#plot to find the time slices where we should grab the JR3 wrench for each muscle")
 }
 
-
+##' indices of feasible samples
 ##' @inheritParams is_task_feasible AMatrix,max_allowable_residual_from_expected sset_says_task_is_infeasible
 ##' @return sset_list list of muscle activation pattern samples. See sset_says_task_is_infeasible
 indices_of_feasible_samples <- function(sset_list, AMatrix, max_allowable_residual_from_expected){
