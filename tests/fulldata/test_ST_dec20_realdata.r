@@ -4,23 +4,23 @@ context("test_spatiotemporal_AFit_NN_LRM.r")
 # noiseResponse_ST1BC_2017_12_20_13_09_42.txt is MIT hand in flexish posture
 
 set.seed(4)
-response_from_first_hand <- fread(get_Resilio_filepath("noiseResponse_ST1BC_2017_12_20_13_09_42.txt"), data.table=FALSE)
+response_from_first_hand <- fread(get_Resilio_filepath("noiseResponse_ST1BC_2017_12_20_18_19_39_ST_500_parallel_maps_good_3tapjr3null.txt"), data.table=FALSE)
 
 JR3_to_fingertip_distance <- 0.00802 #about 9mm in meters TODO
 
-filename_2A <- "noiseResponse_ST1BC_2017_12_20_13_09_42"
+filename_2A <- "noiseResponse_ST1BC_2017_12_20_18_19_39_ST_500_parallel_maps_good_3tapjr3null"
   last_n_milliseconds <- 100
   range_tension <- c(0, 10)
   muscles_of_interest <- muscle_names()
   num_muscles <- length(muscles_of_interest)
   force_names_to_predict <- c("JR3_FX","JR3_FY","JR3_FZ","JR3_MX","JR3_MY","JR3_MZ")
   untransformed_noise_response <- response_from_first_hand
-  indices_for_null <- 24952:28752 #TODO
+  indices_for_null <- 429412:439410 #TODO
   # To get indices for null from timepoints
-  # which(untransformed_noise_response$time == 25)
-  # which(untransformed_noise_response$time == 28.8)
+  # which(untransformed_noise_response$time == 430)
+  # which(untransformed_noise_response$time == 440)
 
-  untransformed_p <- plot_measured_command_reference_over_time(untransformed_noise_response[untransformed_noise_response$time > 25 & untransformed_noise_response$time < 28.8,])
+  untransformed_p <- plot_measured_command_reference_over_time(untransformed_noise_response[untransformed_noise_response$time > 430 & untransformed_noise_response$time < 440,])
   ggsave(to_output_folder(paste0("get_null_indices_via_this_plot_of_untransformed_xray_for_",filename_2A ,".pdf")), untransformed_p, width=90, height=30, limitsize=FALSE)
   # colMeans(untransformed_noise_response[indices_for_null,]) - JR3_null_from_1A # shows few differences in JR3 sensor vals over time
   noise_response_wo_null <- munge_JR3_data(untransformed_noise_response, input_are_voltages=TRUE, JR3_to_fingertip_distance=JR3_to_fingertip_distance, indices_for_null=indices_for_null)
@@ -54,7 +54,7 @@ filename_2A <- "noiseResponse_ST1BC_2017_12_20_13_09_42"
   line_tasks_for_2A <- as.matrix(t(t(A_fit$AMatrix) %*% t(binary_combinations[c(13,20),])))[,1:3]
   task_information_collected_by_brian <- list(horizontal_line_points=horizontal_line_points, horizontal_line_tasks=horizontal_line_tasks,task_direction_to_scale=task_direction_to_scale,map_that_created_task_dir=map_that_created_task_dir,line_tasks_for_2A=line_tasks_for_2A)
   # Only run on experiment day to save the final val. then comment out the above:
-  # saveRDS(task_information_collected_by_brian, "tasks_from_flexed_position_via_xxxxxfilenameyyyyyy_DEC20_BC.rds")
+  # saveRDS(task_information_collected_by_brian, paste0("tasks_from_flexed_position_via",filename_2A,".rds")
   #Procedure: Send input_output_CSV, tasks
 
 
@@ -71,7 +71,7 @@ filename_2A <- "noiseResponse_ST1BC_2017_12_20_13_09_42"
     ############ MANUAL: IDENTIFY TASK MULTIPLIER BOUNDS FOR SCALING
     task_bounds <- c(1e-2, 1)
     num_samples_desired <- 10
-    num_tasks <- 7
+    num_tasks <- 9
     task_multiplier_list <- seq(task_bounds[1], task_bounds[2], length.out = num_tasks)
     task_df <- t(task_direction_to_scale %*% t(task_multiplier_list))
     colnames(task_df) <- force_names_to_predict[1:3]
@@ -134,7 +134,7 @@ filename_2A <- "noiseResponse_ST1BC_2017_12_20_13_09_42"
       jumbo_concatenated_set <- rbind(big_har_set_to_test_on_finger_horizontal,
                                       big_har_set_to_test_on_finger_scaling)
       write.csv(jumbo_concatenated_set, to_output_folder(jumbo_task_map_validations_set_name),row.names = FALSE, quote = FALSE)
-      #IMPORTANT: then manually add the rows from Ali
+      #IMPORTANT: then manually add the rows from Ali, and use that as your Num Forces
 
-
-nrow(read.csv('all_task_validations_concatenated_Ascaling50_Ahorizontal50_LRM_scaling5_LRM_horizontal5_NN_scaling_5_NN_scaling_5_total_CHECKNUMFORCES_BC_dec20.csv'))
+      #now that the length has changed, use nrow to get the NUM_FORCES
+      nrow(read.csv('all_task_validations_concatenated_Ascaling50_Ahorizontal50_LRM_scaling5_LRM_horizontal5_NN_scaling_5_NN_scaling_5_total_CHECKNUMFORCES_BC_dec20.csv'))
