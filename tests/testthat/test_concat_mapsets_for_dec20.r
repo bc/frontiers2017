@@ -50,10 +50,6 @@ nudge_matrix_without_flexors)
 
 message(sum(dcc(lapply(sections, nrow))))
 
-big_jumbo_set_for_posture_dependence_and_extmech <- rbind(parallel,
-replicates,
-serial,
-parallel_without_flexors,
-replicates_without_flexors,
-nudge_matrix,
-nudge_matrix_without_flexors)
+
+big_jumbo_set_for_posture_dependence_and_extmech <- dcrb(sections)
+write.csv(big_jumbo_set_for_posture_dependence_and_extmech, to_output_folder("big_jumbo_set_for_posture_dependence_and_extmech_914_NFORCES.csv"), row.names=FALSE)
