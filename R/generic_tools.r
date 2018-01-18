@@ -78,9 +78,13 @@ save_rds_to_Resilio <- function(object, filename) {
   saveRDS(object, filename)
 }
 
-##' Get Resilio File Path
+##' Get a dataframe from a file in Resilio's data folder
 ##' @param filename string of the object of interest, i.e. 'realTimeData2017_08_16_13_23_42.txt'
-##' @param filepath string of the object with the path
+##' @return df data.frame of the file of interest, via fread with data.table=FALSE
+fread_df_from_Resilio <- function(filename){
+  fread(get_Resilio_filepath(filename), data.table=FALSE)
+}
+
 get_Resilio_filepath <- function(filename) {
   paste0("~/Resilio Sync/data/", filename)
 }
