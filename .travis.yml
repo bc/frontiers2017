@@ -11,5 +11,4 @@ notifications:
 r_github_packages:
   - r-lib/covr
 after_success:
-  - Rscript -e 'covr::coveralls()'
     - Rscript -e 'covr::codecov()'
