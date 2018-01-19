@@ -11,8 +11,8 @@ hand4_dec20_ultraflex <- fread_df_from_Resilio("noiseResponse_ST1BC_2017_12_20_2
 hand4_dec20_flex <-fread_df_from_Resilio("noiseResponse_ST1BC_2017_12_20_23_55_41SECONDHAND_3tap_all_good_45_45_10.txt")
 hand4_dec20_extend <-fread_df_from_Resilio("noiseResponse_ST1BC_2017_12_21_01_37_3SECONDHAND_3tap_allgood_moreextended_914_extensormech_posturedep.txt")
 hand4_dec20_ultraextend <-fread_df_from_Resilio("noiseResponse_ST1BC_2017_12_21_01_56_57_SECONDHAND_3tap_allgood_full_extension_10_10_10_914_extensormech_posture.txt")
-parallel_300 <- read.csv("/Users/briancohn/Desktop/responses/inputs/no_spaces_noise_lo_0_hi_10_nmaps_500_replicates_1__dec3BC1.csv")[1:300,]
-replicate_50 <- read.csv("/Users/briancohn/Desktop/responses/inputs/no_spaces_noise_lo_0_hi_10_nmaps_5_replicates_100_dec3BC1.csv")[1:50,]
+parallel_300 <- read.csv("~/Desktop/responses/inputs/no_spaces_noise_lo_0_hi_10_nmaps_500_replicates_1__dec3BC1.csv")[1:300,]
+replicate_50 <- read.csv("~/Desktop/responses/inputs/no_spaces_noise_lo_0_hi_10_nmaps_5_replicates_100_dec3BC1.csv")[1:50,]
 
 test_that("we can load the list of map ids that are relevant",
           {
