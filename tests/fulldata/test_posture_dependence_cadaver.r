@@ -24,13 +24,23 @@ test_that("replicates has correct n_unique", {
   expect_equal(length(unique(replicate_50$M0)),5)
 })
 
-
+#Define maps of interest to extract into lists
 maps_of_interest <- parallel_300[,muscle_names()]
 colnames(maps_of_interest) <- reference(muscle_names())
-h3uf_bounds_per_map <- find_index_bounds_per_map(raw_timeseries=hand3_dec20_ultraflex,maps_of_interest=maps_of_interest,initial_pass_multiplier = 300, upper_bound_end_of_maps_of_interest=3e5)
-forceTrials <- lapply(df_to_list_of_rows(bounds_per_map), function(map_bounds) {
-  return(hand3_dec20_ultraflex[seq(map_bounds[[1]],map_bounds[[2]]),])
-})
+
+raw_timeseries_to_list_of_forcetrials <- function(raw_timeseries,maps_of_interest,upper_bound_end_of_maps_of_interest, initial_pass_multiplier = 300) {
+  bounds_per_map <- find_index_bounds_per_map(raw_timeseries,maps_of_interest,upper_bound_end_of_maps_of_interest, initial_pass_multiplier)
+  forceTrials <- lapply(df_to_list_of_rows(bounds_per_map), function(map_bounds) {
+    return(raw_timeseries[seq(map_bounds[[1]],map_bounds[[2]]),])
+  })
+  return(forceTrials)
+}
+
+ ft_list <- raw_timeseries_to_list_of_forcetrials(raw_timeseries=hand3_dec20_ultraflex,maps_of_interest=maps_of_interest,initial_pass_multiplier = 300, upper_bound_end_of_maps_of_interest=3e5)
+
+
+
+
 
 
 
