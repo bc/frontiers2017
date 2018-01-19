@@ -25,31 +25,14 @@ test_that("replicates has correct n_unique", {
 })
 
 
-initial_pass_multiplier = 300
 maps_of_interest <- parallel_300[,muscle_names()]
 colnames(maps_of_interest) <- reference(muscle_names())
-
-map_indices <- pblapply(df_to_list_of_rows(maps_of_interest), function(map) {
-  get_first_map_index(hand3_dec20_ultraflex[seq(1,3e5,by=initial_pass_multiplier),], map)
-})
-maps_with_ballpark_indices <- cbind(maps_of_interest, ballpark_index=dcrb(map_indices)*initial_pass_multiplier)
-
-exact_first_indices <- dcrb(pblapply(df_to_list_of_rows(maps_with_ballpark_indices), function(map_and_ballpark_index){
-  map <- map_and_ballpark_index[,reference(muscle_names())]
-  window_bounds <- c(map_and_ballpark_index$ballpark_index-400,map_and_ballpark_index$ballpark_index+400)
-  first_map_index <- get_first_map_index(hand3_dec20_ultraflex[,], map, window_bounds = window_bounds)
-}))
-
-end_indices <- dcc(lapply(1:nrow(exact_first_indices), function(index) exact_first_indices[index]+diff(exact_first_indices)[index] - 1))
-bounds_per_map <- data.frame(start=exact_first_indices, end=end_indices)
-#still missing the last map end index.
-last_map_start_index <- tail(bounds_per_map$start,1)
-last_map_to_trim <- hand3_dec20_ultraflex[seq(last_map_start_index,last_map_start_index+800),]$reference_M0
-end_index_for_final_map <- min(which(last_map_to_trim != head(last_map_to_trim,1))) - 2
-bounds_per_map[300,2] <- last_map_start_index + end_index_for_final_map
+h3uf_bounds_per_map <- find_index_bounds_per_map(raw_timeseries=hand3_dec20_ultraflex,maps_of_interest=maps_of_interest,initial_pass_multiplier = 300, upper_bound_end_of_maps_of_interest=3e5)
 forceTrials <- lapply(df_to_list_of_rows(bounds_per_map), function(map_bounds) {
-  hand3_dec20_ultraflex[seq(map_bounds[1],map_bounds[2])]
+  return(hand3_dec20_ultraflex[seq(map_bounds[[1]],map_bounds[[2]]),])
 })
+
+
 
 test_that("view how loadcell values are for constant 500g force", {
   raw_signals <- ggplot(load_cell_calibrate) +
