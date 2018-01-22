@@ -16,22 +16,7 @@ test_that("replicates has correct n_unique", {
 })
 
 
-
-raw_timeseries_to_list_of_forcetrials <- function(raw_timeseries,maps_of_interest,upper_bound_end_of_maps_of_interest, initial_pass_multiplier = 300) {
-  bounds_per_map <- find_index_bounds_per_map(raw_timeseries,maps_of_interest,upper_bound_end_of_maps_of_interest, initial_pass_multiplier)
-  forceTrials <- lapply(df_to_list_of_rows(bounds_per_map), function(map_bounds) {
-    return(raw_timeseries[seq(map_bounds[[1]],map_bounds[[2]]),])
-  })
-  return(forceTrials)
-}
-
- ft_list <- raw_timeseries_to_list_of_forcetrials(raw_timeseries=hand3_dec20_ultraflex,maps_of_interest=maps_of_interest,initial_pass_multiplier = 300, upper_bound_end_of_maps_of_interest=3e5)
-
-all_muscles_stabilized(tail(ft_list[[1]],10), err=1.0, muscles_of_interest = "M0")
-  input_output_data <- converged_colmeans(ft_list[[1]], last_n_milliseconds=100)
-
-
-
+  load_cell_calibrate <- fread_df_from_Resilio("noiseResponse_ST1BC_2017_12_20_16_50_22_500g_loadcell_calibrate_3tap_beforehi_3tap_before_null.txt")
 
 
 test_that("view how loadcell values are for constant 500g force", {
@@ -45,24 +30,3 @@ test_that("view how loadcell values are for constant 500g force", {
   geom_line(aes(time, measured_M6), col = "purple")
   plot(raw_signals)
 })
-
-test_that("force_control_works_for_posts", {
-  plot_input_output_signals(posts,col_identifier_function=measured, )
- tension_signals <- plot_measured_command_reference_over_time(posts,downsample_amount=100,include_forces=FALSE, include_torques=FALSE)
-ggsave(to_output_folder("PD_xray_for_tensions_against_post_dec20.pdf"), tension_signals, width=90, height=30, limitsize=FALSE)
-})
-
-test_that('we can extract only the parallel noise part', {
-  length(unique(hand3_dec20_flex$map_creation_id))
-  hand3_flex_timeseries_raw <- hand3_dec20_flex[4713:243917,]
-ggplot(hand3_dec20_flex[4713:243917,])+ geom_line(aes(time, measured_M0))
-write.csv(, "hand3_dec20_flex_parallel.csv")
- parts <- split(hand3_dec20_flex[4713:243917,], hand3_dec20_flex[4713:243917,]$map_creation_id)
-
-})
-
-
-
-
-load_cell_calibrate <- fread_df_from_Resilio("noiseResponse_ST1BC_2017_12_20_16_50_22_500g_loadcell_calibrate_3tap_beforehi_3tap_before_null.txt")
-posts <- fread_df_from_Resilio("noiseResponse_ST1BC_2017_12_20_15_55_45_tendons_to_post_good.txt")

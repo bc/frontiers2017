@@ -122,3 +122,10 @@ extract_trial_tails_by_map_group_indices <- function(full_df, group_indices, las
   })
   return(tails)
 }
+
+extract_trials_by_map_group_indices <- function(full_df, group_indices){
+  trials <- pblapply(group_indices$lower:group_indices$upper, function(map_group_index) {
+    return(full_df[rleid(full_df$map_creation_id)==map_group_index,])
+  })
+  return(trials)
+}
