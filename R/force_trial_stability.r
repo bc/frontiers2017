@@ -185,7 +185,7 @@ jr3_voltages_to_forces <- function(dataframe_with_jr3_voltage_columns){
 ##' @return timeseries_data time series with the M0, M1, and JR3_FX, and time, etc, but with transformations applied.
 munge_JR3_data <- function(raw_uncut_timeseries_data,JR3_to_fingertip_distance = 0.02, input_are_voltages=FALSE, indices_for_null=1:100, remove_nonzero_map_creation_ids = TRUE,JR3_sensor_null = NULL){
   if (is.null(JR3_sensor_null)){
-    message('computing jr3 null from inputs to fn call')
+    message('Computing JR3 null from user-provided indices_of_interest')
     JR3_sensor_null <- colMeans(raw_uncut_timeseries_data[indices_for_null,])
   }
   zeroed_uncut_timeseries_data <- zero_out_JR3_sensors(raw_uncut_timeseries_data, JR3_sensor_null)

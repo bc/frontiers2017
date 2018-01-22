@@ -83,3 +83,26 @@ indices_for_null <- 759096:763441
   expect_equal(ncol(input_output_data), 37)
   write.csv(input_output_data,to_output_folder('calibrated_and_0_centered_input_output_data_for_hand3_flexed.csv'), row.names=FALSE)
 })
+
+
+test_that("hand 3 ultraextended", {
+
+filename_3D <- "noiseResponse_ST1BC_2017_12_20_20_44_47_3tap_all_good_10_10_10_extended_posture.txt"
+hand3_dec20_ultraextend <- fread_df_from_Resilio(filename_3D)
+indices_for_null <-  761547:nrow(hand3_dec20_ultraextend)
+  untransformed_p <- plot_measured_command_reference_over_time(hand3_dec20_ultraextend[indices_for_null,])
+  ggsave(to_output_folder(paste0(signals_prefix,filename_3D ,".pdf")),
+   untransformed_p, width=90, height=30, limitsize=FALSE)
+  noise_response_wo_null <- munge_JR3_data(hand3_dec20_ultraextend,remove_nonzero_map_creation_ids=FALSE, input_are_voltages=TRUE, indices_for_null=1000000:1100000, JR3_to_fingertip_distance=JR3_to_fingertip_distance,JR3_sensor_null=NULL)
+  p <- plot_measured_command_reference_over_time(noise_response_wo_null)
+  ggsave(to_output_folder(paste0("xray_for_",filename_3D ,".pdf")), p, width=90, height=30, limitsize=FALSE)
+
+  group_indices <- list(lower=2,
+                        upper=301)
+  expect_true(all(maps_match_across_M0_and_map_groups(noise_response_wo_null, group_indices=group_indices, maps_of_interest=maps_of_interest)))
+  tails <- extract_trial_tails_by_map_group_indices(noise_response_wo_null, group_indices, 100)
+  input_output_data <- dcrb(lapply(tails,colMeans))
+  expect_equal(nrow(input_output_data), 300)
+  expect_equal(ncol(input_output_data), 37)
+  write.csv(input_output_data,to_output_folder('calibrated_and_0_centered_input_output_data_for_hand3_flexed.csv'), row.names=FALSE)
+})
