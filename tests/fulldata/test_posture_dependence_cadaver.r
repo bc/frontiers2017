@@ -66,8 +66,8 @@ write.csv(, "hand3_dec20_flex_parallel.csv")
 
 
 
-hand4_dec20_flex <-fread_df_from_Resilio("noiseResponse_ST1BC_2017_12_20_23_55_41SECONDHAND_3tap_all_good_45_45_10.txt")
-hand4_dec20_extend <-fread_df_from_Resilio("noiseResponse_ST1BC_2017_12_21_01_37_3SECONDHAND_3tap_allgood_moreextended_914_extensormech_posturedep.txt")
+
+
 hand4_dec20_ultraextend <-fread_df_from_Resilio("noiseResponse_ST1BC_2017_12_21_01_56_57_SECONDHAND_3tap_allgood_full_extension_10_10_10_914_extensormech_posture.txt")
 load_cell_calibrate <- fread_df_from_Resilio("noiseResponse_ST1BC_2017_12_20_16_50_22_500g_loadcell_calibrate_3tap_beforehi_3tap_before_null.txt")
 posts <- fread_df_from_Resilio("noiseResponse_ST1BC_2017_12_20_15_55_45_tendons_to_post_good.txt")
