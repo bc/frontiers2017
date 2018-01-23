@@ -21,16 +21,7 @@ test_that("force_control_works_for_posts and we can extract the post data for ki
  expect_true(all(maps_match_across_M0_and_map_groups(posts, group_indices=group_indices, maps_of_interest=maps_of_interest)))
 
  trials <- extract_trials_by_map_group_indices(posts, group_indices)
- first_map_indices <- dcc(lapply(trials[1:10], function(trial){
-   head(trial$time,1)
- }))
-
- posts_snapshot <- ggplot(dcrb(trials[1:10])) + geom_line(aes(time, measured_M0)) + ylim(0,12) + geom_vline(xintercept=first_map_indices, size=0.25, color = "#111111")
-ggsave("posts_snapshot.pdf", posts_snapshot)
-ggplot(dcrb(lapply(trials, head, 100))) + geom_point(aes(command_M0, measured_M0), size=0.1, alpha=0.5, color = command_M0)
-
-ggplot(dcrb(trials), aes(command_M0, measured_M0)) + geom_point(alpha=0.1, color = 'darkblue')
-write.csv(dcrb(trials), to_output_folder("pre_dec20_cadaver_experiment_with_tendons_against_static_posts.csv"), row.names=FALSE)
+ write.csv(dcrb(trials), to_output_folder("pre_dec20_cadaver_experiment_with_tendons_against_static_posts.csv"), row.names=FALSE)
 
 
 #Stats

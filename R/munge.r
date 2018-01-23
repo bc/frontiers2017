@@ -76,7 +76,7 @@ get_first_map_index <- function(df, map_7d, threshold = 1e-04, window_bounds = c
 ##' @param df full dataframe of time series, with reference_M0 used as the reference to group maps
 ##' @param bounds must be a list of lower= x and upper = x. it uses the results from a rleid on the map_creation_id
 concat_lower_upper_reference_M0_val_at_id_group <- function(df, bounds) {
-    c(reference_M0_value_at_nth_map_id_group(df, bounds$lower), reference_M0_value_at_nth_map_id_group(df,
+  c(reference_M0_value_at_nth_map_id_group(df, bounds$lower), reference_M0_value_at_nth_map_id_group(df,
     bounds$upper))
 }
 
@@ -96,17 +96,17 @@ maps_match_across_M0_and_map_groups <- function(df, group_indices, maps_of_inter
 ##' @param maps_of_interest df of refernce_MX and map_creation_id that were input into the system.
 ##' @param identifies the reference_M0 value for the first and last map of interest.
 ##' @return tuple_vec vector of two elements, each the numeric value of M0 reference force.
-head_tail_reference_M0 <- function(maps_of_interest){
-  c(head(maps_of_interest,1)$reference_M0, tail(maps_of_interest,1)$reference_M0)
+head_tail_reference_M0 <- function(maps_of_interest) {
+  c(head(maps_of_interest, 1)$reference_M0, tail(maps_of_interest, 1)$reference_M0)
 }
 
 ##' reference_M0_value_at_nth_map_id_group
 ##' @param full_df dataframe that has a reference_M0 column with force values. must also have map_creation_id
 ##' @param n the group number to check
 ##' @return the rows where the last value of M0 in the group matches the unique desired one in the map_creaitn_id
-reference_M0_value_at_nth_map_id_group <- function(full_df, n){
-  indices_to_extract <- tail(which(rleid(full_df$map_creation_id)==n),1)
-  full_df[indices_to_extract,]$reference_M0
+reference_M0_value_at_nth_map_id_group <- function(full_df, n) {
+  indices_to_extract <- tail(which(rleid(full_df$map_creation_id) == n), 1)
+  full_df[indices_to_extract, ]$reference_M0
 }
 
 ##' extract_trial_tails_by_map_group_indices
@@ -116,16 +116,69 @@ reference_M0_value_at_nth_map_id_group <- function(full_df, n){
 ##' @param group_indices list of two elements, lower and upper, integer values for the group index.
 ##' @param last_n_milliseconds tail number of indices to extract to create colMeans, as fed to input_output_data.
 ##' @return tails list of dataframe elements, each of which is the stabilized section of the force trial.
-extract_trial_tails_by_map_group_indices <- function(full_df, group_indices, last_n_milliseconds){
-  tails <- pblapply(group_indices$lower:group_indices$upper, function(map_group_index) {
-    return(tail(full_df[rleid(full_df$map_creation_id)==map_group_index,],last_n_milliseconds))
-  })
-  return(tails)
-}
-
-extract_trials_by_map_group_indices <- function(full_df, group_indices){
+extract_trials_by_map_group_indices <- function(full_df, group_indices) {
   trials <- pblapply(group_indices$lower:group_indices$upper, function(map_group_index) {
-    return(full_df[rleid(full_df$map_creation_id)==map_group_index,])
+    return(full_df[rleid(full_df$map_creation_id) == map_group_index, ])
   })
   return(trials)
 }
+
+##' extract_trial_tails_by_map_group_indices
+##' for the lower and uper indices, extract the map of interest. This way, we
+##' do not search the database longer than in necessary.
+##' @param trials, each a force trial with ~800 ms, and 37 columns for refrence_M0, etc
+##' @param last_n_milliseconds tail number of indices to extract to create colMeans, as fed to input_output_data.
+##' @return tails list of dataframe elements, each of which is the stabilized section of the force trial.
+extract_tails_from_trials <- function(trials, last_n_milliseconds) {
+  lapply(trials, tail, last_n_milliseconds)
+}
+
+
+##' Save timeseries and input_output_data to csv's as cleaned datasets.
+##' @param timeseries running time series with changes in reference_MX, responses in JR3_FJ
+##' @param input_output_data list of timeseries elements, each a timeseries for one desired reference force. This is the static response data.
+##' @param data_filename sting to identify what hand/posture/parameters yielded this dataset.
+write_csv_of_timeseries_and_input_output <- function(timeseries, input_output_data,
+  data_filename, last_n_milliseconds) {
+  timeseries_filepath <- to_output_folder(paste0(data_filename, "_clean_timeseries.csv"))
+  static_response_path <- to_output_folder(paste0(data_filename, "_clean_static_response_from_tail_",
+    last_n_milliseconds, "ms_mean.csv"))
+  message(paste0("Saving timeseries to ", timeseries_filepath))
+  write.csv(timeseries, timeseries_filepath, row.names = FALSE)
+  message(paste0("Saving timeseries to ", static_response_path))
+  write.csv(input_output_data, static_response_path, row.names = FALSE)
+}
+
+##' @param noise_response_wo_null dataset, after JR3 has been calibrated and non-interesting data removed.
+##' @param group_indices group_indices vector of two indices, represenging rleid group #'s of interest
+##' @param last_n_milliseconds window for the mean static value
+##' @return L list of dynamic_trials_list and the static_df.
+##' dynamic_trials_list is a list of mini timeseries elements, that can be contatenated to get a large df. static_df is the input_output data represesnting the static response.
+  extract_static_and_dynamic_data <- function(noise_response_wo_null, group_indices, last_n_milliseconds){
+    trials <- extract_trials_by_map_group_indices(noise_response_wo_null, group_indices)
+    tails <- extract_tails_from_trials(trials,last_n_milliseconds)
+    input_output_data <- dcrb(lapply(tails,colMeans))
+    expect_equal(nrow(input_output_data), 300)
+    expect_equal(ncol(input_output_data), 37)
+    return(list(dynamic_trials_list=trials,static_df=input_output_data))
+  }
+
+##' specific to dec20 big jumbo maps'
+  dec20_PD_EXTMECH_maps_of_interest_by_section <- function(){
+    cat <- read.csv("/Users/briancohn/Resilio\ Sync/data/dec20BC1/dec20_PD_EXTMECH/big_jumbo_set_for_posture_dependence_and_extmech_914_NFORCES.csv")
+    parallel <- cat[1:300,]
+    replicate_50 <- cat[301:350,]
+    serial_100 <- cat[351:420,]
+    parallel_without_flexors <- cat[421:720,]
+    replicates_without_flexors <- cat[721:770,]
+    nudge_matrix <- cat[771:854,]
+    nudge_matrix_without_flexors <- cat[855:914,]
+  sections <- list(parallel=parallel,
+  replicates=replicates,
+  serial=serial,
+  parallel_without_flexors=parallel_without_flexors,
+  replicates_without_flexors=replicates_without_flexors,
+  nudge_matrix=nudge_matrix,
+  nudge_matrix_without_flexors=nudge_matrix_without_flexors)
+  return(sections)
+  }

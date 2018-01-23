@@ -48,6 +48,8 @@ replicates_without_flexors,
 nudge_matrix,
 nudge_matrix_without_flexors)
 
+message(dcc(lapply(sections, nrow)))
+# [1] 300  50  70 300  50  84  60
 message(sum(dcc(lapply(sections, nrow))))
 
 
