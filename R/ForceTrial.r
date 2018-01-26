@@ -9,21 +9,10 @@
 ##' @param err max allowable residual from desired reference force.
 ##' @param last_n_milliseconds number of milliseconds to base the stability metrics off.
 ##' @return forcetrial_structure_object the object with all relevant attributes and stability metrics
-ForceTrial <- function(timeseries_df, full_df, err, last_n_milliseconds = 100,
+ForceTrial <- function(timeseries_df, err, last_n_milliseconds = 100,
   muscle_of_interest = "M0", muscles_of_interest) {
-  if (1 %in% timeseries_df$robot_flag) {
-    len_before <- nrow(timeseries_df)
-    timeseries_df <- timeseries_df[timeseries_df$robot_flag == 2, ]
-    num_trimmed <- len_before - nrow(timeseries_df)
-    warnings(paste("robot was moving during force trial. Trimmed", num_trimmed,
-      "indices."))
-  }
-  if (0 %in% timeseries_df$robot_flag) {
-    warnings("robot was not initialized correctly during force trial")
-  }
   all_muscles_stabilized_by_last_val <- all_muscles_stabilized(timeseries_df, err, muscles_of_interest)
-  ForceTrialObj <- structure(rm_encoder_and_adept_cols(timeseries_df), adept_coordinates = adept_coordinates(timeseries_df),
-    all_muscles_stabilized_by_last_val = all_muscles_stabilized_by_last_val)
+  ForceTrialObj <- structure(timeseries_df, all_muscles_stabilized_by_last_val = all_muscles_stabilized_by_last_val)
   # Only compute stabilization info if the time series actually stabilized.
   if (all_muscles_stabilized_by_last_val) {
     setattr(ForceTrialObj, "stability_info", force_trial_to_stable_metrics(timeseries_df,

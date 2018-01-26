@@ -22,10 +22,13 @@ force_names_to_predict <- c("JR3_FX","JR3_FY","JR3_FZ","JR3_MX","JR3_MY","JR3_MZ
 # hand. noise input 100 = num_maps input:
 # no_spaces_noise_lo_0_hi_20_nmaps_500_replicates_1.csv
 
-untransformed_noise_response <- as.data.frame(fread(get_Resilio_filepath("noiseResponse2017_11_30_20_16_06_500_maps_reps_1.txt")))
-noise_response_wo_null <- munge_JR3_data(untransformed_noise_response, input_are_voltages=TRUE, indices_for_null=50:250)
+#mit hand data that will match cadaver: noiseResponse2017_11_30_20_16_06_500_maps_reps_1.txt
+# noiseResponse2017_12_02_10_57_15_BC_cadaver.txt WORKS
+
+untransformed_noise_response <- as.data.frame(fread(get_Resilio_filepath("noiseResponse2017_12_04_02_53_10_EXMECH_1A_oncadaver_all_good.txt")))
+noise_response_wo_null <- munge_JR3_data(untransformed_noise_response, input_are_voltages=TRUE, JR3_to_fingertip_distance=0.02, indices_for_null=50:250)
 p <- plot_measured_command_reference_over_time(noise_response_wo_null)
-ggsave(to_output_folder("xray_for_noiseReponse.pdf"), p, width=90, height=30, limitsize=FALSE)
+ggsave(to_output_folder("xray_for_noiseReponse2017_12_02_10_57_15.pdf"), p, width=90, height=30, limitsize=FALSE)
 noise_hand_responses <- split_by_map_and_remove_wrongly_lengthed_samples(noise_response_wo_null)
 input_output_data <- df_of_hand_response_input_output(noise_hand_responses, last_n_milliseconds)
 A_fit <- A_fit_from_80_20_split(input_output_data, muscles_of_interest, force_names_to_predict)
@@ -45,74 +48,95 @@ title3d(main="FFS", xlab="Fx", ylab="Fy", zlab="Fz", col="black")
 message('Pick 2 points to define the horizontal line endpoints.')
 
 horizontal_line_points <- identify_n_points_from_pointcloud(binary_combination_ffs_points[,1:3],n=2)
-horizontal_line_tasks <- dcrb(draw_perpendicular_line(horizontal_line_points[1,],horizontal_line_points[2,],5))
+horizontal_line_tasks <- dcrb(draw_perpendicular_line(horizontal_line_points[1,],horizontal_line_points[2,],10))
 spheres3d(horizontal_line_tasks, r=0.10, col="pink")
 message('Pick 1 point to define the scaling direction.')
 task_direction_to_scale <- identify_n_points_from_pointcloud(binary_combination_ffs_points[,1:3],n=1)
 map_that_created_task_dir <- binary_combinations[which(binary_combination_ffs_points[,1]==task_direction_to_scale[1]),]
 
-
 #Now show the torque FAS just to show what dimensions it is constrained in.
 rgl.init()
 plot_ffs_with_vertices(binary_combination_ffs_points[,4:6], generator_columns_A_matrix[,4:6], alpha_transparency=0.25, range_tension=range_tension)
 
-
-
 ############ MANUAL: IDENTIFY TASK MULTIPLIER BOUNDS FOR SCALING
-task_multiplier_bounds <- c(0, 1.0)
-num_samples_desired <- 4
-num_tasks <- 50
-task_multiplier_list <- seq(task_multiplier_bounds[1], task_multiplier_bounds[2],
-  length.out = num_tasks)
+task_bounds <- c(1e-2, 0.5)
+num_samples_desired <- 100
+num_tasks <- 10
+task_multiplier_list <- seq(task_bounds[1], task_bounds[2], length.out = num_tasks)
 task_df <- t(task_direction_to_scale %*% t(task_multiplier_list))
 colnames(task_df) <- force_names_to_predict[1:3]
-sset <- multiple_tasks_to_sset(A_fit$AMatrix,task_df, thin=100, torque_max_deviation=0.0001, num_samples_desired=num_samples_desired)
+sset_scaling <- multiple_tasks_to_sset(A_fit$AMatrix,task_df, thin=100, torque_max_deviation=0.1, num_samples_desired=num_samples_desired)
+sset_feasible_scaling <- filter_infeasible_tasks(sset_scaling, A_fit$AMatrix, max_allowable_residual_from_expected=1e-3)
 
-#remove infeasible
-which_ssets_are_feasible(sset[10], A_fit$AMatrix, max_allowable_residual_from_expected=1e-3)
-which_tasks_are_feasible <- which_ssets_are_feasible(sset, A_fit$AMatrix, max_allowable_residual_from_expected=1e-3)
-sset_feasible <- sset[which_tasks_are_feasible]
-proportion_of_tasks_are_feasible <- length(which_tasks_are_feasible) / length(sset)
-l1_cost_limits <- lapply(sset_feasible, l1_cost_limits)
+dcrb(lapply(sset_feasible_scaling, function(samples){
+  boxplot(samples)
+  return(attr(samples,'task'))
+}))
+
+l1_cost_limits <- lapply(sset_feasible_scaling, l1_cost_limits)
 how_muscle_lower_bound_changes <- dcc(lapply(l1_cost_limits, function(lo_hi){
   lo_hi[1,2]
 }))
-
-proportion_of_tasks_are_feasible
-
 #sanity check plots
 plot(how_muscle_lower_bound_changes, type='l',ylab="M0 in lowest l1 soln", xlab="Task Intensity")
-histogram_muscle_projections(sset, range_tension)
-expect_five_points_in_row(sset)
+histogram_muscle_projections(sset_feasible_scaling, range_tension)
+expect_five_points_in_row(sset_feasible_scaling)
 
 
-
+browser()
 ####### Visualize the FAS sets that are produced by feeding in the noiseResponse data.
-rgl.init()
-num_tasks <- length(sset)
+rgl.clear()
+num_tasks <- length(sset_feasible_scaling)
 rgl_init(bg = "white")
-extract_3cols <- lapply(sset, function(x) x[, c(2, 3, 4)])
+extract_3cols <- lapply(sset_feasible_scaling, function(x) x[, c(1, 2, 3)])
+extract_3cols[[1]] <- NULL #remove the 00000 force
 gradient <- colorRampPalette(c("#a6cee3", "#1f78b4", "#b2df8a", "#fc8d62", "#ffffb3",
   "#bebada"))
 list_of_mats <- add_gradient_to_attrs(extract_3cols, gradient(length(extract_3cols)))
-list_of_mats <- lapply(list_of_mats, function(x) x/1e5)
-rgl.clear()
+list_of_mats <- lapply(list_of_mats, function(x) x)
+
 axes_for_multiple_sets(list_of_mats)
 axes_for_defined_xyz_limits(rep(list(c(0, 20)), 3))
 rgl_convhulls(list_of_mats, points = TRUE)
 
-res <- lapply(sset, create_and_cbind_map_creation_ids, muscle_names())
+
+##########PREP CSV MAPS FOR SCALING ###############
+res <- lapply(tail(sset_feasible_scaling,5), create_and_cbind_map_creation_ids, muscle_names())
 big_har_set_to_test_on_finger <- dcrb(res)
 write.csv(big_har_set_to_test_on_finger, to_output_folder("scaling_task_n100_per_outputvec_of_interest_5_steps_no_replicates.csv"),
   row.names = FALSE, quote = FALSE)
-# Make sure the output looks correct
-prescribed_maps <- as.data.frame(fread(to_output_folder("scaling_task_n100_per_outputvec_of_interest_5_steps_no_replicates.csv")))
-maps_without_ids <- unique(prescribed_maps[muscle_names()])
-expected_forces <- t(as.matrix(A_fit$AMatrix)) %*% t(as.matrix(maps_without_ids[,
-  muscles_of_interest]))
-  # , xlim = c(-0.5, 0), ylim = c(-2, 2), zlim = c(-2, 2)
-plot3d(t(expected_forces))
-## Quickly make sure that the saved file has only 5 output points expected.
+
+#sanity check:
+expect_five_points_in_row_for_csv_maps(filename = "scaling_task_n100_per_outputvec_of_interest_5_steps_no_replicates.csv", A_fit=A_fit)
+
+
+
+
+############ MANUAL: IDENTIFY TASK MULTIPLIER BOUNDS FOR HORIZONTAL
+  num_samples_desired <- 100
+  scale_factor_for_magnitude_of_all_horizontal_forces <- 0.8
+  colnames(horizontal_line_tasks) <- force_names_to_predict[1:3]
+  scaled_horizontal_line_tasks <- scale_factor_for_magnitude_of_all_horizontal_forces* horizontal_line_tasks
+  sset_scaling_horizontal <- multiple_tasks_to_sset(A_fit$AMatrix,scaled_horizontal_line_tasks, thin=100, torque_max_deviation=0.1, num_samples_desired=num_samples_desired)
+  sset_feasible_horizontal <- filter_infeasible_tasks(sset_scaling_horizontal, A_fit$AMatrix, max_allowable_residual_from_expected=1e-3)
+
+#wait, which ones were feasible?
+  dcrb(lapply(sset_feasible_horizontal, function(samples){
+    boxplot(samples)
+    return(attr(samples,'task'))
+  }))
+
+  ##########PREP CSV MAPS FOR HORIZONTAL REDIRECTION TASK ###############
+  res <- lapply(head(sset_feasible_horizontal,5), create_and_cbind_map_creation_ids, muscle_names())
+  big_har_set_to_test_on_finger <- dcrb(res)
+  write.csv(big_har_set_to_test_on_finger, to_output_folder("horizontal_task_n100_per_outputvec_of_interest_5_steps_no_replicates.csv"),
+  row.names = FALSE, quote = FALSE)
+
+#sanity check for horizontal
+expect_five_points_in_row_for_csv_maps(filename = "horizontal_task_n100_per_outputvec_of_interest_6_steps_no_replicates.csv", A_fit=A_fit)
+
+
+########################DO ALL OF THE STUFF BELOW ON ANOTHER DAY AFTER LOTS OF SLEEP ###############################################
 
 ## TODO GET data from the cadaver finger from big_har_set_to_test_on_finger this
 ## is the response when you push in the maps for 5 tasks through the finger

@@ -240,3 +240,32 @@ draw_perpendicular_line <- function(x1, x2, length_out) {
 identify_n_points_from_pointcloud <- function(matrix_3d, n=2){
   matrix_3d[identify3d(matrix_3d,n=n),]
 }
+
+
+##' feasible_proportion_message'
+##' @param sset,sset_feasible list of dataframes, each a df of sample muscle activation patterns.
+##' @param task_multiplier_bounds 2 element vector detailing the scale factor to apply to a given task direction.
+feasible_proportion_message <- function(sset, sset_feasible, task_multiplier_bounds){
+  proportion_of_tasks_are_feasible <- length(sset_feasible) / length(sset)
+  message(paste0(proportion_of_tasks_are_feasible*100, "% of the tasks in the range [",task_multiplier_bounds[1],"-",task_multiplier_bounds[2],  "] have tenable feasible activation spaces"))
+}
+
+
+##' expect_five_points_in_row_for_csv_maps
+##' use this to make sure that all maps you run through the hand land in the precise desired task vector locations.
+##' @param filename "scaling_task_n100_per_outputvec_of_interest_5_steps_no_replicates.csv"'
+expect_five_points_in_row_for_csv_maps <- function(filename,A_fit, muscles_of_interest=muscle_names()){
+  prescribed_maps <- as.data.frame(fread(to_output_folder(filename)))
+  maps_without_ids <- unique(prescribed_maps[muscles_of_interest])
+  expected_forces <- t(as.matrix(A_fit$AMatrix)) %*% t(as.matrix(maps_without_ids[,
+    muscles_of_interest]))
+    plot3d(t(expected_forces))
+}
+
+
+##' TODO document, test
+task_list_from_sset_list <- function(sset_feasible_scaling_list){
+  dcrb(lapply(sset_feasible_scaling, function(samples){
+    return(attr(samples,'task'))
+  }))
+}
