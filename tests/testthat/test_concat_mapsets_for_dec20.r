@@ -17,9 +17,10 @@ subsample_indices_for_serial <- dcc(lapply(c(0,100,200,300,400,500,600), functio
   return(start_index + 1:10)
 }))
 
-parallel <- read.csv("/Users/briancohn/Desktop/responses/inputs/no_spaces_noise_lo_0_hi_10_nmaps_500_replicates_1__dec3BC1.csv")[1:300,]
-replicates <- read.csv("/Users/briancohn/Desktop/responses/inputs/no_spaces_noise_lo_0_hi_10_nmaps_5_replicates_100_dec3BC1.csv")[1:50,]
-serial <- read.csv("/Users/briancohn/Desktop/responses/inputs/no_spaces_noise_muscles_actuated_independently_lo_0_hi_10_nmaps_100_replicates_1__dec3BC1.csv")
+
+parallel <- read.csv(get_Resilio_filepath(paste0("dec4_extensor_mechanism_input_and_response/inputs/", "no_spaces_noise_lo_0_hi_10_nmaps_500_replicates_1__dec3BC1.csv" )))[1:300,]
+replicates <- read.csv(get_Resilio_filepath(paste0("dec4_extensor_mechanism_input_and_response/inputs/", "no_spaces_noise_lo_0_hi_10_nmaps_5_replicates_100_dec3BC1.csv")))[1:50,]
+serial <- read.csv(get_Resilio_filepath(paste0("dec4_extensor_mechanism_input_and_response/inputs/", "no_spaces_noise_muscles_actuated_independently_lo_0_hi_10_nmaps_100_replicates_1__dec3BC1.csv")))
 serial <- serial[subsample_indices_for_serial,]
 
 
