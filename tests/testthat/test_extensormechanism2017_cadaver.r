@@ -39,7 +39,6 @@ test_that("1A looks good, create new activations for 1A and decide on task for 2
   filepath_noiseresponse <- paste0('dec4_extensor_mechanism_input_and_response/1/', noise_response_filename)
 
   untransformed_noise_response <- as.data.frame(fread(get_Resilio_filepath(filepath_noiseresponse)))
-  browser()
   untransformed_p <- plot_measured_command_reference_over_time(untransformed_noise_response)
   ggsave(to_output_folder(paste0("get_null_indices_via_this_plot_of_untransformed_xray_for_",noise_response_filename ,".pdf")), untransformed_p, width=90, height=30, limitsize=FALSE)
 
