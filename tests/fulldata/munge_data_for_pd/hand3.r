@@ -15,7 +15,7 @@ force_names_to_predict <- c("JR3_FX","JR3_FY","JR3_FZ","JR3_MX","JR3_MY","JR3_MZ
 group_indices <- list(lower=2,
                       upper=301)
 #Define maps of interest to extract into lists
-maps_of_interest <- parallel[,muscle_names()]
+maps_of_interest <- sections_of_interest$parallel[,muscle_names()]
 colnames(maps_of_interest) <- reference(muscle_names())
 
 test_that("hand 3 ultraflex", {
