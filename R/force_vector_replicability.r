@@ -15,3 +15,21 @@ noise_df <- function(muscles_of_interest, number_of_maps_to_generate, range_tens
   colnames(cbound) <- c("map_creation_id", muscles_of_interest)
   return(cbound)
 }
+
+noise_df_for_only_muscle_of_interest <- function(muscle_of_interest, n_maps_per_muscle, range_tension=range_tension){
+  dense_mat <- noise_df(muscle_names(), n_maps_per_muscle, range_tension=range_tension)
+  all_except_muscle_of_interest <- muscle_names()[muscle_names()!=muscle_of_interest]
+  dense_mat[,all_except_muscle_of_interest] <- rep(0, nrow(dense_mat))
+  return(dense_mat)
+}
+
+##' noise_df_for_only_muscle_of_interest'
+##' to check random forces for one muscle at a time. This is a good way to understand how muscles work when they are completely independent.
+##' df result ordered from first muscle to last muscle.
+##' TODO remove hard coding of the muscle_names(), and allow N muscles to be used.
+##' @param n_maps_per_muscle number of muscle activation patterns to create, for each muscle.
+##' @inheritParams noise_df
+##' @return noise_df dataframe where each col is a muscle and each row is a map. output length == n_maps_per_muscle*num_muscles
+noise_df_one_muscle_at_a_time <- function(n_maps_per_muscle, range_tension){
+  dcrb(lapply(muscle_names(), noise_df_for_only_muscle_of_interest, n_maps_per_muscle=100, range_tension = range_tension))
+}

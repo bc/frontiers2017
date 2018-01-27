@@ -1,0 +1,6 @@
+context('test_jr3.r')
+jr3_data <- fread(get_Resilio_filepath("noiseResponse2017_11_24_14_39_24_brian_move_fingertip.txt"),data.table=FALSE)
+plot_input_output_signals(head(jr3_data, 10000))
+plot_input_output_signals(head(jr3_data, 10000), command)
+plot_input_output_signals(head(jr3_data, 10000), reference)
+plot_input_output_signals(downsampled_df(jr3_data[35000:50000,], 100))

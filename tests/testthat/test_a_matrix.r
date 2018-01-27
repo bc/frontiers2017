@@ -108,3 +108,15 @@ test_that("stop_if_min_equals_max will display stop message",
   input_range_same <- c(3,3)
   expect_error(stop_if_min_equals_max(input_range_same), paste0("Range provided needs to have different values for max and min. You only gave me ", input_range_same[1]))
 })
+
+
+test_that("evaluate ability to find A matrix for known canonical system", {
+  canonical_A <-  canonical_linear_system(1)$constr
+  noise_3d <- matrix(runif(30000),10000,3)
+  colnames(noise_3d) <- muscle_names()[1:3]
+  response <- t(canonical_A %*% t(noise_3d))[,1]
+  data <- as.data.frame(cbind(noise_3d,JR3_FX=response))
+  A_fit <- find_A_matrix_without_offset(data, regressor_names = muscle_names()[1:3], forces_of_interest = "JR3_FX")
+  expect_true(max(abs(A_fit$endpointForcePrediction - A_fit$endpointForceObservation)) < 1e-5)
+  t(A_fit$AMatrix) == canonical_A[1,]
+})

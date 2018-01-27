@@ -62,7 +62,7 @@ generate_linear_static_model <- function(input_output_data, fraction_training){
 }
 
 
-##' L1 Norm of a Vector'
+##' L2 Norm of a Vector'
 ##" https://stackoverflow.com/questions/10933945/how-to-calculate-the-euclidean-norm-of-a-vector-in-r
 ##' TODO Create test
 ##' @param x vector of numeric

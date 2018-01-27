@@ -5,6 +5,10 @@ DEV:[![Travis-CI Build Status](https://travis-ci.org/bc/frontiers2017.svg?branch
 iss39:[![Travis-CI Build Status](https://travis-ci.org/bc/frontiers2017.svg?branch=iss39)](https://travis-ci.org/bc/frontiers2017)  
 iss37:[![Travis-CI Build Status](https://travis-ci.org/bc/frontiers2017.svg?branch=iss37)](https://travis-ci.org/bc/frontiers2017)  
 
+[![MASTER Coverage status](https://codecov.io/gh/bc/frontiers2017/branch/master/graph/badge.svg)](https://codecov.io/github/bc/frontiers2017?branch=master)
+
+[![DEV Coverage status](https://codecov.io/gh/bc/frontiers2017/branch/dev/graph/badge.svg)](https://codecov.io/github/bc/frontiers2017?branch=dev)
+
 # Installation
 
 ### Put dataset on the EC2 Server:
