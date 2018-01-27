@@ -1,2 +1,0 @@
-load("/Users/briancohn/Documents/GitHub/bc/frontiers2017/inst/extdata/sample_A_matrix.rds")
-readRDS("/Users/briancohn/Documents/GitHub/bc/frontiers2017/inst/extdata/sample_A_matrix.rds")

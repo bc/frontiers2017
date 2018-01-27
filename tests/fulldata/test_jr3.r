@@ -1,6 +1,0 @@
-context('test_jr3.r')
-jr3_data <- as.data.frame(fread('/Users/briancohn/Resilio\ Sync/data/noiseResponse2017_11_24_14_39_24.txt'))
-plot_input_output_signals(head(jr3_data, 10000))
-plot_input_output_signals(head(jr3_data, 10000), command)
-plot_input_output_signals(head(jr3_data, 10000), reference)
-plot_input_output_signals(downsampled_df(jr3_data[35000:50000,], 100))
