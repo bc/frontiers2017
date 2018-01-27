@@ -1,6 +1,6 @@
 posts <- fread_df_from_Resilio("noiseResponse_ST1BC_2017_12_20_15_55_45_tendons_to_post_good.txt")
 #Define maps of interest to extract into lists
-cat <- read.csv("/Users/briancohn/Resilio\ Sync/data/dec20BC1/dec20_PD_EXTMECH/big_jumbo_set_for_posture_dependence_and_extmech_914_NFORCES.csv")[1:350,]
+cat <- read.csv(get_Resilio_filepath("dec20BC1/dec20_PD_EXTMECH/big_jumbo_set_for_posture_dependence_and_extmech_914_NFORCES.csv"))[1:350,]
 parallel_300 <- cat[1:300,]
 replicate_50 <- cat[301:350,]
 

@@ -1,5 +1,5 @@
 context('hand 4 dec 20')
-cat <- read.csv("/Users/briancohn/Resilio\ Sync/data/dec20BC1/dec20_PD_EXTMECH/big_jumbo_set_for_posture_dependence_and_extmech_914_NFORCES.csv")[1:350,]
+cat <- read.csv(get_Resilio_filepath("dec20BC1/dec20_PD_EXTMECH/big_jumbo_set_for_posture_dependence_and_extmech_914_NFORCES.csv"))[1:350,]
 parallel <- cat[1:300,]
 replicate <- cat[301:350,]
 signals_prefix <- "get_null_indices_via_this_plot_of_untransformed_xray_for_"
