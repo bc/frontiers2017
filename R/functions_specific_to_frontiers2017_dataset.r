@@ -12,12 +12,12 @@ stabilization_err_99_percentile <- 0.4
 muscle_names <- function() c("M0", "M1", "M2", "M3", "M4", "M5", "M6")
 
 ##' Path to output folder
-##' @return path to output folder if it is in '"~/Documents/GitHub/bc/frontiers2017/output/"
+##' @return path to output folder. output folder should be the root folder
 path_to_output_folder <- function(){
   "output/"
 }
 ##' Filepath in the frontiers2017 output folder
-##' @return path to output folder if it is in '"~/Documents/GitHub/bc/frontiers/output/"
+##' @return path to output folder. should be in root folder.
 to_output_folder <- function(filename){
   paste0(path_to_output_folder(),filename)
 }
