@@ -16,7 +16,7 @@ test_that("we can produce a FFS vertex series of points to plug into the hand. u
   })
   df_triangle_forcetraces <- dcrb(list_of_triangle_forcetraces)
   cbound <- cbind(generate_map_creation_ids(nrow(df_triangle_forcetraces)), as.data.frame(df_triangle_forcetraces))
-  colnames(cbound) <- c("map_creation_id", muscles_of_interest)
+  colnames(cbound) <- c("map_creation_id", muscles_of_interest = muscle_names())
   binary_triangles_filename <- sprintf("binary_vertices_triangle_rampups_lo_%s_hi_%s_total_FORCES_%s.csv",range_tension[1], range_tension[2], nrow(cbound))
   data <- format(cbound, digits=5,scientific=FALSE)
   write.table(data, to_output_folder(binary_triangles_filename), row.names=FALSE, quote=FALSE, sep=",")

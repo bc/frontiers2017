@@ -53,7 +53,6 @@ maximum_absolute_residual <- function(vector, desired_val) max(abs(vector - desi
 ##' @param filename string, for the file within the extdata folder of the frontiers2017 package.
 ##' @return object the object yielded from the filepath rds
 read_rds_from_package_extdata <- function(filename) {
-  # path <- paste0('~/Documents/GitHub/bc/frontiers2017/inst/extdata/',filename)
   path <- system.file("extdata", filename, package = "frontiers2017")
   readRDS(path)
 }
@@ -62,8 +61,6 @@ read_rds_from_package_extdata <- function(filename) {
 ##' @param filename string, for the file to place within the extdata folder of the frontiers2017 package.
 ##' @return object the object yielded from the filepath rds
 save_rds_to_package_extdata <- function(object, filename) {
-  # path <- paste0("~/Documents/GitHub/bc/frontiers2017/frontiers2017/inst/extdata/",
-  #   filename)
   path <- system.file('extdata', filename, package='frontiers2017')
   saveRDS(object, path)
 }
