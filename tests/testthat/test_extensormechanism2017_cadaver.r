@@ -35,8 +35,11 @@ test_that("1A looks good, create new activations for 1A and decide on task for 2
   muscles_of_interest <- muscle_names()[1:5]
   num_muscles <- length(muscles_of_interest)
   force_names_to_predict <- c("JR3_FX","JR3_FY","JR3_FZ","JR3_MX","JR3_MY","JR3_MZ")
-  noise_response_filename <- "noiseResponse2017_12_04_02_53_10_EXMECH_1A_oncadaver_all_good.txt"
-  untransformed_noise_response <- as.data.frame(fread(get_Resilio_filepath(noise_response_filename)))
+  noise_response_filename <- "noiseResponse2017_12_04_02_53_10_EXMECH_1A_oncadaver_3tap.txt"
+  filepath_noiseresponse <- paste0('dec4_extensor_mechanism_input_and_response/1/', noise_response_filename)
+
+  untransformed_noise_response <- as.data.frame(fread(get_Resilio_filepath(filepath_noiseresponse)))
+  browser()
   untransformed_p <- plot_measured_command_reference_over_time(untransformed_noise_response)
   ggsave(to_output_folder(paste0("get_null_indices_via_this_plot_of_untransformed_xray_for_",noise_response_filename ,".pdf")), untransformed_p, width=90, height=30, limitsize=FALSE)
 
@@ -194,14 +197,13 @@ test_that("1F looks good",{
 context("Stage:2 Flexed Posture: run tendons against hand, all muscles, using task for stage 1")
 test_that("2A looks good",{
   filename_2A <- "noiseResponse2017_12_04_06_03_59_EXMECH_2A_3tap.txt"
-
-
+  path2A <- paste0('dec4_extensor_mechanism_input_and_response/2/', filename_2A)
   last_n_milliseconds <- 100
   range_tension <- c(0, 10)
   muscles_of_interest <- muscle_names()
   num_muscles <- length(muscles_of_interest)
   force_names_to_predict <- c("JR3_FX","JR3_FY","JR3_FZ","JR3_MX","JR3_MY","JR3_MZ")
-  untransformed_noise_response <- as.data.frame(fread(get_Resilio_filepath(filename_2A)))
+  untransformed_noise_response <- as.data.frame(fread(get_Resilio_filepath(path2A)))
   indices_for_null <- 425950:431084
   untransformed_p <- plot_measured_command_reference_over_time(untransformed_noise_response[untransformed_noise_response$time > 430 & untransformed_noise_response$time < 435.135,])
   ggsave(to_output_folder(paste0("get_null_indices_via_this_plot_of_untransformed_xray_for_",filename_2A ,".pdf")), untransformed_p, width=90, height=30, limitsize=FALSE)
@@ -348,7 +350,7 @@ test_that("2F looks good",{})
   context("Stage:3 Extended Posture: run tendons against hand, only extensor muscles")
 test_that("3A looks good",{
   filename_3A <- "noiseResponse2017_12_04_08_01_31_EXMECH_3A_3tap.txt"
-
+  filepath_3A <- paste0('dec4_extensor_mechanism_input_and_response/1/', filename_3A)
 
 
   last_n_milliseconds <- 100
@@ -356,7 +358,7 @@ test_that("3A looks good",{
   muscles_of_interest <- muscle_names()[1:5]
   num_muscles <- length(muscles_of_interest)
   force_names_to_predict <- c("JR3_FX","JR3_FY","JR3_FZ","JR3_MX","JR3_MY","JR3_MZ")
-  untransformed_noise_response <- as.data.frame(fread(get_Resilio_filepath(filename_3A)))
+  untransformed_noise_response <- as.data.frame(fread(get_Resilio_filepath(filepath_3A)))
   indices_for_null <- 439598:447079
   untransformed_p <- plot_measured_command_reference_over_time(untransformed_noise_response[indices_for_null, ], downsample_amount=1)
   ggsave(to_output_folder(paste0("get_null_indices_via_this_plot_of_untransformed_xray_for_",filename_3A ,".pdf")), untransformed_p, width=90, height=30, limitsize=FALSE)
