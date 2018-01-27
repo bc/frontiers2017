@@ -506,13 +506,12 @@ test_that("4A looks good",{
   filename_4A <- "noiseResponse2017_12_04_09_49_10_EXMECH_4A_3tap.txt"
 
 
-
     last_n_milliseconds <- 100
     range_tension <- c(0, 10)
     muscles_of_interest <- muscle_names()
     num_muscles <- length(muscles_of_interest)
     force_names_to_predict <- c("JR3_FX","JR3_FY","JR3_FZ","JR3_MX","JR3_MY","JR3_MZ")
-    untransformed_noise_response <- as.data.frame(fread(get_Resilio_filepath(filename_4A)))
+    untransformed_noise_response <- as.data.frame(fread(get_Resilio_filepath(paste0("dec4_extensor_mechanism_input_and_response/4/",filename_4A))))
     indices_for_null <- 457320:461318
     untransformed_p <- plot_measured_command_reference_over_time(untransformed_noise_response[indices_for_null,])
     ggsave(to_output_folder(paste0("get_null_indices_via_this_plot_of_untransformed_xray_for_",filename_4A ,".pdf")), untransformed_p, width=90, height=30, limitsize=FALSE)
@@ -610,7 +609,8 @@ test_that("4A looks good",{
     # horizontal_line_endpoints_for_2A <- tasks_from_flexed_position_via_1A$line_tasks_for_2A
   #figure out the maps that generated the two line endpoints
 
-
+  pointA <- c(10,10,0,0,10,0,0) #learned from 1A
+  pointB <- c(0,0,10,10,0,0,0)
 
     line_points <- t(t(A_fit$AMatrix) %*% cbind(pointA,pointB))
     horizontal_line_tasks_for_2A <- dcrb(draw_perpendicular_line(line_points[1,1:3],line_points[2,1:3],1000))
