@@ -14,7 +14,7 @@ muscle_names <- function() c("M0", "M1", "M2", "M3", "M4", "M5", "M6")
 ##' Path to output folder
 ##' @return path to output folder if it is in '"~/Documents/GitHub/bc/frontiers2017/output/"
 path_to_output_folder <- function(){
-  "~/Documents/GitHub/bc/frontiers2017/output/"
+  "output/"
 }
 ##' Filepath in the frontiers2017 output folder
 ##' @return path to output folder if it is in '"~/Documents/GitHub/bc/frontiers/output/"
