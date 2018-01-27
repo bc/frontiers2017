@@ -6,43 +6,7 @@ muscles_of_interest <- muscle_names()
 num_muscles <- length(muscles_of_interest)
 force_names_to_predict <- c("JR3_FX","JR3_FY","JR3_FZ","JR3_MX","JR3_MY","JR3_MZ")
 range_tension <-  c(0,10)
-#load and annotate data by hand # and posture
-hand4_ultraextend <- read.csv("output/hand4_ultraextend_clean_static_response_from_tail_100ms_mean.csv")
-hand4_extend <- read.csv("output/hand4_extend_clean_static_response_from_tail_100ms_mean.csv")
-hand4_flex <- read.csv("output/hand4_flex_clean_static_response_from_tail_100ms_mean.csv")
-hand4_ultraflex <- read.csv("output/hand4_ultraflex_clean_static_response_from_tail_100ms_mean.csv")
-hand3_ultraextend <- read.csv("output/hand3_ultraextend_clean_static_response_from_tail_100ms_mean.csv")
-hand3_extend <- read.csv("output/hand3_extend_clean_static_response_from_tail_100ms_mean.csv")
-hand3_flex <- read.csv("output/hand3_flex_clean_static_response_from_tail_100ms_mean.csv")
-hand3_ultraflex <- read.csv("output/hand3_ultraflex_clean_static_response_from_tail_100ms_mean.csv")
-
-attr(hand4_ultraextend, "hand_number") <- 4
-attr(hand4_extend, "hand_number") <- 4
-attr(hand4_flex, "hand_number") <- 4
-attr(hand4_ultraflex, "hand_number") <- 4
-attr(hand3_ultraextend, "hand_number") <- 3
-attr(hand3_flex, "hand_number") <- 3
-attr(hand3_extend, "hand_number") <- 3
-attr(hand3_ultraextend, "hand_number") <- 3
-
-attr(hand4_ultraextend, "posture") <- "ultraextend"
-attr(hand4_extend, "posture") <- "extend"
-attr(hand4_flex, "posture") <- "flex"
-attr(hand4_ultraflex, "posture") <- "ultraflex"
-attr(hand3_ultraextend, "posture") <- "ultraextend"
-attr(hand3_flex, "posture") <- "flex"
-attr(hand3_extend, "posture") <- "extend"
-attr(hand3_ultraextend, "posture") <- "ultraextend"
-
-samples <- list(hand4_ultraextend,
-hand4_extend,
-hand4_flex,
-hand4_ultraflex,
-hand3_ultraextend,
-hand3_flex,
-hand3_extend,
-hand3_ultraextend)
-
+samples <- hand3_hand4_clean_samples()
 
 show_3d_plot_and_save_fit <- function(input_output_data, dataset_name, muscles_of_interest, force_names_to_predict, range_tension) {
   A_fit <- A_fit_from_80_20_split(input_output_data, muscles_of_interest, force_names_to_predict)
@@ -58,15 +22,15 @@ show_3d_plot_and_save_fit <- function(input_output_data, dataset_name, muscles_o
   title3d(main="FFS", xlab="Fx", ylab="Fy", zlab="Fz", col="black")
   view3d(userMatrix = um, zoom=0.75)
 }
-show_3d_plot_and_save_fit(hand3_ultraflex,dataset_name="hand3_ultraflex",  muscles_of_interest, force_names_to_predict, range_tension)
-show_3d_plot_and_save_fit(hand3_flex,dataset_name="hand3_flex",  muscles_of_interest, force_names_to_predict, range_tension)
-show_3d_plot_and_save_fit(hand3_extend,dataset_name="hand3_extend",  muscles_of_interest, force_names_to_predict, range_tension)
-show_3d_plot_and_save_fit(hand3_ultraextend,dataset_name="hand3_ultraextend",  muscles_of_interest, force_names_to_predict, range_tension)
+show_3d_plot_and_save_fit(samples$hand3_ultraflex,dataset_name="hand3_ultraflex",  muscles_of_interest, force_names_to_predict, range_tension)
+show_3d_plot_and_save_fit(samples$hand3_flex,dataset_name="hand3_flex",  muscles_of_interest, force_names_to_predict, range_tension)
+show_3d_plot_and_save_fit(samples$hand3_extend,dataset_name="hand3_extend",  muscles_of_interest, force_names_to_predict, range_tension)
+show_3d_plot_and_save_fit(samples$hand3_ultraextend,dataset_name="hand3_ultraextend",  muscles_of_interest, force_names_to_predict, range_tension)
 rgl.open()
-show_3d_plot_and_save_fit(hand4_ultraflex,dataset_name="hand4_ultraflex",  muscles_of_interest, force_names_to_predict, range_tension)
-show_3d_plot_and_save_fit(hand4_flex,dataset_name="hand4_flex",  muscles_of_interest, force_names_to_predict, range_tension)
-show_3d_plot_and_save_fit(hand4_extend,dataset_name="hand4_extend",  muscles_of_interest, force_names_to_predict, range_tension)
-show_3d_plot_and_save_fit(hand4_ultraextend,dataset_name="hand4_ultraextend",  muscles_of_interest, force_names_to_predict, range_tension)
+show_3d_plot_and_save_fit(samples$hand4_ultraflex,dataset_name="hand4_ultraflex",  muscles_of_interest, force_names_to_predict, range_tension)
+show_3d_plot_and_save_fit(samples$hand4_flex,dataset_name="hand4_flex",  muscles_of_interest, force_names_to_predict, range_tension)
+show_3d_plot_and_save_fit(samples$hand4_extend,dataset_name="hand4_extend",  muscles_of_interest, force_names_to_predict, range_tension)
+show_3d_plot_and_save_fit(samples$hand4_ultraextend,dataset_name="hand4_ultraextend",  muscles_of_interest, force_names_to_predict, range_tension)
 
 
 
@@ -97,13 +61,13 @@ nearest_neighbor_fit_eval <- function(input_output_data, muscles_of_interest, fo
  return(list(manhattan_distance_from_neighbors=manhattan_distance_from_neighbors, euclidian_wrench_errors=euclidian_wrench_errors))
 }
 par(mfcol=c(2,8))
-hand3_ultraflex_xy<-nearest_neighbor_fit_eval(hand3_ultraflex, muscles_of_interest, force_names_to_predict)
-nearest_neighbor_fit_eval(hand3_flex, muscles_of_interest, force_names_to_predict)
-nearest_neighbor_fit_eval(hand3_extend, muscles_of_interest, force_names_to_predict)
-nearest_neighbor_fit_eval(hand3_ultraextend, muscles_of_interest, force_names_to_predict)
-nearest_neighbor_fit_eval(hand4_ultraflex, muscles_of_interest, force_names_to_predict)
-nearest_neighbor_fit_eval(hand4_flex, muscles_of_interest, force_names_to_predict)
-nearest_neighbor_fit_eval(hand4_extend, muscles_of_interest, force_names_to_predict)
-nearest_neighbor_fit_eval(hand4_ultraextend, muscles_of_interest, force_names_to_predict)
+hand3_ultraflex_xy<-nearest_neighbor_fit_eval(samples$hand3_ultraflex, muscles_of_interest, force_names_to_predict)
+nearest_neighbor_fit_eval(samples$hand3_flex, muscles_of_interest, force_names_to_predict)
+nearest_neighbor_fit_eval(samples$hand3_extend, muscles_of_interest, force_names_to_predict)
+nearest_neighbor_fit_eval(samples$hand3_ultraextend, muscles_of_interest, force_names_to_predict)
+nearest_neighbor_fit_eval(samples$hand4_ultraflex, muscles_of_interest, force_names_to_predict)
+nearest_neighbor_fit_eval(samples$hand4_flex, muscles_of_interest, force_names_to_predict)
+nearest_neighbor_fit_eval(samples$hand4_extend, muscles_of_interest, force_names_to_predict)
+nearest_neighbor_fit_eval(samples$hand4_ultraextend, muscles_of_interest, force_names_to_predict)
 
 ggplot(as.data.frame(hand3_ultraflex_xy), aes(manhattan_distance_from_neighbors,euclidian_wrench_errors )) + geom_point()
