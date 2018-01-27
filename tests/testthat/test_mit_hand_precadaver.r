@@ -129,37 +129,12 @@ test_that("when tendons are fixed to posts the signals look acceptable",{
       #TODO stability metrics for last 100ms of each map
 })
 
-
-test_that("when we get noise through the MIT hand (500 forces, 1 replicate), I can make an A matrix", {
-last_n_milliseconds<-100
-muscles_of_interest <- muscle_names()
-force_names_to_predict <- dots_to_underscores(force_column_names)
-untransformed_noise_response <- fread(get_Resilio_filepath("noiseResponse2017_11_30_20_16_06_500_maps_reps_1.txt"), data.table=FALSE)
-noise_response_wo_null <- munge_JR3_data(untransformed_noise_response, input_are_voltages=TRUE, indices_for_null=50:250)
-p <- plot_measured_command_reference_over_time(noise_response_wo_null)
-ggsave(to_output_folder("xray_for_noiseReponse_nov30_mit_hand.pdf"), p, width=90, height=30, limitsize=FALSE)
-noise_hand_responses <- split_by_map_and_remove_wrongly_lengthed_samples(noise_response_wo_null)
-input_output_data <- df_of_hand_response_input_output(noise_hand_responses, last_n_milliseconds)
-A_fit <- A_fit_from_80_20_split(input_output_data, muscles_of_interest, force_names_to_predict)
-p1 <- ggplot(tail(timeseries_tendons_to_posts,100)) + geom_line(aes(time,JR3_FX)) + geom_line(aes(time,JR3_FY)) + geom_line(aes(time,JR3_FZ)) + geom_line(aes(time,JR3_MX)) + geom_line(aes(time,JR3_MY)) + geom_line(aes(time,JR3_MZ))
-p2 <- ggplot(tail(timeseries_tendons_to_posts,4000)) + geom_line(aes(time,measured_M0)) + geom_line(aes(time,measured_M1)) + geom_line(aes(time,measured_M2)) + geom_line(aes(time,measured_M3)) + geom_line(aes(time,measured_M4)) + geom_line(aes(time,measured_M5))+ geom_line(aes(time,measured_M6))
-ggsave(to_output_folder("tendons_fixed_to_posts.pdf"), arrangeGrob(p1,p2))
-message("noiseResponse A Matrix")
-print(t(A_fit$AMatrix))
-
-})
-test_that("when we run 5 forces 100 times each, I can compute the by-force-dimension variabilty of the output wrench vector", {
-
-})
-
-
 test_that("when we get binary combinations through the MIT hand, I can make an A matrix from the single value rows where only one muscle is pulled on", {
 "single_muscle_binary_combinations_5_replicates_5_levels_35_total_forces.csv"
 })
 test_that("when we get binary combinations through the MIT hand, I can make an A matrix from all binary combinations", {
 
 })
-
 
 test_that('we can produce binary combinations csv to run alonside noise', {
  combinations_binary <- custom_binary_combinations(7,c(0,20))
