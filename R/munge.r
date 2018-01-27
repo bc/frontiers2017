@@ -165,7 +165,8 @@ write_csv_of_timeseries_and_input_output <- function(timeseries, input_output_da
 
 ##' specific to dec20 big jumbo maps'
   dec20_PD_EXTMECH_maps_of_interest_by_section <- function(){
-    cat <- read.csv("/Users/briancohn/Resilio\ Sync/data/dec20BC1/dec20_PD_EXTMECH/big_jumbo_set_for_posture_dependence_and_extmech_914_NFORCES.csv")
+    jumbo_path <- get_Resilio_filepath("dec20BC1/dec20_PD_EXTMECH/big_jumbo_set_for_posture_dependence_and_extmech_914_NFORCES.csv")
+    cat <- read.csv(jumbo_path)
     parallel <- cat[1:300,]
     replicate_50 <- cat[301:350,]
     serial_100 <- cat[351:420,]
@@ -174,8 +175,8 @@ write_csv_of_timeseries_and_input_output <- function(timeseries, input_output_da
     nudge_matrix <- cat[771:854,]
     nudge_matrix_without_flexors <- cat[855:914,]
   sections <- list(parallel=parallel,
-  replicates=replicates,
-  serial=serial,
+  replicates=replicate_50,
+  serial=serial_100,
   parallel_without_flexors=parallel_without_flexors,
   replicates_without_flexors=replicates_without_flexors,
   nudge_matrix=nudge_matrix,
