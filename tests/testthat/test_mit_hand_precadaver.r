@@ -1,0 +1,173 @@
+context('test_mit_hand_precadaver.r')
+
+range_tension <- c(0,20)
+force_names_to_predict <- dots_to_underscores(force_column_names)
+generators_force_columns_500g <- as.matrix(read_rds_from_package_extdata("generator_force_vectors_for_each_muscle_500g_mit_hand.rds"))
+binary_combinations <- custom_binary_combinations(ncol(generators_force_columns_500g), range_tension)
+matrix_version_of_generators <- matrix(sapply(generators_force_columns_500g, as.numeric), ncol=7)
+binary_combination_ffs_points <- matrix_version_of_generators %*% t(binary_combinations)
+ffs_binary <- t(binary_combination_ffs_points)
+
+test_that("500g recorded forces give correct FFS for forces", {
+  rgl.init()
+  plot_ffs_with_vertices(ffs_binary[,1:3], t(matrix_version_of_generators)[,1:3], alpha_transparency=0.25, range_tension=range_tension)
+  # input_output_data <- get from random noise experiments
+  # points3d(input_output_data[,force_names_to_predict][,1:3], size=1, col="black", alpha=1)
+  title3d(main="FFS", xlab="Fx", ylab="Fy", zlab="Fz", col="black")
+})
+
+test_that("500g recorded forces give correct FFS for forces", {
+  rgl.init()
+  plot_ffs_with_vertices(ffs_binary[,4:6], t(matrix_version_of_generators)[,4:6], alpha_transparency=0.25, range_tension=range_tension)
+  # input_output_data <- get from random noise experiments
+  # points3d(input_output_data[,force_names_to_predict][,1:3], size=1, col="black", alpha=1)
+  title3d(main="FFS for Torques", xlab="Mx", ylab="My", zlab="Mz", col="black")
+})
+
+
+test_that("500g second trial done on Nov30 works for FFS for forces", {
+  brian_timeseries_with_500g_3reps <- fread(get_Resilio_filepath("noiseResponse2017_11_30_19_07_22_500g_mit_hand.txt"), data.table=FALSE)
+  ggplot(brian_timeseries_with_500g_3reps) + geom_line(aes(time, JR3_FX), col="red") + geom_line(aes(time, JR3_FY),col="green") + geom_line(aes(time, JR3_FZ), col="blue") + ggtitle("#plot to find the best time to zero jr3 signals output")
+  zeroed_500g_df <- munge_JR3_data(brian_timeseries_with_500g_3reps, input_are_voltages = TRUE, indices_for_null = 1:4000, remove_nonzero_map_creation_ids = FALSE)
+  generator_indices <- c(19,31,42,53,65,76,88)
+  helper_plot_for_finding_generator_timepoints(zeroed_500g_df,generator_indices)
+  ggplot(zeroed_500g_df) + geom_line(aes(time, JR3_FX), col="red") + geom_line(aes(time, JR3_FY),col="green") + geom_line(aes(time, JR3_FZ), col="blue") + geom_line(aes(time, JR3_MX),col="orange") + geom_line(aes(time, JR3_MY),col="gray") + geom_line(aes(time, JR3_MZ),col="purple") + geom_vline(xintercept=generator_indices) + xlab("Time") + ylab('Force in Newtons, Newton-Meters') + ggtitle('show forces at each trial, with slice for each wrench')
+    snapshots <- take_running_mean_snapshots(zeroed_500g_df,zeroed_500g_df$time, generator_indices, n_samples_for_running_mean=30)
+    colnames(snapshots) <- measured(muscle_names())
+    matrix_version_of_generators <- matrix(sapply(snapshots, as.numeric), ncol=7)
+    forces_from_the_vertices_of_feasible_activation_space <- t(matrix_version_of_generators %*% t(binary_combinations))
+    colnames(forces_from_the_vertices_of_feasible_activation_space) <- dots_to_underscores(force_column_names)
+
+
+    animation_time = 120
+    aspect3d(1/5,1/5,1/5); par3d(windowRect=c(0,0,10000,10000))
+    plot_ffs_with_vertices(forces_from_the_vertices_of_feasible_activation_space[,1:3], t(matrix_version_of_generators)[,1:3], alpha_transparency=0.25, range_tension=c(0,20))
+    rgl.snapshot(to_output_folder("plot_ffs_forces_with_vertices_noiseResponse2017_11_30_19_07_22_500g_mit_hand.png"))
+    spin_around_rgl_plot(animation_time)
+    rgl.clear()
+    aspect3d(1,1,1); par3d(windowRect=c(0,0,10000,10000))
+    plot_ffs_with_vertices(forces_from_the_vertices_of_feasible_activation_space[,4:6], t(matrix_version_of_generators)[,4:6], alpha_transparency=0.25, range_tension=c(0,20))
+    rgl.snapshot(to_output_folder("plot_ffs_torques_with_vertices_noiseResponse2017_11_30_19_07_22_500g_mit_hand.png"))
+    spin_around_rgl_plot(animation_time)
+
+})
+
+test_that("noiseResponse vectors can be plotted in 3D for 500 maps, 1 replicate per map", {
+  noise_response_model_and_data <- generators_from_noise_response("noiseResponse2017_11_30_20_16_06_500_maps_reps_1.txt", jr3_null_indices = c(500:750))
+})
+
+test_that("compare noiseResponse2017_11_30_20_16_06_500_maps_reps_1.txt with 500g manual generators", {
+  noise_response_model_and_data <- generators_from_noise_response("noiseResponse2017_11_30_20_16_06_500_maps_reps_1.txt", jr3_null_indices = c(500:750))
+
+  animation_time = 120
+  brian_timeseries_with_500g_3reps <- fread(get_Resilio_filepath("noiseResponse2017_11_30_19_07_22_500g_mit_hand.txt"), data.table=FALSE)
+  ggplot(brian_timeseries_with_500g_3reps) + geom_line(aes(time, JR3_FX), col="red") + geom_line(aes(time, JR3_FY),col="green") + geom_line(aes(time, JR3_FZ), col="blue") + ggtitle("#plot to find the best time to zero jr3 signals output")
+  zeroed_500g_df <- munge_JR3_data(brian_timeseries_with_500g_3reps, input_are_voltages = TRUE, indices_for_null = 1:4000, remove_nonzero_map_creation_ids = FALSE)
+  generator_indices <- c(19,31,42,53,65,76,88)
+  helper_plot_for_finding_generator_timepoints(zeroed_500g_df,generator_indices)
+  ggplot(zeroed_500g_df) + geom_line(aes(time, JR3_FX), col="red") + geom_line(aes(time, JR3_FY),col="green") + geom_line(aes(time, JR3_FZ), col="blue") + geom_line(aes(time, JR3_MX),col="orange") + geom_line(aes(time, JR3_MY),col="gray") + geom_line(aes(time, JR3_MZ),col="purple") + geom_vline(xintercept=generator_indices) + xlab("Time") + ylab('Force in Newtons, Newton-Meters') + ggtitle('show forces at each trial, with slice for each wrench')
+    snapshots <- take_running_mean_snapshots(zeroed_500g_df,zeroed_500g_df$time, generator_indices, n_samples_for_running_mean=30)
+    colnames(snapshots) <- measured(muscle_names())
+    matrix_version_of_generators <- matrix(sapply(snapshots, as.numeric), ncol=7)
+    scaled_matrix_version_of_generators <- matrix_version_of_generators*0.05
+    forces_from_the_vertices_of_feasible_activation_space <- t(scaled_matrix_version_of_generators %*% t(binary_combinations))
+    colnames(forces_from_the_vertices_of_feasible_activation_space) <- dots_to_underscores(force_column_names)
+
+
+noise_A <- noise_response_model_and_data$generator_columns_A_matrix
+manual_A <- t(scaled_matrix_version_of_generators)
+message('Generators from ')
+boxplot(noise_A, main="What ranges are the forces used across all generators?")
+column_ranges(noise_A)
+summary(manual_A)
+boxplot(manual_A, main="What ranges are the forces used across all generators?")
+column_ranges(manual_A)
+
+
+rbind(noise_A,manual_A)
+boxplot(noise_A)
+
+#TODO look at the residuals more carefully & evaluate how different the vectors are.
+residuals_from_manual <- noise_A - manual_A
+boxplot(residuals_from_manual*20)
+message("How different are the muscle generators? Magnitude of residuals")
+magnitude_of_residuals <- data.frame(by_muscle_generator_distance = apply(residuals_from_manual, 1, norm_vec), row.names = muscle_names())
+print(magnitude_of_residuals)
+
+    #FFS Forces from 500g
+    rgl.clear(); aspect3d(1/5,1/5,1/5); par3d(windowRect=c(0,0,10000,10000))
+    plot_ffs_with_vertices(forces_from_the_vertices_of_feasible_activation_space[,1:3], t(scaled_matrix_version_of_generators)[,1:3], alpha_transparency=0.25, range_tension=c(0,20))
+    rgl.snapshot(to_output_folder("plot_ffs_forces_with_vertices_noiseResponse2017_11_30_19_07_22_500g_mit_hand.png"))
+    # spin_around_rgl_plot(animation_time)
+    #FFS forces from noiseResponse
+    observed_forces <- noise_response_model_and_data$input_output_data[,force_names_to_predict]
+    points3d(observed_forces[,1:3], col="blue", size=7)
+    title3d(main="Feasible Force Set", col="black")
+    generator_arrows(noise_response_model_and_data$generator_columns_A_matrix, labels=TRUE)
+    generator_arrows(noise_response_model_and_data$generator_columns_A_matrix, labels=TRUE)
+
+
+    #FTS torques from 500g
+    rgl.clear(); aspect3d(1/5,1/5,1/5); par3d(windowRect=c(0,0,10000,10000))
+    plot_ffs_with_vertices(forces_from_the_vertices_of_feasible_activation_space[,4:6], t(scaled_matrix_version_of_generators)[,4:6], alpha_transparency=0.25, range_tension=c(0,20))
+    rgl.snapshot(to_output_folder("plot_ffs_forces_with_vertices_noiseResponse2017_11_30_19_07_22_500g_mit_hand.png"))
+    # spin_around_rgl_plot(animation_time)
+    #FTS torques from noiseResponse
+    observed_forces <- noise_response_model_and_data$input_output_data[,force_names_to_predict]
+    points3d(observed_forces[,4:6], col="blue", size=7)
+    title3d(main="Feasible Torque Set", col="black")
+
+
+
+})
+
+test_that("when tendons are fixed to posts the signals look acceptable",{
+    timeseries_tendons_to_posts <- fread(get_Resilio_filepath("noiseResponse2017_11_30_19_59_30_tendons_to_posts_mit8pm.txt"), data.table=FALSE)
+      p1 <- ggplot(tail(timeseries_tendons_to_posts,100)) + geom_line(aes(time,JR3_FX)) + geom_line(aes(time,JR3_FY)) + geom_line(aes(time,JR3_FZ)) + geom_line(aes(time,JR3_MX)) + geom_line(aes(time,JR3_MY)) + geom_line(aes(time,JR3_MZ))
+      p2 <- ggplot(tail(timeseries_tendons_to_posts,4000)) + geom_line(aes(time,measured_M0)) + geom_line(aes(time,measured_M1)) + geom_line(aes(time,measured_M2)) + geom_line(aes(time,measured_M3)) + geom_line(aes(time,measured_M4)) + geom_line(aes(time,measured_M5))+ geom_line(aes(time,measured_M6))
+      ggsave(to_output_folder("tendons_fixed_to_posts.pdf"), arrangeGrob(p1,p2))
+      #TODO stability metrics for last 100ms of each map
+})
+
+test_that("when we get binary combinations through the MIT hand, I can make an A matrix from the single value rows where only one muscle is pulled on", {
+"single_muscle_binary_combinations_5_replicates_5_levels_35_total_forces.csv"
+})
+test_that("when we get binary combinations through the MIT hand, I can make an A matrix from all binary combinations", {
+
+})
+
+test_that('we can produce binary combinations csv to run alonside noise', {
+ combinations_binary <- custom_binary_combinations(7,c(0,20))
+  binary_table <- create_and_cbind_map_creation_ids(combinations_binary, muscle_names())
+  write.csv(binary_table, to_output_folder("binary_combinations_no_replicates.csv"),
+    row.names = FALSE, quote = FALSE)
+})
+
+
+test_that("evaluate different threshlds for 0-torque requirements", {
+  set.seed(4)
+  AMatrix <- read_rds_from_package_extdata("AMatrix_from_noiseResponse2017_11_30_20_16_06_500_maps_reps_1.rds")
+  task_direction_to_scale <- structure(c(-0.721932856327753, 0.238452819934866, -3.86312115412912), .Names = c("JR3_FX", "JR3_FY", "JR3_FZ"))
+  task_bounds <- c(0, 0.15)
+  num_samples_desired <- 10
+  num_tasks <- 4
+  task_multiplier_list <- seq(task_bounds[1], task_bounds[2], length.out = num_tasks)
+  task_df<- t(task_direction_to_scale %*% t(task_multiplier_list))
+  colnames(task_df) <- force_names_to_predict[1:3]
+  sset <- multiple_tasks_to_sset(AMatrix,task_df, thin=100, torque_max_deviation=0.01, num_samples_desired=num_samples_desired)
+  sset_feasible <- filter_infeasible_tasks(sset, AMatrix, max_allowable_residual_from_expected=1e-3, task_bounds=task_bounds)
+
+
+  independent_torque_max_deviation <- seq(0,10, length.out=100)
+
+  propostion_response <- pblapply(independent_torque_max_deviation, function(e){
+    sset <- multiple_tasks_to_sset(AMatrix,task_df, thin=100, torque_max_deviation=0.1, num_samples_desired=num_samples_desired)
+    sset_feasible <- filter_infeasible_tasks(sset, AMatrix, max_allowable_residual_from_expected=1e-3)
+    proportion_of_tasks_are_feasible <- length(sset_feasible)/length(sset)
+    return(proportion_of_tasks_are_feasible)
+  })
+
+plot(independent_torque_max_deviation, propostion_response)
+
+
+})
