@@ -1,5 +1,3 @@
-
-
 context('hand 3 dec 20')
 # cumsum: 300 350 420 720 770 854 914
 

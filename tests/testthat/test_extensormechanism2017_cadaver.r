@@ -2,8 +2,9 @@ context('test_extensormechanism2017_cadaver.r')
 
 
 context('extract null from solid file to apply to all trials')
-  extensormechanism_1c_filename_jr3_null_test <- "noiseResponse2017_12_04_03_57_54_EXMECH_1C_oncadaver_all_good_3tap_JR3_null_at_end.txt"
-  untransformed_noise_response <- as.data.frame(fread(get_Resilio_filepath(extensormechanism_1c_filename_jr3_null_test)))
+  extensormechanism_1c_filename_jr3_null_test <- "noiseResponse2017_12_04_03_57_54_EXMECH_1C_oncadaver_3tap.txt"
+  extmech_1c_path <- paste0('dec4_extensor_mechanism_input_and_response/1/', extensormechanism_1c_filename_jr3_null_test)
+  untransformed_noise_response <- fread(get_Resilio_filepath(extmech_1c_path), data.table=FALSE)
   indices_for_null <- 1323640:1326639
   untransformed_p <- plot_measured_command_reference_over_time(untransformed_noise_response[indices_for_null,])
   ggsave(to_output_folder(paste0("get_null_indices_of_beginning_via_this_plot_of_untransformed_xray_for_",extensormechanism_1c_filename_jr3_null_test ,".pdf")), untransformed_p, width=90, height=30, limitsize=FALSE)
