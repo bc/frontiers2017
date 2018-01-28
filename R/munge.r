@@ -8,7 +8,7 @@
 find_index_bounds_per_map <- function(raw_timeseries, maps_of_interest, upper_bound_end_of_maps_of_interest,
   initial_pass_multiplier = 300) {
   map_indices <- pblapply(df_to_list_of_rows(maps_of_interest), function(map) {
-    browser()
+
     get_first_map_index(raw_timeseries[seq(1, upper_bound_end_of_maps_of_interest,
       by = initial_pass_multiplier), ], map)
   })

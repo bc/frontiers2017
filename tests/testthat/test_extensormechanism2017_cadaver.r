@@ -58,7 +58,7 @@ test_that("1A looks good, create new activations for 1A and decide on task for 2
   points3d(input_output_data[,force_names_to_predict][,1:3], size=1, col="black", alpha=1)
   title3d(main="FFS", xlab="Fx", ylab="Fy", zlab="Fz", col="black")
 
-  browser()
+  
   message('Pick 2 points to define the horizontal line endpoints.')
 
 #this part was done manually, resulting in "tasks_from_flexed_position_via_1A.rds". BC 05h19
@@ -378,7 +378,7 @@ test_that("3A looks good",{
   points3d(input_output_data[,force_names_to_predict][,1:3], size=1, col="black", alpha=1)
   title3d(main="FFS", xlab="Fx", ylab="Fy", zlab="Fz", col="black")
 
-  browser()
+  
   message('Pick 2 points to define the horizontal line endpoints.')
 
   # this part was done manually, resulting in "tasks_from_flexed_position_via_1A.rds". BC 05h19
