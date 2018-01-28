@@ -158,8 +158,6 @@ write_csv_of_timeseries_and_input_output <- function(timeseries, input_output_da
     trials <- extract_trials_by_map_group_indices(noise_response_wo_null, group_indices)
     tails <- extract_tails_from_trials(trials,last_n_milliseconds)
     input_output_data <- dcrb(lapply(tails,colMeans))
-    expect_equal(nrow(input_output_data), 300)
-    expect_equal(ncol(input_output_data), 37)
     return(list(dynamic_trials_list=trials,static_df=input_output_data))
   }
 

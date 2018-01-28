@@ -1,6 +1,5 @@
 context('hand 3 dec 20')
 # cumsum: 300 350 420 720 770 854 914
-
 sections_of_interest <- dec20_PD_EXTMECH_maps_of_interest_by_section()
 
 signals_prefix <- "get_null_indices_via_this_plot_of_untransformed_xray_for_"
@@ -34,6 +33,8 @@ JR3_sensor_null <- colMeans(manual_3tap_for_hand3_ultraflex[15000:20000,])
   expect_true(all(maps_match_across_M0_and_map_groups(noise_response_wo_null, group_indices=group_indices, maps_of_interest=maps_of_interest)))
   response <-  extract_static_and_dynamic_data(noise_response_wo_null, group_indices, last_n_milliseconds)
   write_csv_of_timeseries_and_input_output(dcrb(response$dynamic_trials_list),response$static_df,'hand3_ultraflex',last_n_milliseconds)
+  browser()
+
 })
 
 test_that("hand 3 flex", {
@@ -81,4 +82,26 @@ indices_for_null <-  761547:nrow(hand3_dec20_ultraextend)
   expect_true(all(maps_match_across_M0_and_map_groups(noise_response_wo_null, group_indices=group_indices, maps_of_interest=maps_of_interest)))
   response <-  extract_static_and_dynamic_data(noise_response_wo_null, group_indices, last_n_milliseconds)
   write_csv_of_timeseries_and_input_output(dcrb(response$dynamic_trials_list),response$static_df,'hand3_ultraextend',last_n_milliseconds)
+})
+
+
+test_that("hand 3 ultraflex REPLICATES", {
+
+filename_3A <- "noiseResponse_ST1BC_2017_12_20_19_50_38_PD_Extmech_good_ultraflex_NOTAP.txt"
+hand3_dec20_ultraflex <- fread_df_from_Resilio(filename_3A)
+manual_3tap_for_hand3_ultraflex <- fread_df_from_Resilio("noiseResponse_ST1BC_2017_12_20_20_05_37_manual_3tap_extmech_for_ultraflex.txt")
+JR3_sensor_null <- colMeans(manual_3tap_for_hand3_ultraflex[15000:20000,])
+  untransformed_p <- plot_measured_command_reference_over_time(hand3_dec20_ultraflex)
+  ggsave(to_output_folder(paste0(signals_prefix,filename_3A ,".pdf")),
+   untransformed_p, width=90, height=30, limitsize=FALSE)
+  noise_response_wo_null <- munge_JR3_data(hand3_dec20_ultraflex,remove_nonzero_map_creation_ids=FALSE, input_are_voltages=TRUE, JR3_to_fingertip_distance=JR3_to_fingertip_distance,JR3_sensor_null=JR3_sensor_null)
+  p <- plot_measured_command_reference_over_time(noise_response_wo_null)
+  ggsave(to_output_folder(paste0("xray_for_",filename_3A ,".pdf")), p, width=90, height=30, limitsize=FALSE)
+  expect_true(all(maps_match_across_M0_and_map_groups(noise_response_wo_null, group_indices=group_indices, maps_of_interest=maps_of_interest)))
+  response <-  extract_static_and_dynamic_data(noise_response_wo_null, group_indices = list(lower=302,upper=354),last_n_milliseconds=100)
+response$static_df
+  
+  write_csv_of_timeseries_and_input_output(dcrb(response$dynamic_trials_list),response$static_df,'hand3_ultraflex',last_n_milliseconds)
+  browser()
+
 })
