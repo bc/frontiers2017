@@ -33,7 +33,7 @@ JR3_sensor_null <- colMeans(manual_3tap_for_hand3_ultraflex[15000:20000,])
   expect_true(all(maps_match_across_M0_and_map_groups(noise_response_wo_null, group_indices=group_indices, maps_of_interest=maps_of_interest)))
   response <-  extract_static_and_dynamic_data(noise_response_wo_null, group_indices, last_n_milliseconds)
   write_csv_of_timeseries_and_input_output(dcrb(response$dynamic_trials_list),response$static_df,'hand3_ultraflex',last_n_milliseconds)
-  browser()
+
 
 })
 
@@ -98,10 +98,21 @@ JR3_sensor_null <- colMeans(manual_3tap_for_hand3_ultraflex[15000:20000,])
   p <- plot_measured_command_reference_over_time(noise_response_wo_null)
   ggsave(to_output_folder(paste0("xray_for_",filename_3A ,".pdf")), p, width=90, height=30, limitsize=FALSE)
   expect_true(all(maps_match_across_M0_and_map_groups(noise_response_wo_null, group_indices=group_indices, maps_of_interest=maps_of_interest)))
-  response <-  extract_static_and_dynamic_data(noise_response_wo_null, group_indices = list(lower=302,upper=354),last_n_milliseconds=100)
-response$static_df
-  
-  write_csv_of_timeseries_and_input_output(dcrb(response$dynamic_trials_list),response$static_df,'hand3_ultraflex',last_n_milliseconds)
-  browser()
+  response <-  extract_static_and_dynamic_data(noise_response_wo_null, group_indices = list(lower=302,upper=352),last_n_milliseconds=100)
+  tails <- extract_tails_from_trials(response[[1]],last_n_milliseconds)
+  input_output_data <- as.data.frame(dcrb(lapply(tails,colMeans))[1:32,])
+ sorted_input_output <- data.table(input_output_data[order(input_output_data$reference_M0),])
+ a<- sorted_input_output[, , by=reference_M0]
+ #n = 5 replicates per map
+ list_of_replicate_results <-  lapply(split(sorted_input_output, sorted_input_output$reference_M0), tail, 5)
+ iqr_set <- lapply(list_of_replicate_results, function(x) {
+apply(as.data.frame(x)[,force_names_to_predict],2,IQR)
+})
+ names(iqr_set) <- 0:4
+ df_iqr_set <- dcrb(iqr_set)
+ xtable(df_iqr_set) #use in latex as replicability table
 
+ input_replicate_maps <-  as.data.frame(dcrb(lapply(split(sorted_input_output, sorted_input_output$reference_M0), tail, 1)))[,reference(muscle_names())]
+ colnames(input_replicate_maps) <- muscle_names()
+ rownames(input_replicate_maps) <- 0:4
 })

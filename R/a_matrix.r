@@ -372,3 +372,35 @@ compute_ranks_of_A <- function(A_matrix_cols_are_forces){
 rank_of_A_forces = rank_of_A_forces,
 rank_of_A_torques = rank_of_A_torques))
 }
+
+
+show_3d_plot_and_save_fit <- function(input_output_data, dataset_name, muscles_of_interest, force_names_to_predict, range_tension) {
+  A_fit <- A_fit_from_80_20_split(input_output_data, muscles_of_interest, force_names_to_predict)
+  num_muscles <- length(muscles_of_interest)
+  generator_columns_A_matrix <- t(t(A_fit$AMatrix) %*% diag(num_muscles))
+  # Here, identify a force vector of interest and apply it to the generated A
+  binary_combinations <- custom_binary_combinations(num_muscles,range_tension)
+  binary_combination_ffs_points <- binary_combinations %*% generator_columns_A_matrix
+  um <- read_rds_from_package_extdata('um.rds')
+  aspect3d(1/5,1/5,1/5); par3d(windowRect=c(0,0,20000,20000))
+  plot_ffs_with_vertices(binary_combination_ffs_points[,1:3], generator_columns_A_matrix[,1:3], alpha_transparency=0.25, range_tension=range_tension)
+  points3d(input_output_data[,force_names_to_predict][,1:3], size=1, col="black", alpha=1)
+  title3d(main="FFS", xlab="Fx", ylab="Fy", zlab="Fz", col="black")
+  view3d(userMatrix = um, zoom=0.75)
+  return(A_fit)
+}
+
+paste_hand_and_posture_attributes <- function(sample_element){
+  hand_number <-  attr(sample,"hand_number")
+  posture <-  attr(sample,"posture")
+  return(paste0("hand",hand_number,"_",posture))
+}
+
+calculate_and_display_A_fit_per_sample <- function(samples,...){
+  fits_per_sample <- lapply(samples, function(hand_at_posture){
+   A_fit <- show_3d_plot_and_save_fit(hand_at_posture,dataset_name=paste_hand_and_posture_attributes(hand_at_posture),...)
+   attr(A_fit,"hand_number") <-  attr(hand_at_posture,"hand_number")
+   attr(A_fit,"posture") <-  attr(hand_at_posture,"posture")
+   return(A_fit)
+ })
+}

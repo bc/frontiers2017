@@ -7,33 +7,7 @@ num_muscles <- length(muscles_of_interest)
 force_names_to_predict <- c("JR3_FX","JR3_FY","JR3_FZ","JR3_MX","JR3_MY","JR3_MZ")
 range_tension <-  c(0,10)
 samples <- hand3_hand4_clean_samples()
-
-show_3d_plot_and_save_fit <- function(input_output_data, dataset_name, muscles_of_interest, force_names_to_predict, range_tension) {
-  A_fit <- A_fit_from_80_20_split(input_output_data, muscles_of_interest, force_names_to_predict)
-  num_muscles <- length(muscles_of_interest)
-  generator_columns_A_matrix <- t(t(A_fit$AMatrix) %*% diag(num_muscles))
-  # Here, identify a force vector of interest and apply it to the generated A
-  binary_combinations <- custom_binary_combinations(num_muscles,range_tension)
-  binary_combination_ffs_points <- binary_combinations %*% generator_columns_A_matrix
-  um <- read_rds_from_package_extdata('um.rds')
-  aspect3d(1/5,1/5,1/5); par3d(windowRect=c(0,0,20000,20000))
-  plot_ffs_with_vertices(binary_combination_ffs_points[,1:3], generator_columns_A_matrix[,1:3], alpha_transparency=0.25, range_tension=range_tension)
-  points3d(input_output_data[,force_names_to_predict][,1:3], size=1, col="black", alpha=1)
-  title3d(main="FFS", xlab="Fx", ylab="Fy", zlab="Fz", col="black")
-  view3d(userMatrix = um, zoom=0.75)
-}
-show_3d_plot_and_save_fit(samples$hand3_ultraflex,dataset_name="hand3_ultraflex",  muscles_of_interest, force_names_to_predict, range_tension)
-show_3d_plot_and_save_fit(samples$hand3_flex,dataset_name="hand3_flex",  muscles_of_interest, force_names_to_predict, range_tension)
-show_3d_plot_and_save_fit(samples$hand3_extend,dataset_name="hand3_extend",  muscles_of_interest, force_names_to_predict, range_tension)
-show_3d_plot_and_save_fit(samples$hand3_ultraextend,dataset_name="hand3_ultraextend",  muscles_of_interest, force_names_to_predict, range_tension)
-rgl.open()
-show_3d_plot_and_save_fit(samples$hand4_ultraflex,dataset_name="hand4_ultraflex",  muscles_of_interest, force_names_to_predict, range_tension)
-show_3d_plot_and_save_fit(samples$hand4_flex,dataset_name="hand4_flex",  muscles_of_interest, force_names_to_predict, range_tension)
-show_3d_plot_and_save_fit(samples$hand4_extend,dataset_name="hand4_extend",  muscles_of_interest, force_names_to_predict, range_tension)
-show_3d_plot_and_save_fit(samples$hand4_ultraextend,dataset_name="hand4_ultraextend",  muscles_of_interest, force_names_to_predict, range_tension)
-
-
-
+A_fit_list <- calculate_and_display_A_fit_per_sample(samples, muscles_of_interest, force_names_to_predict, range_tension)
 
   ##' get the distance between a map_input of interest and all maps within the training set.
   map_neighbor_distances <- function(map_training_data, map_input){
