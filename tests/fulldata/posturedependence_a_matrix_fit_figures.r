@@ -20,7 +20,6 @@ A_fit_list <- calculate_and_display_A_fit_per_sample(samples, muscles_of_interes
     which.min(map_neighbor_distances(training_data, vec))
   }
 
-
 nearest_neighbor_fit_eval <- function(input_output_data, muscles_of_interest, force_names_to_predict){
   data <- df_split_into_training_and_testing(input_output_data, fraction_training = 0.80)
   training_data <- data$train

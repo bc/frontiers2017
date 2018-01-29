@@ -113,6 +113,7 @@ apply(as.data.frame(x)[,force_names_to_predict],2,IQR)
  xtable(df_iqr_set) #use in latex as replicability table
 
  input_replicate_maps <-  as.data.frame(dcrb(lapply(split(sorted_input_output, sorted_input_output$reference_M0), tail, 1)))[,reference(muscle_names())]
- colnames(input_replicate_maps) <- muscle_names()
+ colnames(input_replicate_maps) <- muscle_biological_names()
  rownames(input_replicate_maps) <- 0:4
+
 })

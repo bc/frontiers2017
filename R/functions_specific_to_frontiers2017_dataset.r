@@ -8,8 +8,12 @@ save_snapshot_for_first_posture <- function(raw_data_timeseries_df, output_filep
 stabilization_err_99_percentile <- 0.4
 
 ##' Muscle Names from Frontiers2017 experiment
-##' @return muscle_names list of strings of names, i.e. 'M0, ...'
+##' @return muscle_names list of strings of names, i.e. 'M0, ...' (refers to motors)
 muscle_names <- function() c("M0", "M1", "M2", "M3", "M4", "M5", "M6")
+
+##' Biological Muscle Names from Frontiers2017 experiment
+##' @return muscle_names list of strings of names, i.e. 'EIP, ...'
+muscle_biological_names <- function() c("EIP","EDC","DI","LUM","PI","FDS","FDP")
 
 ##' Path to output folder
 ##' @return path to output folder. output folder should be the root folder

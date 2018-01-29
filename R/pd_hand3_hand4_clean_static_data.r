@@ -3,14 +3,14 @@
 hand3_hand4_clean_samples <- function(){
 
 #load and annotate data by hand # and posture
-hand4_ultraextend <- read.csv("output/hand4_ultraextend_clean_static_response_from_tail_100ms_mean.csv")
-hand4_extend <- read.csv("output/hand4_extend_clean_static_response_from_tail_100ms_mean.csv")
-hand4_flex <- read.csv("output/hand4_flex_clean_static_response_from_tail_100ms_mean.csv")
-hand4_ultraflex <- read.csv("output/hand4_ultraflex_clean_static_response_from_tail_100ms_mean.csv")
-hand3_ultraextend <- read.csv("output/hand3_ultraextend_clean_static_response_from_tail_100ms_mean.csv")
-hand3_extend <- read.csv("output/hand3_extend_clean_static_response_from_tail_100ms_mean.csv")
-hand3_flex <- read.csv("output/hand3_flex_clean_static_response_from_tail_100ms_mean.csv")
-hand3_ultraflex <- read.csv("output/hand3_ultraflex_clean_static_response_from_tail_100ms_mean.csv")
+hand4_ultraextend <- read.csv(to_output_folder("hand4_ultraextend_clean_static_response_from_tail_100ms_mean.csv"))
+hand4_extend <- read.csv(to_output_folder("hand4_extend_clean_static_response_from_tail_100ms_mean.csv"))
+hand4_flex <- read.csv(to_output_folder("hand4_flex_clean_static_response_from_tail_100ms_mean.csv"))
+hand4_ultraflex <- read.csv(to_output_folder("hand4_ultraflex_clean_static_response_from_tail_100ms_mean.csv"))
+hand3_ultraextend <- read.csv(to_output_folder("hand3_ultraextend_clean_static_response_from_tail_100ms_mean.csv"))
+hand3_extend <- read.csv(to_output_folder("hand3_extend_clean_static_response_from_tail_100ms_mean.csv"))
+hand3_flex <- read.csv(to_output_folder("hand3_flex_clean_static_response_from_tail_100ms_mean.csv"))
+hand3_ultraflex <- read.csv(to_output_folder("hand3_ultraflex_clean_static_response_from_tail_100ms_mean.csv"))
 
 attr(hand4_ultraextend, "hand_number")   <- 4
 attr(hand4_extend, "hand_number")        <- 4
