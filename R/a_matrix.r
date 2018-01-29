@@ -137,9 +137,8 @@ hist_euclidian_errors <- function(euclidian_errors_vector, forces_of_interest, r
   source_of_vals, ...) {
   hist(euclidian_errors_vector, xlab = paste("Euclidian error in N across",
     forces_of_interest), ylab = paste("Number of responses in ", source_of_vals),
-    main = paste("n = ", length(euclidian_errors_vector), ", Regressors = ",
-      paste0(regressor_names, collapse = ",")), col = "black", breaks = 12,
-    ...)
+    main = paste("n = ", length(euclidian_errors_vector), ", Regressors len = ",
+      length(regressor_names), col = "black", breaks = 12,...))
 }
 
 ##' Column Ranges
@@ -397,7 +396,7 @@ paste_hand_and_posture_attributes <- function(sample_element){
 }
 
 calculate_and_display_A_fit_per_sample <- function(samples,...){
-  fits_per_sample <- lapply(samples, function(hand_at_posture){
+  fits_per_sample <- pblapply(samples, function(hand_at_posture){
    A_fit <- show_3d_plot_and_save_fit(hand_at_posture,dataset_name=paste_hand_and_posture_attributes(hand_at_posture),...)
    attr(A_fit,"hand_number") <-  attr(hand_at_posture,"hand_number")
    attr(A_fit,"posture") <-  attr(hand_at_posture,"posture")

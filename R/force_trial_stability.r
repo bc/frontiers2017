@@ -243,6 +243,6 @@ A_fit_from_80_20_split <- function(input_output_data, muscles_of_interest, force
   num_muscles <- length(muscles_of_interest)
   A_fit <- find_A_matrix_without_offset(as.data.frame(training_data), measured(muscles_of_interest),
     force_names_to_predict)
-  fit_evaluation_without_offset(A_fit, as.data.frame(test_data))
+    A_fit$test_data <- as.data.frame(test_data)
   return(A_fit)
 }

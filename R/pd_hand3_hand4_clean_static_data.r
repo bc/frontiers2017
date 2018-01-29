@@ -1,6 +1,6 @@
 ##' returns the input_output_ data samples, labeled for hand3, for each of 4 postures from ultraflexed to ultraextended
 ##' value computed from last 100ms of force trial time series, when the input signals were stabilized.
-hand3_hand4_clean_samples <- function(){
+hand3_hand4_clean_static_samples <- function(){
 
 #load and annotate data by hand # and posture
 hand4_ultraextend <- read.csv(to_output_folder("hand4_ultraextend_clean_static_response_from_tail_100ms_mean.csv"))

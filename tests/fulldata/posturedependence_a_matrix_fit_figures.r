@@ -1,13 +1,13 @@
-context('posture dependency figures for a matrix fits'
-)
+context('posture dependency figures for a matrix fits')
 set.seed(4)
 #parameters
 muscles_of_interest <- muscle_names()
 num_muscles <- length(muscles_of_interest)
 force_names_to_predict <- c("JR3_FX","JR3_FY","JR3_FZ","JR3_MX","JR3_MY","JR3_MZ")
 range_tension <-  c(0,10)
-samples <- hand3_hand4_clean_samples()
+samples <- hand3_hand4_clean_static_samples()
 A_fit_list <- calculate_and_display_A_fit_per_sample(samples, muscles_of_interest, force_names_to_predict, range_tension)
+fit_evaluation_without_offset(A_fit_list[[1]], A_fit_list[[1]]$test_data)
 
   ##' get the distance between a map_input of interest and all maps within the training set.
   map_neighbor_distances <- function(map_training_data, map_input){
