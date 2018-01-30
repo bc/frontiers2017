@@ -8,7 +8,7 @@
 find_index_bounds_per_map <- function(raw_timeseries, maps_of_interest, upper_bound_end_of_maps_of_interest,
   initial_pass_multiplier = 300) {
   map_indices <- pblapply(df_to_list_of_rows(maps_of_interest), function(map) {
-    browser()
+
     get_first_map_index(raw_timeseries[seq(1, upper_bound_end_of_maps_of_interest,
       by = initial_pass_multiplier), ], map)
   })
@@ -158,8 +158,6 @@ write_csv_of_timeseries_and_input_output <- function(timeseries, input_output_da
     trials <- extract_trials_by_map_group_indices(noise_response_wo_null, group_indices)
     tails <- extract_tails_from_trials(trials,last_n_milliseconds)
     input_output_data <- dcrb(lapply(tails,colMeans))
-    expect_equal(nrow(input_output_data), 300)
-    expect_equal(ncol(input_output_data), 37)
     return(list(dynamic_trials_list=trials,static_df=input_output_data))
   }
 

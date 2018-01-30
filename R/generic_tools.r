@@ -175,3 +175,7 @@ spin_around_rgl_plot <- function(n_frames=120) {
     rgl.viewpoint(i, i/4)
   }
 }
+
+# https://stackoverflow.com/questions/17549762/is-there-such-colsd-in-r
+##' todo test
+colSdApply <- function(x, ...) apply(X=x, MARGIN=2, FUN=sd, ...)

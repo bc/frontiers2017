@@ -9,6 +9,7 @@ Depends:
   testthat,
   devtools,
   ggplot2,
+  xtable,
   parallel,
   roxygen2,
   xml2,
@@ -25,7 +26,7 @@ Depends:
   rgl,
   geometry,
   covr
-Suggests: 
+Suggests:
     lintr,
     covr
 License: USC

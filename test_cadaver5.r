@@ -87,7 +87,7 @@ histogram_muscle_projections(sset_feasible_scaling, range_tension)
 expect_five_points_in_row(sset_feasible_scaling, A_fit$AMatrix)
 
 
-browser()
+
 ####### Visualize the FAS sets that are produced by feeding in the noiseResponse data.
 rgl.clear()
 num_tasks <- length(sset_feasible_scaling)
