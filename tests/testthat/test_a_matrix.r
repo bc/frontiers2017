@@ -1,5 +1,5 @@
 context("test_a_matrix.r")
-create_output_folder()
+##' create_output_folder()
 context("Linearity functions manipulations")
 ##' @param filename string filename of interest
 output_filepath_from_test <- function(filename){
@@ -11,6 +11,14 @@ sample_input_output_data <- read_rds_from_package_extdata("training_data.rds")
 data <- df_split_into_training_and_testing(sample_input_output_data, fraction_training = 0.8)
 training_data <- data$train
 test_data <- data$test
+
+dynamic_source_df <- load_hand3_ultraflex_dynamic_csv()
+rds_folder_path <- "~/Resilio Sync/data/ForceTrials_at_each_posture/"
+sample_posture_path <- dir(rds_folder_path)[15]
+sample_posture_data <- readRDS(paste0(rds_folder_path, sample_posture_path))
+input_output_data <- converged_colmeans(sample_posture_data, last_n_milliseconds = 100)
+
+
 
 x1 <- matrix(c(-1), nrow = 1, ncol = 1, byrow = TRUE)
 b1 <- matrix(c(-1), nrow = 1, ncol = 1, byrow = TRUE)
@@ -186,4 +194,5 @@ test_that("evaluate ability to find A matrix for known canonical system", {
 
 test_that("compare dynamically generated A matrix and statically generated A matrix", {
    ##'Re-doing all these with new functions
-}
+   expect_silent(plot_A_matrix_image(dynamic_source_df,input_output_data))
+})
