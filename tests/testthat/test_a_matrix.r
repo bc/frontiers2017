@@ -5,7 +5,7 @@ context("Linearity functions manipulations")
 output_filepath_from_test <- function(filename){
   paste0("../../..", filename)
 }
-set.seed(100)
+set.seed(4)
 range_tension <- c(3, 20)
 sample_input_output_data <- read_rds_from_package_extdata("training_data.rds")
 data <- df_split_into_training_and_testing(sample_input_output_data, fraction_training = 0.8)
@@ -183,3 +183,7 @@ test_that("evaluate ability to find A matrix for known canonical system", {
   expect_true(max(abs(A_fit$endpointForcePrediction - A_fit$endpointForceObservation)) < 1e-5)
   t(A_fit$AMatrix) == canonical_A[1,]
 })
+
+test_that("compare dynamically generated A matrix and statically generated A matrix", {
+   ##'Re-doing all these with new functions
+}

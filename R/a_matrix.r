@@ -404,3 +404,34 @@ calculate_and_display_A_fit_per_sample <- function(samples,...){
    return(A_fit)
  })
 }
+
+force_names_to_predict <- c("JR3_FX","JR3_FY","JR3_FZ","JR3_MX","JR3_MY","JR3_MZ")
+
+##'TODO: Make function to load dynamic_csv data (super specific function for loading only ONE set of hand data)
+##'PUT THIS FILE IN MAIN.R
+##' Change this function to take the output of that file
+find_dynamic_A_matrix <- function(dynamic_source_df){
+   dynamic_A_matrix = matrix(nrow = 7, ncol = 6, byrow = TRUE)
+   for(i in 1:nrow(dynamic_source)){
+      for(j in 1:ncol(dynamic_source)){
+         dynamic_source[i,j] = 10 ^ (dynamic_source[i,j]/20)
+      }
+   }
+   initial_col = 2
+   for(i in 1:nrow(dynamic_A_matrix)){
+      for(j in 1:ncol(dynamic_A_matrix)){
+         dynamic_A_matrix[i,j] = dynamic_source[1,initial_col]
+         initial_col = initial_col + 3
+      }
+   }
+   colnames(dynamic_A_matrix) <- force_names_to_predict
+   rownames(dynamic_A_matrix) <- measured(muscle_names())
+   return(dynamic_A_matrix)
+}
+
+create_A_matrix_image <- function(dynamic_source_df, static_source_df){
+   dynamic_A_matrix <- find_dynamic_A_matrix(dynamic_source_df)
+   static_A_matrix <- A_fit_from_80_20_split(static_source_df, measured(muscle_names()), force_names_to_predict)
+   image(dynamic_A_matrix - static_A_matrix)
+   return(dynamic_A_matrix - static_A_matrix)
+}
