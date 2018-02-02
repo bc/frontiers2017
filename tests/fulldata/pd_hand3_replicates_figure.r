@@ -52,21 +52,6 @@ test_that("hand 3 ultraflex REPLICATES", {
 
    split_wrench <- halve_force_dimension_value_df_into_forces_and_torques(residual_melt)
 
-plot_wrench_split_replicate
-
-
-plot_boxplot_faceted_by_JR3 <- function(melted_df){
-p0 <- ggplot(,aes(map, residual_from_mean, fill=map, label = residual_from_mean))
-p0 <- p0 + geom_boxplot()
-p0 <- p0 + facet_wrap(~force_dimension)
-p0 <- p0 + geom_text()
-p0 <- p0 + xlab("MAP")
-p0 <- p0 + ylab("residual value. N if forces, Nm if torques")
-return(p0)
-}
-
-
-
   p1 <- arrangeGrob(plot_boxplot_faceted_by_JR3(split_wrench$forces),
                                  plot_boxplot_faceted_by_JR3(split_wrench$torques),nrow=2)
   ggsave(to_output_folder("replicate_residuals.pdf"), p1, width=10, height=5, limitsize=FALSE)
