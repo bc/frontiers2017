@@ -70,3 +70,36 @@ list_of_replicates_to_replicates_to_residuals_of_mean_magnitude <- function(list
   names(norm_vec_residuals_df) <- 0:(length(list_of_replicate_results)-1)
   return(norm_vec_residuals_df)
 }
+
+##' @param dynamic_trials list, output from extract_static_and_dynamic_data
+##' @param last_n_milliseconds integer, number of ms to sample from end of ForceTrial
+##' @return data.frame of the stable data, where each row is a static reponse to one of the replicates.
+forcetrials_to_static_response_df_for_replicates <- function(dynamic_trials,last_n_milliseconds){
+  tails <- extract_tails_from_trials(response$dynamic_trials_list, last_n_milliseconds)
+  stabilized_means_df <- as.data.frame(dcrb(lapply(tails, colMeans)))
+  # after index 32, the section of serial pulls begins.
+  static_response <- as.data.frame(stabilized_means_df[1:32, ])
+  static_response <- data.table(static_response[order(static_response$reference_M0),])
+  return(static_response)
+}
+
+
+##' halve_force_dimension_value_df_into_forces_and_torques'
+   # + scale_x_continuous(limits=c(-0.6,0.6), breaks=seq(-0.2,0.2, by = 0.01))
+  ##' @param force_dimension_value_df dataframe where one colum is force_dimension, and the other column is some value of interest. This will split the df into two, so there's one with ony forces, and another with only torques.
+  ##' @return list of two elements, with same structure as input, but split into $forces and $torques in [[1]] and [[2]].
+   halve_force_dimension_value_df_into_forces_and_torques <- function(force_dimension_value_df){
+     wrench_names <- dots_to_underscores(force_column_names)
+     forces <- force_dimension_value_df[force_dimension_value_df$force_dimension %in% wrench_names[1:3],]
+     torques <- force_dimension_value_df[force_dimension_value_df$force_dimension %in% wrench_names[4:6],]
+     return(list(forces = forces, torques = torques))
+   }
+
+
+   ##' print_how_many_samples_of_each_map_were_collected
+   ##' @param residual_sets_dt dataframes where each element has N rows. we are interested in finding what N is for each of the elements in the input.
+   print_how_many_samples_of_each_map_were_collected <- function(residual_sets_dt){
+     number_of_samples_per_replicate <- as.vector(dcc(lapply(residual_sets_dt, nrow)))
+     message("Number of samples per replicate:")
+     message(number_of_samples_per_replicate)
+   }
