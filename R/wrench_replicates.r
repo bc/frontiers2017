@@ -48,3 +48,25 @@ rownames(input_replicate_maps) <- 0:4
 print("Latex table for hand3ultraflex replicate input maps 0-4")
 print(xtable(input_replicate_maps))
 }
+
+##' replicates_to_residuals_of_mean_magnitude
+##' This function is used to get an idea of how consistent force production is, when you repeatedly use the same muscle activation pattern. i.e. pulling 10N on all muscles, but repeating this 10 times, and looking at the scatter of the output wrench.
+##' @param replicate_results a data.table of 5 observations, each of which is a df where columns are JR3's and reference etc, but each row represents an observation. All rows should have the same reference_M0, M1, etc because they are replicates. nrow is the number of replicates
+##' @param force_names_of_interest vector of string elements, by default this is just FX fy and fz, for a Newtons euclidian distance.
+##' @return norm_vec_residuals_from_mean_magnitude
+replicates_to_residuals_of_mean_magnitude <- function(replicate_results, force_names_of_interest = dots_to_underscores(force_column_names)[1:3]) {
+  section <- replicate_results[, force_names_of_interest, with = FALSE]
+  norm_vec_residuals_from_mean_magnitude <- dcrb(lapply(df_to_list_of_rows(section), function(x) {
+    norm_vec(x) - norm_vec(colMeans(section))}))
+    colnames(norm_vec_residuals_from_mean_magnitude) <- "residual_from_mean_magnitude"
+    return(norm_vec_residuals_from_mean_magnitude)
+  }
+##' list_of_replicates_to_replicates_to_residuals_of_mean_magnitude'
+##' Applies replicates_to_residuals_of_mean_magnitude to list of different inputs. for instance, the first element of the input should be a data.frame of ONLY one type of input value, examiningthe outputs.
+##' @param list_of_replicate_results a list of data.tables, each composed of of N observations, where cols are JR3's and reference etc, but each row represents an observation. All rows should have the same reference_M0, M1, etc because they are replicates. nrow is the number of replicates
+##' @return list of data.tables, each with the colname ==  "residual_from_mean_magnitude", with N values (N = num replicates). names of elements are numbered 0 to len(input). order is preserved.
+list_of_replicates_to_replicates_to_residuals_of_mean_magnitude <- function(list_of_replicate_results){
+  norm_vec_residuals_df <- lapply(list_of_replicate_results, replicates_to_residuals_of_mean_magnitude)
+  names(norm_vec_residuals_df) <- 0:(length(list_of_replicate_results)-1)
+  return(norm_vec_residuals_df)
+}

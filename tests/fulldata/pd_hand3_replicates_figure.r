@@ -36,7 +36,7 @@ test_that("hand 3 ultraflex REPLICATES", {
   list_of_replicate_results <- lapply(split(static_response, static_response$reference_M0),
     tail, 5)
   residual_sets_dt <- lapply(list_of_replicate_results, function(replicate_results) {
-    section <- replicate_results[, force_names_to_predict, with = FALSE] 
+    section <- replicate_results[, force_names_to_predict, with = FALSE]
     residuals_from_mean <- dcrb(lapply(df_to_list_of_rows(section), function(x) {
       as.vector(x) - as.vector(colMeans(section))
     }))
@@ -52,8 +52,16 @@ test_that("hand 3 ultraflex REPLICATES", {
   p2 <- ggplot(residual_melt[residual_melt$force_dimension %in% force_names_to_predict[4:6],]) + geom_histogram(aes(residual_from_mean, fill=map), binwidth=bin_setting_torques) + facet_wrap(~force_dimension) + theme_minimal()+ xlab("Residual from mean torque value (Nm)") + ylab("Count") + xlim(-0.02,0.02)
   p_residual_sets <- arrangeGrob(p1,p2,nrow=2)
   ggsave(to_output_folder("replicate_residuals.pdf"), p_residual_sets, width=10, height=5, limitsize=FALSE)
-  histogram_per_absolute_residual_from_vector_dimension(residuals_per_map)
-  dev.off()
   print_latex_table_for_replicate_maps(static_response)
+
+  browser()
+  list_of_magnitude_residual_dfs <- list_of_replicates_to_replicates_to_residuals_of_mean_magnitude(list_of_replicate_results)
+  norm_vec_residuals_df_melt <- melt(list_of_magnitude_residual_dfs)
+  colnames(norm_vec_residuals_df_melt) <- c("index_within_replicates", "residual_from_mean_magnitude", "map")
+  norm_vec_residuals_df_melt$index_within_replicates <- NULL
+  norm_vec_residuals_df_melt$residual_from_mean_magnitude <- NULL
+  colnames(norm_vec_residuals_df_melt) <- c("residual_from_mean_magnitude", "map")
+
+  plot_histogram_of_magnitude_residuals()
 
 })
