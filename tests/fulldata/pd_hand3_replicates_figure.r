@@ -1,46 +1,5 @@
 context("evaluating_replicates")
 
-#### Helper functions
-histogram_per_absolute_residual_from_vector_dimension <- function(residuals_per_map) {
-
-  par(mfcol = c(3, 2))
-  biggest_absolute_residual_from_vector_dimension_mean <- max(apply(residuals_per_map,
-    2, function(x) {
-      max(abs(x))
-    }))
-  force_max_abs_residual_from_mean <- max(apply(residuals_per_map[, force_names_to_predict[1:3]],
-    2, function(x) {
-      max(abs(x))
-    }))
-  moment_max_abs_residual_from_mean <- max(apply(residuals_per_map[, force_names_to_predict[4:6]],
-    2, function(x) {
-      max(abs(x))
-    }))
-  sapply(colnames(residuals_per_map[1:3]), function(force_dimension_of_interest) {
-    hist(residuals_per_map[, force_dimension_of_interest], col = "black",
-      main = force_dimension_of_interest, xlim = c(-force_max_abs_residual_from_mean,
-        force_max_abs_residual_from_mean), xlab = "residual_from_mean",
-      ylab = "Count", breaks = 20)
-  })
-  sapply(colnames(residuals_per_map[4:6]), function(force_dimension_of_interest) {
-    hist(residuals_per_map[, force_dimension_of_interest], col = "black",
-      main = force_dimension_of_interest, xlim = c(-moment_max_abs_residual_from_mean,
-        moment_max_abs_residual_from_mean), xlab = "residual_from_mean",
-      ylab = "Count", breaks = 20)
-  })
-}
-
-
-##' @param static_response input_output_data with columns like JR3_FX, and reference_M0
-print_latex_table_for_replicate_maps <- function(static_response){
-input_replicate_maps <- as.data.frame(dcrb(lapply(split(static_response,
-  static_response$reference_M0), tail, 1)))[, reference(muscle_names())]
-colnames(input_replicate_maps) <- muscle_biological_names()
-rownames(input_replicate_maps) <- 0:4
-print("Latex table for hand3ultraflex replicate input maps 0-4")
-print(xtable(input_replicate_maps))
-}
-
 
 sections_of_interest <- dec20_PD_EXTMECH_maps_of_interest_by_section()
 signals_prefix <- "get_null_indices_via_this_plot_of_untransformed_xray_for_"
@@ -57,6 +16,7 @@ group_indices <- list(lower = 2, upper = 301)
 maps_of_interest <- sections_of_interest$parallel[, muscle_names()]
 colnames(maps_of_interest) <- reference(muscle_names())
 
+lapply_to_dfs <- function(list_of_non_dataframes){lapply(list_of_non_dataframes, as.data.frame)}
 test_that("hand 3 ultraflex REPLICATES", {
 
   filename_3A <- "noiseResponse_ST1BC_2017_12_20_19_50_38_PD_Extmech_good_ultraflex_NOTAP.txt"
@@ -75,14 +35,23 @@ test_that("hand 3 ultraflex REPLICATES", {
   # n = 5 replicates per map
   list_of_replicate_results <- lapply(split(static_response, static_response$reference_M0),
     tail, 5)
-  residuals_per_map <- as.data.frame(dcrb(lapply(list_of_replicate_results, function(replicate_results) {
-    section <- replicate_results[, force_names_to_predict, with = FALSE]
+  residual_sets_dt <- lapply(list_of_replicate_results, function(replicate_results) {
+    section <- replicate_results[, force_names_to_predict, with = FALSE] 
     residuals_from_mean <- dcrb(lapply(df_to_list_of_rows(section), function(x) {
       as.vector(x) - as.vector(colMeans(section))
     }))
     return(residuals_from_mean)
-  })))
-  pdf(to_output_folder("histogram_per_absolute_residual_from_vector_dimension.pdf"), width=10, height = 10)
+  })
+  names(residual_sets_dt) <- 0:4
+  residual_melt <- melt(residual_sets_dt)
+  colnames(residual_melt) <- c("force_dimension", "residual_from_mean", "map")
+  bin_setting_forces <- 0.2
+  bin_setting_torques <- 0.005
+   # + scale_x_continuous(limits=c(-0.6,0.6), breaks=seq(-0.2,0.2, by = 0.01))
+  p1 <- ggplot(residual_melt[residual_melt$force_dimension %in% force_names_to_predict[1:3],]) + geom_histogram(aes(residual_from_mean, fill=map), binwidth=bin_setting_forces) + facet_wrap(~force_dimension) + theme_minimal() + xlab("Residual from mean force value (N)") + ylab("Count") + scale_x_continuous(breaks = pretty(seq(-0.6, 0.6, by = 0.2))) + xlim(-0.6,0.6)
+  p2 <- ggplot(residual_melt[residual_melt$force_dimension %in% force_names_to_predict[4:6],]) + geom_histogram(aes(residual_from_mean, fill=map), binwidth=bin_setting_torques) + facet_wrap(~force_dimension) + theme_minimal()+ xlab("Residual from mean torque value (Nm)") + ylab("Count") + xlim(-0.02,0.02)
+  p_residual_sets <- arrangeGrob(p1,p2,nrow=2)
+  ggsave(to_output_folder("replicate_residuals.pdf"), p_residual_sets, width=10, height=5, limitsize=FALSE)
   histogram_per_absolute_residual_from_vector_dimension(residuals_per_map)
   dev.off()
   print_latex_table_for_replicate_maps(static_response)

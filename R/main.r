@@ -13,6 +13,7 @@ source("R/linear_fit.r")
 source("R/mit_hand_precadaver.r")
 source("R/settling_time_analysis.r")
 source("R/time_series_functions.r")
+source("R/wrench_replicates.r")
 library(gridExtra)
 
 create_output_folder()
