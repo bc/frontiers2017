@@ -41,12 +41,12 @@ histogram_per_absolute_residual_from_vector_dimension <- function(residuals_per_
 
 ##' @param static_response input_output_data with columns like JR3_FX, and reference_M0
 print_latex_table_for_replicate_maps <- function(static_response){
-input_replicate_maps <- as.data.frame(dcrb(lapply(split(static_response,
-  static_response$reference_M0), tail, 1)))[, reference(muscle_names())]
-colnames(input_replicate_maps) <- muscle_biological_names()
-rownames(input_replicate_maps) <- 0:4
-print("Latex table for hand3ultraflex replicate input maps 0-4")
-print(xtable(input_replicate_maps))
+  responses_split_by_M0 <- split(static_response,static_response$reference_M0)
+input_replicate_maps <- as.data.frame(dcrb(lapply(responses_split_by_M0, tail, 1)))[, reference(muscle_names())]
+table_of_tensions_per_map <- cbind(map=0:4, input_replicate_maps)
+colnames(table_of_tensions_per_map) <- c("map", muscle_biological_names())
+message("% Latex table for hand3ultraflex replicate input maps 0-4")
+print(xtable(table_of_tensions_per_map), include.rownames=FALSE)
 }
 
 ##' replicates_to_residuals_of_mean_magnitude
@@ -60,7 +60,7 @@ replicates_to_residuals_of_mean_magnitude <- function(replicate_results, force_n
     norm_vec(x) - norm_vec(colMeans(section))}))
     colnames(norm_vec_residuals_from_mean_magnitude) <- "residual_from_mean_magnitude"
     return(norm_vec_residuals_from_mean_magnitude)
-  }
+}
 ##' list_of_replicates_to_replicates_to_residuals_of_mean_magnitude'
 ##' Applies replicates_to_residuals_of_mean_magnitude to list of different inputs. for instance, the first element of the input should be a data.frame of ONLY one type of input value, examiningthe outputs.
 ##' @param list_of_replicate_results a list of data.tables, each composed of of N observations, where cols are JR3's and reference etc, but each row represents an observation. All rows should have the same reference_M0, M1, etc because they are replicates. nrow is the number of replicates
@@ -71,11 +71,11 @@ list_of_replicates_to_replicates_to_residuals_of_mean_magnitude <- function(list
   return(norm_vec_residuals_df)
 }
 
-##' @param dynamic_trials list, output from extract_static_and_dynamic_data
+##' @param dynamic_trials_list list, output from extract_static_and_dynamic_data
 ##' @param last_n_milliseconds integer, number of ms to sample from end of ForceTrial
 ##' @return data.frame of the stable data, where each row is a static reponse to one of the replicates.
-forcetrials_to_static_response_df_for_replicates <- function(dynamic_trials,last_n_milliseconds){
-  tails <- extract_tails_from_trials(response$dynamic_trials_list, last_n_milliseconds)
+forcetrials_to_static_response_df_for_replicates <- function(dynamic_trials_list,last_n_milliseconds){
+  tails <- extract_tails_from_trials(dynamic_trials_list, last_n_milliseconds)
   stabilized_means_df <- as.data.frame(dcrb(lapply(tails, colMeans)))
   # after index 32, the section of serial pulls begins.
   static_response <- as.data.frame(stabilized_means_df[1:32, ])
@@ -101,17 +101,38 @@ forcetrials_to_static_response_df_for_replicates <- function(dynamic_trials,last
    print_how_many_samples_of_each_map_were_collected <- function(residual_sets_dt){
      number_of_samples_per_replicate <- as.vector(dcc(lapply(residual_sets_dt, nrow)))
      message("Number of samples per replicate:")
-     message(number_of_samples_per_replicate)
+     vec_len <- length(residual_sets_dt)-1
+     df <- cbind(0:vec_len, number_of_samples_per_replicate)
+     colnames(df) <- c('map', 'num_replicate_samples_per_map')
+     print(df)
    }
 
 
    ##' @param melted_df where first col is the JR3 name of dimension, and the next is the value of interest.
    plot_boxplot_faceted_by_JR3 <- function(melted_df){
-     p0 <- ggplot(,aes(map, residual_from_mean, fill=map, label = residual_from_mean))
+     p0 <- ggplot(melted_df, aes(map, residual_from_mean))
      p0 <- p0 + geom_boxplot()
      p0 <- p0 + facet_wrap(~force_dimension)
-     p0 <- p0 + geom_text()
      p0 <- p0 + xlab("MAP")
      p0 <- p0 + ylab("residual value. N if forces, Nm if torques")
      return(p0)
    }
+
+
+   ##' Plot a histogram of the magnitude residuals
+   ##' Give a sense of how far off a muscle activation pattern's magnitude will be. Useful for energy calculation.
+   ##' Only takes the first 3 force dimensions in N to create the result.
+   ##' @param list_of_replicate_results a list of N data.tables, each with 5 rows. each row is a map trial, each element of the list is a set of map trials that have been grouped by the same muscle activation pattern.
+   ##' @return histogram plot of the spread of residual from the mean XYZ force magnitude.
+   plot_histogram_of_magnitude_residuals <- function(list_of_replicate_results){
+       list_of_magnitude_residual_dfs <- list_of_replicates_to_replicates_to_residuals_of_mean_magnitude(list_of_replicate_results)
+       norm_vec_residuals_df_melt <- melt(list_of_magnitude_residual_dfs)
+       colnames(norm_vec_residuals_df_melt) <- c("index_within_replicates", "residual_from_mean_magnitude", "map")
+       norm_vec_residuals_df_melt$index_within_replicates <- NULL
+       norm_vec_residuals_df_melt$residual_from_mean_magnitude <- NULL
+       colnames(norm_vec_residuals_df_melt) <- c("residual_from_mean_magnitude", "map")
+       p <- ggplot(norm_vec_residuals_df_melt) + geom_histogram(aes(residual_from_mean_magnitude), bins=20)
+       p <- p + xlab('Residual from MAP mean fxyz magnitude, for 5 MAPs (N)')
+       p <- p + ylab('Number of Samples')
+       return(p)
+     }

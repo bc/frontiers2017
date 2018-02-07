@@ -15,7 +15,6 @@ force_names_to_predict <- c("JR3_FX", "JR3_FY", "JR3_FZ", "JR3_MX", "JR3_MY", "J
 maps_of_interest <- sections_of_interest$replicates[, muscle_names()]
 colnames(maps_of_interest) <- reference(muscle_names())
 
-lapply_to_dfs <- function(list_of_non_dataframes){lapply(list_of_non_dataframes, as.data.frame)}
 test_that("hand 3 ultraflex REPLICATES", {
 
   filename_3A <- "noiseResponse_ST1BC_2017_12_20_19_50_38_PD_Extmech_good_ultraflex_NOTAP.txt"
@@ -27,7 +26,7 @@ test_that("hand 3 ultraflex REPLICATES", {
     JR3_sensor_null = JR3_sensor_null)
   response <- extract_static_and_dynamic_data(noise_response_wo_null, group_indices = list(lower = 302,
     upper = 352), last_n_milliseconds = 100)
-  replicate_stable_df <- forcetrials_to_static_response_df_for_replicates(response$dynamic_trials,last_n_milliseconds)
+  replicate_stable_df <- forcetrials_to_static_response_df_for_replicates(response$dynamic_trials_list,last_n_milliseconds)
 
   # n = 5 replicates per map. We wanted to get a consistent sample size for each of the replicate trials.
   list_of_replicate_results <- split(replicate_stable_df, replicate_stable_df$reference_M0)
@@ -42,30 +41,19 @@ test_that("hand 3 ultraflex REPLICATES", {
 
   print_how_many_samples_of_each_map_were_collected(residual_sets_dt)
 
-  lapply(residual_sets_dt, function(replicate_rows_df){
-    replicate_rows_df$n_replicate_sample_notes <-
-  })
   residual_melt <- melt(residual_sets_dt)
   colnames(residual_melt) <- c("force_dimension", "residual_from_mean", "map")
   bin_setting_forces <- 0.2
   bin_setting_torques <- 0.005
 
    split_wrench <- halve_force_dimension_value_df_into_forces_and_torques(residual_melt)
+   p1 <- plot_boxplot_faceted_by_JR3(split_wrench$forces)
+   p2 <- plot_boxplot_faceted_by_JR3(split_wrench$torques)
+  p1 <- arrangeGrob(p1,p2,nrow=2)
+  ggsave(to_output_folder("replicate_meanwrench_residual_distributions.pdf"), p1, width=10, height=5, limitsize=FALSE)
+  print_latex_table_for_replicate_maps(replicate_stable_df)
 
-  p1 <- arrangeGrob(plot_boxplot_faceted_by_JR3(split_wrench$forces),
-                                 plot_boxplot_faceted_by_JR3(split_wrench$torques),nrow=2)
-  ggsave(to_output_folder("replicate_residuals.pdf"), p1, width=10, height=5, limitsize=FALSE)
-  print_latex_table_for_replicate_maps(static_response)
+  plot_histogram_of_magnitude_residuals(list_of_replicate_results)
 
-  browser()
-  list_of_magnitude_residual_dfs <- list_of_replicates_to_replicates_to_residuals_of_mean_magnitude(list_of_replicate_results)
-  norm_vec_residuals_df_melt <- melt(list_of_magnitude_residual_dfs)
-  colnames(norm_vec_residuals_df_melt) <- c("index_within_replicates", "residual_from_mean_magnitude", "map")
-  norm_vec_residuals_df_melt$index_within_replicates <- NULL
-  norm_vec_residuals_df_melt$residual_from_mean_magnitude <- NULL
-  colnames(norm_vec_residuals_df_melt) <- c("residual_from_mean_magnitude", "map")
-  ggplot(norm_vec_residuals_df_melt) + geom_histogram(aes(residual_from_mean_magnitude  ))
-
-  plot_histogram_of_magnitude_residuals()
 
 })
