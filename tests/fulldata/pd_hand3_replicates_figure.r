@@ -53,7 +53,8 @@ test_that("hand 3 ultraflex REPLICATES", {
   ggsave(to_output_folder("replicate_meanwrench_residual_distributions.pdf"), p1, width=10, height=5, limitsize=FALSE)
   print_latex_table_for_replicate_maps(replicate_stable_df)
 
-  plot_histogram_of_magnitude_residuals(list_of_replicate_results)
+  p_magnitudes <- plot_histogram_of_magnitude_residuals(list_of_replicate_results)
+  ggsave(to_output_folder("replicate_meanFxyz_magnitude_residuals.pdf"), p_magnitudes, width=3, height=3, limitsize=FALSE)
 
 
 })
