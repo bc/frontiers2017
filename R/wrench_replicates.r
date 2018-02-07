@@ -144,7 +144,12 @@ forcetrials_to_static_response_df_for_replicates <- function(dynamic_trials_list
          }))
          return(residuals_from_mean)
      }
-     residual_from_mean_force_dimension_6dim <- function(residual_sets_dt,force_names_to_predict){
+     ##' residual_from_mean_force_dimension_6dim
+     ##' useful for identifying, for a given force dimension, what the scatter
+     ##' in the output force is, even when you use the same muscle activation pattern.
+     ##' @param residual_sets_dt a datatable
+     ##' @return p1 ggplot2 object that facets by forces/torques, showing by-map wrench residual scatter.
+     residual_from_mean_force_dimension_6dim <- function(residual_sets_dt){
        names(residual_sets_dt) <- 0:4
        print_how_many_samples_of_each_map_were_collected(residual_sets_dt)
        residual_melt <- melt(residual_sets_dt)
@@ -155,4 +160,26 @@ forcetrials_to_static_response_df_for_replicates <- function(dynamic_trials_list
        p1 <- arrangeGrob(p1,p2,nrow=2)
        return(p1)
      }
-     
+
+##' Get a df of the static responses to replicate MAP pulls
+##' Useful for understanding how the forces are created when you pull on the tendons the same way, multiple times.
+##' @param noise_response_wo_null time series df with muscle and force columns at 1kHz.
+##' @param last_n_milliseconds integer, last n milliseconds window that defines the range over which to compute the mean value for each column.
+##' @return list_of_replicate_results list of dt's each with nrow= number of replicates. length of list is the number of muscle activation patterns that were replicated.
+     replicate_df_list_from_noise_response <- function(noise_response_wo_null,last_n_milliseconds){
+       replicate_response <- extract_static_and_dynamic_data(noise_response_wo_null, group_indices = list(lower = 302,
+         upper = 352), last_n_milliseconds = last_n_milliseconds)
+       replicate_stable_df <- forcetrials_to_static_response_df_for_replicates(replicate_response$dynamic_trials_list,last_n_milliseconds)
+       print_latex_table_for_replicate_maps(replicate_stable_df)
+       list_of_replicate_results <- split(replicate_stable_df, replicate_stable_df$reference_M0)
+       return(list_of_replicate_results)
+     }
+
+##' Save the results of replicate MAPs to an RDS file on disk.
+##' Saves to the output folder
+##' @param list_of_replicate_results list of dt's each with nrow= number of replicates. length of list is the number of muscle activation patterns that were replicated.
+     write_replicate_results_to_rds <- function(list_of_replicate_results, data_filename, last_n_milliseconds){
+       replicate_response_path <- to_output_folder(paste0(data_filename, "_five_map_replicates_clean_static_response_from_tail_",
+         last_n_milliseconds, "ms_mean.rds"))
+         saveRDS(list_of_replicate_results,replicate_response_path)
+     }

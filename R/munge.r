@@ -148,7 +148,6 @@ write_csv_of_timeseries_and_input_output <- function(timeseries, input_output_da
   message(paste0("Saving timeseries to ", static_response_path))
   write.csv(input_output_data, static_response_path, row.names = FALSE)
 }
-
 ##' @param noise_response_wo_null dataset, after JR3 has been calibrated and non-interesting data removed.
 ##' @param group_indices group_indices vector of two indices, represenging rleid group #'s of interest
 ##' @param last_n_milliseconds window for the mean static value
