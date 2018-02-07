@@ -27,31 +27,14 @@ test_that("hand 3 ultraflex REPLICATES", {
   response <- extract_static_and_dynamic_data(noise_response_wo_null, group_indices = list(lower = 302,
     upper = 352), last_n_milliseconds = 100)
   replicate_stable_df <- forcetrials_to_static_response_df_for_replicates(response$dynamic_trials_list,last_n_milliseconds)
-
-  # n = 5 replicates per map. We wanted to get a consistent sample size for each of the replicate trials.
-  list_of_replicate_results <- split(replicate_stable_df, replicate_stable_df$reference_M0)
-  residual_sets_dt <- lapply(list_of_replicate_results, function(replicate_results) {
-    section <- replicate_results[, force_names_to_predict, with = FALSE]
-    residuals_from_mean <- dcrb(lapply(df_to_list_of_rows(section), function(x) {
-      as.vector(x) - as.vector(colMeans(section))
-    }))
-    return(residuals_from_mean)
-  })
-  names(residual_sets_dt) <- 0:4
-
-  print_how_many_samples_of_each_map_were_collected(residual_sets_dt)
-
-  residual_melt <- melt(residual_sets_dt)
-  colnames(residual_melt) <- c("force_dimension", "residual_from_mean", "map")
-  bin_setting_forces <- 0.2
-  bin_setting_torques <- 0.005
-
-   split_wrench <- halve_force_dimension_value_df_into_forces_and_torques(residual_melt)
-   p1 <- plot_boxplot_faceted_by_JR3(split_wrench$forces)
-   p2 <- plot_boxplot_faceted_by_JR3(split_wrench$torques)
-  p1 <- arrangeGrob(p1,p2,nrow=2)
-  ggsave(to_output_folder("replicate_meanwrench_residual_distributions.pdf"), p1, width=10, height=5, limitsize=FALSE)
   print_latex_table_for_replicate_maps(replicate_stable_df)
+
+
+  list_of_replicate_results <- split(replicate_stable_df, replicate_stable_df$reference_M0)
+
+  residual_sets_dt <- lapply(list_of_replicate_results, replicate_results_df_to_mean_6dim_magnitude_scatter, force_names_to_predict)
+p1 <- residual_from_mean_force_dimension_6dim(residual_sets_dt,force_names_to_predict=force_names_to_predict)
+ggsave(to_output_folder("replicate_meanwrench_residual_distributions.pdf"), p1, width=10, height=5, limitsize=FALSE)
 
   p_magnitudes <- plot_histogram_of_magnitude_residuals(list_of_replicate_results)
   ggsave(to_output_folder("replicate_meanFxyz_magnitude_residuals.pdf"), p_magnitudes, width=3, height=3, limitsize=FALSE)

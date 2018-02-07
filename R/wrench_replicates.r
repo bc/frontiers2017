@@ -136,3 +136,23 @@ forcetrials_to_static_response_df_for_replicates <- function(dynamic_trials_list
        p <- p + ylab('Number of Samples')
        return(p)
      }
+
+     replicate_results_df_to_mean_6dim_magnitude_scatter <- function(replicate_results_df, force_names_to_predict){
+         section <- replicate_results_df[, force_names_to_predict, with = FALSE]
+         residuals_from_mean <- dcrb(lapply(df_to_list_of_rows(section), function(x) {
+           as.vector(x) - as.vector(colMeans(section))
+         }))
+         return(residuals_from_mean)
+     }
+     residual_from_mean_force_dimension_6dim <- function(residual_sets_dt,force_names_to_predict){
+       names(residual_sets_dt) <- 0:4
+       print_how_many_samples_of_each_map_were_collected(residual_sets_dt)
+       residual_melt <- melt(residual_sets_dt)
+       colnames(residual_melt) <- c("force_dimension", "residual_from_mean", "map")
+       split_wrench <- halve_force_dimension_value_df_into_forces_and_torques(residual_melt)
+       p1 <- plot_boxplot_faceted_by_JR3(split_wrench$forces)
+       p2 <- plot_boxplot_faceted_by_JR3(split_wrench$torques)
+       p1 <- arrangeGrob(p1,p2,nrow=2)
+       return(p1)
+     }
+     
