@@ -200,12 +200,27 @@ evaluate_fit_wrt_test_data <- function(A_fit, test_data) {
   print(summary(magnitudes(res_test)))
 }
 
+##' RMSE
+##' root mean square error
+##' @param sim,obs unidimensional vector
+##' @return rmse floating value
+rmse <- function(sim,obs) sqrt( mean( (sim - obs)^2, na.rm = TRUE) )
+
+##' evaluate RMSE of an A matrix fit upon 7d to 3d output. using FXYZ.
+##' @param A_fit must have the test_data element within the list
+evaluate_rmse_of_A_fit <- function(A_fit){
+  forces_of_interest <- dots_to_underscores(force_column_names[1:3])
+  test_input <- A_fit$test_data[,reference(muscle_names())]
+  test_predicted_response <- predict_output_force(A_fit$AMatrix, as.matrix(test_input))
+  rmse_score <- rmse(A_fit$test_data[,forces_of_interest] , test_predicted_response[,forces_of_interest])
+  return(rmse_score)
+}
+
 evaluate_fit_wrt_test_data_without_offset <- function(A_fit, test_data) {
   num_observation <- nrow(test_data)
   regressor_names <- rownames(A_fit$AMatrix)
   force_col_names <- colnames(A_fit$AMatrix)
   forces_of_interest <- paste0(force_col_names, collapse=",")
-  vector_one <- as.matrix(rep(1, num_observation), num_observation, 1)
   test_input <- as.matrix(test_data[regressor_names])
   test_predicted_response <- predict_output_force(A_fit$AMatrix, test_input)
   test_observed_response <- test_data[force_col_names]
