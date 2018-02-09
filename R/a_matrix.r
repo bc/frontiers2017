@@ -162,16 +162,7 @@ fit_evaluation <- function(A_fit, test_data, ...) {
   fit_summary(A_fit)
   evaluate_fit_wrt_test_data(A_fit, test_data)
 }
-##' Fit Evaluation without an offset generator
-##' Evaluation of fit of A matrix
-##' TODO Implement or Retire Function'
-##' @param A_fit object as returned from find_A_matrix
-##' @param test_data dataset with the input and output columns matching the regressors and outputs of A_fit
-fit_evaluation_without_offset <- function(A_fit, test_data, ...) {
-  par(mfcol = c(3, 2))
-  fit_summary(A_fit)
-  evaluate_fit_wrt_test_data_without_offset(A_fit, test_data)
-}
+
 ##' evaluate_fit_wrt_test_data
 ##' Evaluation of fit with respect to test data'
 ##' TODO Create Test or Retire Function'
@@ -200,12 +191,6 @@ evaluate_fit_wrt_test_data <- function(A_fit, test_data) {
   print(summary(magnitudes(res_test)))
 }
 
-##' RMSE
-##' root mean square error
-##' @param sim,obs unidimensional vector
-##' @return rmse floating value
-rmse <- function(sim,obs) sqrt( mean( (sim - obs)^2, na.rm = TRUE) )
-
 ##' evaluate RMSE of an A matrix fit upon 7d to 3d output. using FXYZ.
 ##' @param A_fit must have the test_data element within the list
 evaluate_rmse_of_A_fit <- function(A_fit){
@@ -216,6 +201,26 @@ evaluate_rmse_of_A_fit <- function(A_fit){
   return(rmse_score)
 }
 
+##' evaluate euclidian errors of an A matrix fit upon 7d to 3d output. using FXYZ. using test data
+##' @param A_fit must have the test_data element within the list
+##' @return euclidian_errors numeric vector of euclidian errors
+euclidian_errors_against_test_set <- function(A_fit){
+  forces_of_interest <- dots_to_underscores(force_column_names[1:3])
+  test_input <- A_fit$test_data[,reference(muscle_names())]
+  test_predicted_response <- predict_output_force(A_fit$AMatrix, as.matrix(test_input))
+  expected_vals <- A_fit$test_data[,forces_of_interest]
+  predicted_vals <- test_predicted_response[,forces_of_interest]
+  euclidian_errors <- as.numeric(sqrt(rowSums(expected_vals - predicted_vals)^2))
+  return(euclidian_errors)
+}
+
+##' evaluate mean euclidian error of an A matrix fit upon 7d to 3d output. using FXYZ. using test dataset
+##' @param A_fit must have the test_data element within the list
+##' @return v single numeric value representing mean euclidian err
+mean_euclidian_error_against_test_set <- function(A_fit){
+  mean(euclidian_errors_against_test_set(A_fit))
+}
+##' @param A_fit must have the test_data element within the list
 evaluate_fit_wrt_test_data_without_offset <- function(A_fit, test_data) {
   num_observation <- nrow(test_data)
   regressor_names <- rownames(A_fit$AMatrix)
