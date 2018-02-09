@@ -12,11 +12,43 @@ data <- df_split_into_training_and_testing(sample_input_output_data, fraction_tr
 training_data <- data$train
 test_data <- data$test
 
-dynamic_source_df <- load_dynamic_matrix_csv("hand3_ultraflex_clean_timeseries_Meas_fresp.csv")
-input_output_data <- hand3_hand4_clean_static_samples()$hand3_ultraflex
 test_that("compare dynamically generated A matrix and statically generated A matrix", {
-   plot_dynamic_vs_static_A_mat(dynamic_source_df,input_output_data,muscles_of_interest=muscle_names(), dots_to_underscores(force_column_names))
+    dynamic_source_df <- load_dynamic_matrix_csv("hand3_ultraflex_clean_timeseries_Meas_fresp.csv")
+    input_output_data <- hand3_hand4_clean_static_samples()$hand3_ultraflex
+    d_vs_a_and_diff <- dynamic_vs_static_A_mat(dynamic_source_df,input_output_data,muscles_of_interest=muscle_names(), dots_to_underscores(force_column_names))
+    plot_dynamic_vs_static_A_matrix(d_vs_a_and_diff, "hand3_ultraflex")
 })
+
+test_that("plot many dynamic vs static A matrices. across hands and posture", {
+ differences_list <- pblapply(hand3_hand4_clean_static_samples(), function(hand_at_posture){
+  hand_posture_string <- hand_n_posture_string(hand_at_posture)
+  dynamic_source_df <- load_dynamic_matrix_csv(paste0(hand_posture_string,"_clean_timeseries_Meas_fresp.csv"))
+  input_output_data <- hand_at_posture
+  d_vs_a_and_diff <- dynamic_vs_static_A_mat(dynamic_source_df,input_output_data,muscles_of_interest=muscle_names(), dots_to_underscores(force_column_names))
+  attr(d_vs_a_and_diff, "posture") <-   attr(hand_at_posture, "posture")
+  attr(d_vs_a_and_diff, "hand_number") <-   attr(hand_at_posture, "hand_number")
+  plot_dynamic_vs_static_A_matrix(d_vs_a_and_diff, hand_posture_string)
+  return(d_vs_a_and_diff)
+})
+
+lapply(differences_list, function(e){
+  xtable(e[[2]])
+})
+
+
+})
+
+handn_posture_to_variables <- function(handn_posture_string){
+  list(hand_number = substring(handn_posture_string, 5,5),
+  posture = substring(handn_posture_string, 7))
+}
+hand_n_posture_string <- function(hand_at_posture){
+  paste0(
+    "hand",
+    attr(hand_at_posture, "hand_number"),
+    "_",
+    attr(hand_at_posture, "posture"))
+}
 
 x1 <- matrix(c(-1), nrow = 1, ncol = 1, byrow = TRUE)
 b1 <- matrix(c(-1), nrow = 1, ncol = 1, byrow = TRUE)

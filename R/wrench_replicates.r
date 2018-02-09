@@ -120,7 +120,7 @@ plot_boxplot_faceted_by_JR3 <- function(melted_df) {
   p0 <- p0 + geom_boxplot()
   p0 <- p0 + facet_wrap(~force_dimension)
   p0 <- p0 + xlab("MAP")
-  p0 <- p0 + ylab("residual value. N if forces, Nm if torques")
+  p0 <- p0 + ylab("residual value. N if forces, Nm if torques") + theme_minimal()
   return(p0)
 }
 

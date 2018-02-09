@@ -449,11 +449,15 @@ extract_DC_from_dynamic_response_matrix <- function(dynamic_source_df){
   return(t(A_mat))
 }
 ##'TODO: Name this differently to be clear that it is the difference between two matrices
-plot_dynamic_vs_static_A_mat <- function(dynamic_source_df, static_source_df, muscles_of_interest, forces_of_interest){
+dynamic_vs_static_A_mat <- function(dynamic_source_df, static_source_df, muscles_of_interest, forces_of_interest){
    dynamic_A_matrix <- extract_DC_from_dynamic_response_matrix(dynamic_source_df)
    static_A_matrix <- A_fit_from_80_20_split(static_source_df, muscles_of_interest, forces_of_interest)[[1]]
    difference <- dynamic_A_matrix - static_A_matrix
    rownames(difference) <- muscle_names()
-   p <- ggplot(melt(difference), aes(Var1,value)) + geom_col() + facet_wrap(~Var2) +xlab("Muscle") + ylab("Dynamic DC - Static DC") + theme_minimal()
-   ggsave(to_output_folder("dynamic_vs_static_A_mat_hand3_ultraflex.pdf"), p, width=8,height=4)
+   return(list(dynamic_A_matrix=dynamic_A_matrix, static_A_matrix=static_A_matrix, difference=difference))
+}
+
+plot_dynamic_vs_static_A_matrix <- function(dynamic_and_static_and_difference_matrices, hand_and_posture_string){
+  p <- ggplot(melt(dynamic_and_static_and_difference_matrices$difference), aes(Var1,value)) + geom_col() + facet_wrap(~Var2) +xlab("Muscle") + ylab("Dynamic DC - Static DC") + theme_minimal() + ylim(-0.05,0.8)
+  ggsave(to_output_folder(paste0("dynamic_vs_static_A_mat_",hand_and_posture_string,".pdf")), p, width=8,height=4)
 }
