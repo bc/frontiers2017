@@ -13,7 +13,7 @@ training_data <- data$train
 test_data <- data$test
 
 dynamic_source_df <- load_dynamic_matrix_csv("hand3_ultraflex_clean_timeseries_Meas_fresp.csv")
-input_output_data <- hand3_hand4_clean_samples()$hand3_ultraflex
+input_output_data <- hand3_hand4_clean_static_samples()$hand3_ultraflex
 test_that("compare dynamically generated A matrix and statically generated A matrix", {
    plot_dynamic_vs_static_A_mat(dynamic_source_df,input_output_data,muscles_of_interest=muscle_names(), dots_to_underscores(force_column_names))
 })
