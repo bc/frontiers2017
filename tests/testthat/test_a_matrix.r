@@ -38,17 +38,6 @@ lapply(differences_list, function(e){
 
 })
 
-handn_posture_to_variables <- function(handn_posture_string){
-  list(hand_number = substring(handn_posture_string, 5,5),
-  posture = substring(handn_posture_string, 7))
-}
-hand_n_posture_string <- function(hand_at_posture){
-  paste0(
-    "hand",
-    attr(hand_at_posture, "hand_number"),
-    "_",
-    attr(hand_at_posture, "posture"))
-}
 
 x1 <- matrix(c(-1), nrow = 1, ncol = 1, byrow = TRUE)
 b1 <- matrix(c(-1), nrow = 1, ncol = 1, byrow = TRUE)
