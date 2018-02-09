@@ -12,7 +12,7 @@ data <- df_split_into_training_and_testing(sample_input_output_data, fraction_tr
 training_data <- data$train
 test_data <- data$test
 
-dynamic_source_df <- load_hand3_ultraflex_dynamic_csv()
+dynamic_source_df <- load_dynamic_matrix_csv()
 rds_folder_path <- "~/Resilio Sync/data/ForceTrials_at_each_posture/"
 sample_posture_path <- dir(rds_folder_path)[15]
 sample_posture_data <- readRDS(paste0(rds_folder_path, sample_posture_path))
@@ -62,10 +62,10 @@ test_that("find_A_matrix finds A matrix", {
 })
 
 test_that("Test whether predict_output_force multiplies matrices properly", {
-   expect_equal(predict_output_force(A4, x4), b4)
-   expect_equal(predict_output_force(A5, x5), b5)
-   expect_equal(predict_output_force(A6, x6), b6)
-   expect_equal(predict_output_force(A7, x7), b7)
+   expect_equal(predict_output_force(A4, x4), b4, 1e-4)
+   expect_equal(predict_output_force(A5, x5), b5, 1e-4)
+   expect_equal(predict_output_force(A6, x6), b6, 1e-4)
+   expect_equal(predict_output_force(A7, x7), b7, 1e-4)
 })
 
 test_that("produce A matrices for different numbers of muscles or output force dimensions",

@@ -408,7 +408,7 @@ calculate_and_display_A_fit_per_sample <- function(samples,...){
 force_names_to_predict <- c("JR3_FX","JR3_FY","JR3_FZ","JR3_MX","JR3_MY","JR3_MZ")
 
 ##' Will modularize this as necessary
-dynamic_source_df <- load_hand3_ultraflex_dynamic_csv()
+dynamic_source_df <- load_dynamic_matrix_csv()
 
 ##'TODO: Make function to load dynamic_csv data (super specific function for loading only ONE set of hand data)
 ##'PUT THIS FILE IN MAIN.R
