@@ -6,41 +6,28 @@ num_muscles <- length(muscles_of_interest)
 force_names_to_predict <- c("JR3_FX","JR3_FY","JR3_FZ","JR3_MX","JR3_MY","JR3_MZ")
 range_tension <-  c(0,10)
 samples <- hand3_hand4_clean_static_samples()
-A_fit_list <- calculate_and_display_A_fit_per_sample(samples, muscles_of_interest, force_names_to_predict, range_tension)
-fit_evaluation_without_offset(A_fit_list[[1]], A_fit_list[[1]]$test_data)
+ a_fits <- lapply(samples, function(hand_at_posture){
+  mean_euclidian_error_against_test_set(A_fit_from_80_20_split(hand_at_posture, muscles_of_interest, force_names_to_predict))
+})
+test_that('we can produce the euclidian residual across posture', {
 
-  ##' get the distance between a map_input of interest and all maps within the training set.
-  map_neighbor_distances <- function(map_training_data, map_input){
-    as.numeric(apply(map_training_data,1, function(realdata){
-      norm_vector_difference(realdata, map_input)
-    }))
-  }
-  ##' @return map_row integer map row of the training set muscle activation that was closest to the map of interest
-  get_map_row_of_training_with_smallest_distance_to_vec <- function(training_data, vec){
-    which.min(map_neighbor_distances(training_data, vec))
-  }
-
-nearest_neighbor_fit_eval <- function(input_output_data, muscles_of_interest, force_names_to_predict){
-  data <- df_split_into_training_and_testing(input_output_data, fraction_training = 0.80)
-  training_data <- data$train
-  test_data <- data$test
-  nearest_neighbor_indices <- dcc(pbmclapply(df_to_list_of_rows(test_data[,reference(muscles_of_interest)]), function(test_input){
-    get_map_row_of_training_with_smallest_distance_to_vec(training_data[,reference(muscles_of_interest)], test_input)
-  }))
- manhattan_distance_from_neighbors <- as.numeric(rowSums(abs(training_data[nearest_neighbor_indices,reference(muscles_of_interest)] - test_data[,reference(muscles_of_interest)])))
- hist(manhattan_distance_from_neighbors, breaks=15, col='black', main="for test input, how far is it from nearest neighbor training input")
- euclidian_wrench_errors <- as.numeric(apply(training_data[nearest_neighbor_indices,force_names_to_predict] - test_data[,force_names_to_predict],1,norm_vec))
- hist(euclidian_wrench_errors, main="Euclidian error [N] across 6D wrench for nearest neighbor", breaks=15, col='black')
- return(list(manhattan_distance_from_neighbors=manhattan_distance_from_neighbors, euclidian_wrench_errors=euclidian_wrench_errors))
-}
-par(mfcol=c(2,8))
-hand3_ultraflex_xy<-nearest_neighbor_fit_eval(samples$hand3_ultraflex, muscles_of_interest, force_names_to_predict)
-nearest_neighbor_fit_eval(samples$hand3_flex, muscles_of_interest, force_names_to_predict)
-nearest_neighbor_fit_eval(samples$hand3_extend, muscles_of_interest, force_names_to_predict)
-nearest_neighbor_fit_eval(samples$hand3_ultraextend, muscles_of_interest, force_names_to_predict)
-nearest_neighbor_fit_eval(samples$hand4_ultraflex, muscles_of_interest, force_names_to_predict)
-nearest_neighbor_fit_eval(samples$hand4_flex, muscles_of_interest, force_names_to_predict)
-nearest_neighbor_fit_eval(samples$hand4_extend, muscles_of_interest, force_names_to_predict)
-nearest_neighbor_fit_eval(samples$hand4_ultraextend, muscles_of_interest, force_names_to_predict)
-
-ggplot(as.data.frame(hand3_ultraflex_xy), aes(manhattan_distance_from_neighbors,euclidian_wrench_errors )) + geom_point()
+dataset_and_Afitrmse <- rev(melt(a_fits))
+dataset_and_Afitrmse$hand <- as.character(c(rep(3,4), rep(4,4)))
+dataset_and_Afitrmse$posture <- as.factor(c('ultraextend',
+'extend',
+'flex',
+'ultraflex',
+'ultraextend',
+'extend',
+'flex',
+'ultraflex'))
+ euclidian_err_set_ordered <- dataset_and_Afitrmse[c(4,8,3,7,2,6,1,5),]
+ euclidian_err_set_ordered_factors <- transform(euclidian_err_set_ordered,
+       posture=factor(posture,levels=c('ultraflex','flex','extend','ultraextend')))
+p <- ggplot(euclidian_err_set_ordered_factors,aes(hand, value))
+p <- p + geom_col(aes(fill=hand))
+p <- p + facet_grid(~posture)
+p <- p + ylab('Mean euclidian residual (N). n=60') + ggtitle("static model performance across posture")
+p <- p + geom_text(aes(label=sprintf("%0.2f", round(value, digits = 2))),hjust=0.50, vjust=1.2, col="#ffffff")
+ggsave(to_output_folder("static_A_mean_euclidian_error_per_posture_per_hand_against_test_set.pdf"), p, width=5, height=5, limitsize=FALSE)
+})
