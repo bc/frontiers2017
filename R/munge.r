@@ -148,7 +148,6 @@ write_csv_of_timeseries_and_input_output <- function(timeseries, input_output_da
   message(paste0("Saving timeseries to ", static_response_path))
   write.csv(input_output_data, static_response_path, row.names = FALSE)
 }
-
 ##' @param noise_response_wo_null dataset, after JR3 has been calibrated and non-interesting data removed.
 ##' @param group_indices group_indices vector of two indices, represenging rleid group #'s of interest
 ##' @param last_n_milliseconds window for the mean static value
@@ -157,11 +156,13 @@ write_csv_of_timeseries_and_input_output <- function(timeseries, input_output_da
   extract_static_and_dynamic_data <- function(noise_response_wo_null, group_indices, last_n_milliseconds){
     trials <- extract_trials_by_map_group_indices(noise_response_wo_null, group_indices)
     tails <- extract_tails_from_trials(trials,last_n_milliseconds)
-    input_output_data <- dcrb(lapply(tails,colMeans))
+    input_output_data <- as.data.frame(dcrb(lapply(tails,colMeans)))
     return(list(dynamic_trials_list=trials,static_df=input_output_data))
   }
 
+##' dec20dec20_PD_EXTMECH_maps_of_interest_by_section
 ##' specific to dec20 big jumbo maps'
+##' @return sections list of input maps by type.
   dec20_PD_EXTMECH_maps_of_interest_by_section <- function(){
     jumbo_path <- get_Resilio_filepath("dec20BC1/dec20_PD_EXTMECH/big_jumbo_set_for_posture_dependence_and_extmech_914_NFORCES.csv")
     cat <- read.csv(jumbo_path)

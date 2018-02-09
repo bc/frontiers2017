@@ -3,7 +3,7 @@ context('hand 3 dec 20')
 sections_of_interest <- dec20_PD_EXTMECH_maps_of_interest_by_section()
 
 signals_prefix <- "get_null_indices_via_this_plot_of_untransformed_xray_for_"
-
+set.seed(4)
 #Define dec20 hand3 parameters
 JR3_to_fingertip_distance <- 0.00802 #about 9mm in meters TODO
 last_n_milliseconds <- 100
@@ -33,8 +33,8 @@ JR3_sensor_null <- colMeans(manual_3tap_for_hand3_ultraflex[15000:20000,])
   expect_true(all(maps_match_across_M0_and_map_groups(noise_response_wo_null, group_indices=group_indices, maps_of_interest=maps_of_interest)))
   response <-  extract_static_and_dynamic_data(noise_response_wo_null, group_indices, last_n_milliseconds)
   write_csv_of_timeseries_and_input_output(dcrb(response$dynamic_trials_list),response$static_df,'hand3_ultraflex',last_n_milliseconds)
-
-
+  list_of_replicate_results <- replicate_df_list_from_noise_response(noise_response_wo_null, last_n_milliseconds)
+  write_replicate_results_to_rds(to_output_folder(list_of_replicate_results,'hand3_ultraflex', last_n_milliseconds))
 })
 
 test_that("hand 3 flex", {
@@ -82,38 +82,4 @@ indices_for_null <-  761547:nrow(hand3_dec20_ultraextend)
   expect_true(all(maps_match_across_M0_and_map_groups(noise_response_wo_null, group_indices=group_indices, maps_of_interest=maps_of_interest)))
   response <-  extract_static_and_dynamic_data(noise_response_wo_null, group_indices, last_n_milliseconds)
   write_csv_of_timeseries_and_input_output(dcrb(response$dynamic_trials_list),response$static_df,'hand3_ultraextend',last_n_milliseconds)
-})
-
-
-test_that("hand 3 ultraflex REPLICATES", {
-
-filename_3A <- "noiseResponse_ST1BC_2017_12_20_19_50_38_PD_Extmech_good_ultraflex_NOTAP.txt"
-hand3_dec20_ultraflex <- fread_df_from_Resilio(filename_3A)
-manual_3tap_for_hand3_ultraflex <- fread_df_from_Resilio("noiseResponse_ST1BC_2017_12_20_20_05_37_manual_3tap_extmech_for_ultraflex.txt")
-JR3_sensor_null <- colMeans(manual_3tap_for_hand3_ultraflex[15000:20000,])
-  untransformed_p <- plot_measured_command_reference_over_time(hand3_dec20_ultraflex)
-  ggsave(to_output_folder(paste0(signals_prefix,filename_3A ,".pdf")),
-   untransformed_p, width=90, height=30, limitsize=FALSE)
-  noise_response_wo_null <- munge_JR3_data(hand3_dec20_ultraflex,remove_nonzero_map_creation_ids=FALSE, input_are_voltages=TRUE, JR3_to_fingertip_distance=JR3_to_fingertip_distance,JR3_sensor_null=JR3_sensor_null)
-  p <- plot_measured_command_reference_over_time(noise_response_wo_null)
-  ggsave(to_output_folder(paste0("xray_for_",filename_3A ,".pdf")), p, width=90, height=30, limitsize=FALSE)
-  expect_true(all(maps_match_across_M0_and_map_groups(noise_response_wo_null, group_indices=group_indices, maps_of_interest=maps_of_interest)))
-  response <-  extract_static_and_dynamic_data(noise_response_wo_null, group_indices = list(lower=302,upper=352),last_n_milliseconds=100)
-  tails <- extract_tails_from_trials(response[[1]],last_n_milliseconds)
-  input_output_data <- as.data.frame(dcrb(lapply(tails,colMeans))[1:32,])
- sorted_input_output <- data.table(input_output_data[order(input_output_data$reference_M0),])
- a<- sorted_input_output[, , by=reference_M0]
- #n = 5 replicates per map
- list_of_replicate_results <-  lapply(split(sorted_input_output, sorted_input_output$reference_M0), tail, 5)
- iqr_set <- lapply(list_of_replicate_results, function(x) {
-apply(as.data.frame(x)[,force_names_to_predict],2,IQR)
-})
- names(iqr_set) <- 0:4
- df_iqr_set <- dcrb(iqr_set)
- xtable(df_iqr_set) #use in latex as replicability table
-
- input_replicate_maps <-  as.data.frame(dcrb(lapply(split(sorted_input_output, sorted_input_output$reference_M0), tail, 1)))[,reference(muscle_names())]
- colnames(input_replicate_maps) <- muscle_biological_names()
- rownames(input_replicate_maps) <- 0:4
-
 })
