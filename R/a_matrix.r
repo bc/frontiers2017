@@ -405,37 +405,36 @@ calculate_and_display_A_fit_per_sample <- function(samples,...){
  })
 }
 
-force_names_to_predict <- c("JR3_FX","JR3_FY","JR3_FZ","JR3_MX","JR3_MY","JR3_MZ")
 
-##' Will modularize this as necessary
-dynamic_source_df <- load_dynamic_matrix_csv()
-
-##'TODO: Make function to load dynamic_csv data (super specific function for loading only ONE set of hand data)
-##'PUT THIS FILE IN MAIN.R
-##' Change this function to take the output of that file
-find_dynamic_A_matrix <- function(dynamic_source_df){
-   dynamic_A_matrix = matrix(nrow = 7, ncol = 6, byrow = TRUE)
-   for(i in 1:nrow(dynamic_source_df)){
-      for(j in 1:ncol(dynamic_source_df)){
-         dynamic_source_df[i,j] = 10 ^ (dynamic_source_df[i,j]/20)
-      }
-   }
-   initial_col = 2
-   for(i in 1:nrow(dynamic_A_matrix)){
-      for(j in 1:ncol(dynamic_A_matrix)){
-         dynamic_A_matrix[i,j] = dynamic_source_df[1,initial_col]
-         initial_col = initial_col + 3
-      }
-   }
-   colnames(dynamic_A_matrix) <- force_names_to_predict
-   rownames(dynamic_A_matrix) <- measured(muscle_names())
-   return(dynamic_A_matrix)
+#FUNCTIONS FOR DYNAMIC A MATRICES
+mag_colname <- function(input_index, output_index){
+  paste0("mag_i",input_index, "o", output_index)
+}
+freq_colname <- function(input_index, output_index){
+  paste0("freq_i",input_index, "o", output_index)
+}
+phase_colname <- function(input_index, output_index){
+  paste0("phase_i",input_index, "o", output_index)
 }
 
+extract_DC_from_dynamic_response_matrix <- function(dynamic_source_df){
+  DC_magnitudes_raw <- head(dynamic_source_df,1)
+  input_idxs <- 0:6
+  output_idxs <- 0:5
+  vals_per_magnitude <- melt(lapply(input_idxs, function(i){
+    lapply(output_idxs, function(o){10^(DC_magnitudes_raw[mag_colname(i,o)]/20.0)})
+  }))
+  A_mat <- do.call("cbind",split(vals_per_magnitude["value"], vals_per_magnitude$L1))
+  colnames(A_mat) <- measured(muscle_names())
+  rownames(A_mat) <- dots_to_underscores(force_column_names)
+  return(t(A_mat))
+}
 ##'TODO: Name this differently to be clear that it is the difference between two matrices
-plot_A_matrix_image <- function(dynamic_source_df, static_source_df){
-   dynamic_A_matrix <- find_dynamic_A_matrix(dynamic_source_df)
-   static_A_matrix <- A_fit_from_80_20_split(static_source_df, measured(muscle_names()), force_names_to_predict)[[1]]
-   image(dynamic_A_matrix - static_A_matrix)
-   return(dynamic_A_matrix - static_A_matrix)
+plot_dynamic_vs_static_A_mat <- function(dynamic_source_df, static_source_df, muscles_of_interest, forces_of_interest){
+   dynamic_A_matrix <- extract_DC_from_dynamic_response_matrix(dynamic_source_df)
+   static_A_matrix <- A_fit_from_80_20_split(static_source_df, muscles_of_interest, forces_of_interest)[[1]]
+   difference <- dynamic_A_matrix - static_A_matrix
+   rownames(difference) <- muscle_names()
+   p <- ggplot(melt(difference), aes(Var1,value)) + geom_col() + facet_wrap(~Var2) +xlab("Muscle") + ylab("Dynamic DC - Static DC") + theme_minimal()
+   ggsave(to_output_folder("dynamic_vs_static_A_mat_hand3_ultraflex.pdf"), p, width=8,height=4)
 }

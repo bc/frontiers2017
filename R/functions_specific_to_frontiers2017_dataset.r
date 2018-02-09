@@ -1,3 +1,8 @@
+load_dynamic_matrix_csv <- function(filename){
+   dynamic_source_df <- read.csv(paste0('~/Documents/GitHub/bc/frontiers2017/dynamicAnalysisResults/', filename))
+   return(dynamic_source_df)
+}
+
 # hardcoded specifically for
 # realTimeData2017_08_16_13_23_42_subset_of_first_posture.csv
 save_snapshot_for_first_posture <- function(raw_data_timeseries_df, output_filepath) {

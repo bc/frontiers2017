@@ -234,7 +234,7 @@ split_by_map_and_remove_wrongly_lengthed_samples <- function(noise_response_wo_n
 ##' A_fit_from_80_20_split & evaluate against test data.
 ##' at end also prints out results of fit_evaluation_without_offset(A_fit, as.data.frame(test_data))
 ##' @param input_output_data data including regressor and response. corresponding to muscles_of_interest and force_names_to_predict
-##' @param muscles_of_interest,force_names_to_predict vector of strings
+##' @param muscles_of_interest,force_names_to_predict vector of strings. NOT reference muscles. must be "M0", etc.
 ##' @return A_fit fit object as a result from_A_matrix
 A_fit_from_80_20_split <- function(input_output_data, muscles_of_interest, force_names_to_predict){
   data <- df_split_into_training_and_testing(input_output_data, fraction_training = 0.80)

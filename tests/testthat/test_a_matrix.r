@@ -12,13 +12,11 @@ data <- df_split_into_training_and_testing(sample_input_output_data, fraction_tr
 training_data <- data$train
 test_data <- data$test
 
-dynamic_source_df <- load_dynamic_matrix_csv()
-rds_folder_path <- "~/Resilio Sync/data/ForceTrials_at_each_posture/"
-sample_posture_path <- dir(rds_folder_path)[15]
-sample_posture_data <- readRDS(paste0(rds_folder_path, sample_posture_path))
-input_output_data <- converged_colmeans(sample_posture_data, last_n_milliseconds = 100)
-
-
+dynamic_source_df <- load_dynamic_matrix_csv("hand3_ultraflex_clean_timeseries_Meas_fresp.csv")
+input_output_data <- hand3_hand4_clean_samples()$hand3_ultraflex
+test_that("compare dynamically generated A matrix and statically generated A matrix", {
+   plot_dynamic_vs_static_A_mat(dynamic_source_df,input_output_data,muscles_of_interest=muscle_names(), dots_to_underscores(force_column_names))
+})
 
 x1 <- matrix(c(-1), nrow = 1, ncol = 1, byrow = TRUE)
 b1 <- matrix(c(-1), nrow = 1, ncol = 1, byrow = TRUE)
@@ -190,9 +188,4 @@ test_that("evaluate ability to find A matrix for known canonical system", {
   A_fit <- find_A_matrix_without_offset(data, regressor_names = muscle_names()[1:3], forces_of_interest = "JR3_FX")
   expect_true(max(abs(A_fit$endpointForcePrediction - A_fit$endpointForceObservation)) < 1e-5)
   t(A_fit$AMatrix) == canonical_A[1,]
-})
-
-test_that("compare dynamically generated A matrix and statically generated A matrix", {
-   ##'Re-doing all these with new functions
-   expect_silent(plot_A_matrix_image(dynamic_source_df,input_output_data))
 })
