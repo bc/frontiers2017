@@ -246,3 +246,29 @@ A_fit_from_80_20_split <- function(input_output_data, muscles_of_interest, force
     A_fit$test_data <- as.data.frame(test_data)
   return(A_fit)
 }
+
+##' Identical to A_fit_from_80_20_split, but uses a set number of samples (default number is 5)
+get_A_fit_from_80_20_split_n_samples <- function(input_output_data, muscles_of_interest, force_names_to_predict, n = 5)
+{
+  training_data <- input_output_data[1:(n*0.8),]
+  test_data <- input_output_data[((n*0.8) + 1):n,]
+  num_muscles <- length(muscles_of_interest)
+  A_fit <- find_A_matrix_without_offset(as.data.frame(training_data), measured(muscles_of_interest),
+    force_names_to_predict)
+    A_fit$test_data <- as.data.frame(test_data)
+  return(A_fit)
+}
+
+##' TODO: Document this function
+get_sample_size_histograms <- function(input_output_data, muscles_of_interest, force_names_to_predict, x = 5, y = 300)
+{
+A_fits <- lapply(seq(x,y, by=5),function(n) {
+  get_A_fit_from_80_20_split_n_samples(input_output_data=input_output_data, muscles_of_interest=muscles_of_interest, force_names_to_predict=force_names_to_predict,n)
+})
+euclidian_errors <- lapply(A_fits, euclidian_errors_against_test_set)
+names(euclidian_errors) <- seq(x,y,by=5)
+boxplot(euclidian_errors, xlab = "Number of Trials Over Time", ylab = "Mean Standard Error")
+abline(h = 0.4)
+}
+
+
