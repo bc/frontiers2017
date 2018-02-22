@@ -33,8 +33,6 @@ JR3_sensor_null <- colMeans(manual_3tap_for_hand3_ultraflex[15000:20000,])
   expect_true(all(maps_match_across_M0_and_map_groups(noise_response_wo_null, group_indices=group_indices, maps_of_interest=maps_of_interest)))
   response <-  extract_static_and_dynamic_data(noise_response_wo_null, group_indices, last_n_milliseconds)
   write_csv_of_timeseries_and_input_output(dcrb(response$dynamic_trials_list),response$static_df,'hand3_ultraflex',last_n_milliseconds)
-  list_of_replicate_results <- replicate_df_list_from_noise_response(noise_response_wo_null, last_n_milliseconds)
-  write_replicate_results_to_rds(to_output_folder(list_of_replicate_results,'hand3_ultraflex', last_n_milliseconds))
 })
 
 test_that("hand 3 flex", {

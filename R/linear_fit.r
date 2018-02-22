@@ -116,24 +116,6 @@ list_of_xy_to_df <- function(list, xy_colnames) {
   return(df)
 }
 
-##' posture dependency bi plot
-##' just makes plot of settling~delta_tension
-##' TODO Create test'
-##' @param posture_dependency data frame with columns: adepx_x, adept_y, vaf
-##' @param independent_variable_name string of the independent variable i.e. 'adept_x'
-##' @param response_variable_name string of the response variable i.e. 'vafs'
-##' @return ggplot object of the resultant plot
-##' @export
-##' @importFrom WVPlots ScatterHistC
-posture_dependency_plot <- function(posture_dependency, independent_variable_name,
-  response_variable_name) {
-  linear_relationship_title <- is_a_function_of(independent_variable_name, response_variable_name)
-  p <- WVPlots::ScatterHist(posture_dependency, independent_variable_name, response_variable_name,
-    smoothmethod = "lm", title = linear_relationship_title,
-    annot_size = 1)
-  return(p)
-}
-
 ##' Compose a Y~X string for use in titles for linear relationships
 ##' TODO Create test'
 ##' @param x string, independent variable name
