@@ -14,7 +14,6 @@ Depends:
   roxygen2,
   xml2,
   caTools,
-  WVPlots,
   GGally,
   plotrix,
   scatterplot3d,
