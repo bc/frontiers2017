@@ -73,7 +73,6 @@ ft_to_df <- function(ForceTrial) {
   return(as.data.frame(do.call("cbind", ForceTrial)))
 }
 
-
 ##' Get a stability df from a list of Force Trials
 ##' @param list_of_force_trials List of force trials
 ##' @return stability_df a stability data frame with initial_reference_force delta_force amortized_velocity_of_force, initial_index final_index final_reference_force settling_time

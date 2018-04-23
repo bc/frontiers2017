@@ -1,5 +1,5 @@
 load_dynamic_matrix_csv <- function(filename){
-   dynamic_source_df <- read.csv(paste0('~/Documents/GitHub/bc/frontiers2017/dynamicAnalysisResults/', filename))
+   dynamic_source_df <- read.csv(paste0('~/Resilio\ Sync/data/dynamicAnalysisResults_100bootstrap_analyses_via_kian/', filename))
    return(dynamic_source_df)
 }
 
