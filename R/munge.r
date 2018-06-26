@@ -138,16 +138,21 @@ extract_tails_from_trials <- function(trials, last_n_milliseconds) {
 ##' @param timeseries running time series with changes in reference_MX, responses in JR3_FJ
 ##' @param input_output_data list of timeseries elements, each a timeseries for one desired reference force. This is the static response data.
 ##' @param data_filename sting to identify what hand/posture/parameters yielded this dataset.
+##' @importFrom data.table fwrite
 write_csv_of_timeseries_and_input_output <- function(timeseries, input_output_data,
   data_filename, last_n_milliseconds) {
   timeseries_filepath <- to_output_folder(paste0(data_filename, "_clean_timeseries.csv"))
   static_response_path <- to_output_folder(paste0(data_filename, "_clean_static_response_from_tail_",
     last_n_milliseconds, "ms_mean.csv"))
   message(paste0("Saving timeseries to ", timeseries_filepath))
-  write.csv(timeseries, timeseries_filepath, row.names = FALSE)
+  fwrite(timeseries, timeseries_filepath, row.names = FALSE)
   message(paste0("Saving timeseries to ", static_response_path))
-  write.csv(input_output_data, static_response_path, row.names = FALSE)
+  fwrite(input_output_data, static_response_path, row.names = FALSE)
 }
+##' Extract static and dynamic data from time series that's been tared
+##' this is useful for when you have a solid input-output timeseries dataset, where it is split by map_creation_ids. 
+##' it's set up for sampling at 1kHz, so if you have a different approach, your last_n_milliseconds will need to be edited to reflect the 
+##' actual sampling frequency.
 ##' @param noise_response_wo_null dataset, after JR3 has been calibrated and non-interesting data removed.
 ##' @param group_indices group_indices vector of two indices, represenging rleid group #'s of interest
 ##' @param last_n_milliseconds window for the mean static value

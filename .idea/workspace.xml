@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="fa0e6e74-5737-4dce-b891-6458fb990b06" name="Default" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/dictionaries/briancohn.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/R_User_Library.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NAMESPACE" beforeDir="false" afterPath="$PROJECT_DIR$/NAMESPACE" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/R/a_matrix.r" beforeDir="false" afterPath="$PROJECT_DIR$/R/a_matrix.r" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/R/data_description.r" beforeDir="false" afterPath="$PROJECT_DIR$/R/data_description.r" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/R/functions_specific_to_frontiers2017_dataset.r" beforeDir="false" afterPath="$PROJECT_DIR$/R/functions_specific_to_frontiers2017_dataset.r" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/R/generic_tools.r" beforeDir="false" afterPath="$PROJECT_DIR$/R/generic_tools.r" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/R/mit_hand_precadaver.r" beforeDir="false" afterPath="$PROJECT_DIR$/R/mit_hand_precadaver.r" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/R/munge.r" beforeDir="false" afterPath="$PROJECT_DIR$/R/munge.r" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/R/nearest_neighbor_modeling.r" beforeDir="false" afterPath="$PROJECT_DIR$/R/nearest_neighbor_modeling.r" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/R/time_series_functions.r" beforeDir="false" afterPath="$PROJECT_DIR$/R/time_series_functions.r" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/R/wrench_replicates.r" beforeDir="false" afterPath="$PROJECT_DIR$/R/wrench_replicates.r" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test_cadaver5.r" beforeDir="false" afterPath="$PROJECT_DIR$/test_cadaver5.r" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/fulldata/munge_data_for_pd/hand3.r" beforeDir="false" afterPath="$PROJECT_DIR$/tests/fulldata/munge_data_for_pd/hand3.r" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/fulldata/pd_hand3_replicates_figure.r" beforeDir="false" afterPath="$PROJECT_DIR$/tests/fulldata/pd_hand3_replicates_figure.r" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/testthat/no_spaces_noise_lo_0_hi_10_nmaps_5000_replicates_1.csv" beforeDir="false" afterPath="$PROJECT_DIR$/tests/testthat/no_spaces_noise_lo_0_hi_10_nmaps_5000_replicates_1.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/testthat/no_spaces_noise_lo_0_hi_10_nmaps_500_replicates_5.csv" beforeDir="false" afterPath="$PROJECT_DIR$/tests/testthat/no_spaces_noise_lo_0_hi_10_nmaps_500_replicates_5.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/testthat/no_spaces_noise_lo_0_hi_20_nmaps_500_replicates_1.csv" beforeDir="false" afterPath="$PROJECT_DIR$/tests/testthat/no_spaces_noise_lo_0_hi_20_nmaps_500_replicates_1.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/testthat/no_spaces_noise_lo_0_hi_20_nmaps_5_replicates_100.csv" beforeDir="false" afterPath="$PROJECT_DIR$/tests/testthat/no_spaces_noise_lo_0_hi_20_nmaps_5_replicates_100.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/testthat/no_spaces_noise_muscles_actuated_independently_lo_0_hi_20_nmaps_100_replicates_1.csv" beforeDir="false" afterPath="$PROJECT_DIR$/tests/testthat/no_spaces_noise_muscles_actuated_independently_lo_0_hi_20_nmaps_100_replicates_1.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/testthat/noise_lo_0_hi_10_nmaps_5000_replicates_1.csv" beforeDir="false" afterPath="$PROJECT_DIR$/tests/testthat/noise_lo_0_hi_10_nmaps_5000_replicates_1.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/testthat/noise_lo_0_hi_10_nmaps_500_replicates_5.csv" beforeDir="false" afterPath="$PROJECT_DIR$/tests/testthat/noise_lo_0_hi_10_nmaps_500_replicates_5.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/testthat/noise_lo_0_hi_20_nmaps_500_replicates_1.csv" beforeDir="false" afterPath="$PROJECT_DIR$/tests/testthat/noise_lo_0_hi_20_nmaps_500_replicates_1.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/testthat/noise_lo_0_hi_20_nmaps_5_replicates_100.csv" beforeDir="false" afterPath="$PROJECT_DIR$/tests/testthat/noise_lo_0_hi_20_nmaps_5_replicates_100.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/testthat/noise_muscles_actuated_independently_lo_0_hi_20_nmaps_100_replicates_1.csv" beforeDir="false" afterPath="$PROJECT_DIR$/tests/testthat/noise_muscles_actuated_independently_lo_0_hi_20_nmaps_100_replicates_1.csv" afterDir="false" />
+    </list>
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="TRACKING_ENABLED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileEditorManager">
+    <leaf />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectFrameBounds">
+    <option name="y" value="23" />
+    <option name="width" value="1920" />
+    <option name="height" value="1177" />
+  </component>
+  <component name="ProjectView">
+    <navigator proportions="" version="1">
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="Scope" />
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="frontiers2017" type="b2602c69:ProjectViewProjectNode" />
+              <item name="frontiers2017" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="frontiers2017" type="b2602c69:ProjectViewProjectNode" />
+              <item name="frontiers2017" type="462c0819:PsiDirectoryNode" />
+              <item name="tests" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="frontiers2017" type="b2602c69:ProjectViewProjectNode" />
+              <item name="frontiers2017" type="462c0819:PsiDirectoryNode" />
+              <item name="tests" type="462c0819:PsiDirectoryNode" />
+              <item name="fulldata" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="frontiers2017" type="b2602c69:ProjectViewProjectNode" />
+              <item name="frontiers2017" type="462c0819:PsiDirectoryNode" />
+              <item name="tests" type="462c0819:PsiDirectoryNode" />
+              <item name="fulldata" type="462c0819:PsiDirectoryNode" />
+              <item name="munge_data_for_pd" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+    </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="RunManager">
+    <configuration name="a_matrix" type="RRunConfigurationType" factoryName="R" temporary="true">
+      <option name="SCRIPT_PATH" value="$PROJECT_DIR$/R/a_matrix.r" />
+      <option name="SCRIPT_ARGS" value="" />
+      <option name="WORKING_DIRECTORY_PATH" value="$PROJECT_DIR$/R" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="R.a_matrix" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="fa0e6e74-5737-4dce-b891-6458fb990b06" name="Default" comment="" />
+      <created>1524519790104</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1524519790104</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="0" y="23" width="1920" height="1177" extended-state="0" />
+    <layout>
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.18229167" />
+      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="right" id="R Packages" order="3" />
+      <window_info anchor="right" id="R Graphics" order="3" />
+      <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
+      <window_info anchor="bottom" id="Version Control" order="7" />
+      <window_info anchor="bottom" id="Python Console" order="7" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.3292683" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info anchor="bottom" id="Terminal" order="7" />
+      <window_info id="Favorites" order="2" side_tool="true" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Find" order="1" />
+    </layout>
+  </component>
+  <component name="VcsContentAnnotationSettings">
+    <option name="myLimit" value="2678400000" />
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/R/a_matrix.r">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="465">
+          <caret line="31" column="65" selection-start-line="31" selection-start-column="65" selection-end-line="31" selection-end-column="65" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/fulldata/munge_data_for_pd/hand3.r">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="600">
+          <caret line="40" column="35" lean-forward="true" selection-start-line="40" selection-start-column="35" selection-end-line="40" selection-end-column="35" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/fulldata/munge_data_for_pd/hand3.r">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="325">
+          <caret line="36" lean-forward="true" selection-start-line="36" selection-end-line="36" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/R/a_matrix.r">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="465">
+          <caret line="31" column="65" selection-start-line="31" selection-start-column="65" selection-end-line="31" selection-end-column="65" />
+        </state>
+      </provider>
+    </entry>
+  </component>
+</project>

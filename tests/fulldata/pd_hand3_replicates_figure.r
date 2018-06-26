@@ -38,4 +38,5 @@ test_that("hand 3 ultraflex REPLICATES", {
  mean_euclidian_residuals_for_replicates<- euclidian_residuals_for_replicates_from_noise_response(noise_response_wo_null, 100,5)
 message("for n=5 maps, what is the mean euclidian residual (in N) from each map's mean wrench value, num replicates = fixed to 5:")
 message(mean(mean_euclidian_residuals_for_replicates))
+browser()
 })

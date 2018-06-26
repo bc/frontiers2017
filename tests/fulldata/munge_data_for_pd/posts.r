@@ -52,13 +52,19 @@ ggplot(mean_residual_for_each_map, aes(angle_4, M4_residual)) + geom_point()
 ggplot(mean_residual_for_each_map, aes(angle_5, M5_residual)) + geom_point()
 ggplot(mean_residual_for_each_map, aes(angle_6, M6_residual)) + geom_point()
 
+ref_and_meas_colnames <- c("map_creation_id","reference_M0", "measured_M0",
+"reference_M1", "measured_M1",
+"reference_M2", "measured_M2",
+"reference_M3", "measured_M3",
+"reference_M4", "measured_M4",
+"reference_M5", "measured_M5",
+"reference_M6", "measured_M6")
+
+plot_ref_vs_meas_linearity(mean_residual_for_each_map)
+ggsave(to_output_folder("dec20_tensions_against_post_ref_vs_measured_fullrange.pdf"), force_matching_full_range, width=90, height=30, limitsize=FALSE)
+
+plot_ref_vs_meas_linearity(mean_residual_for_each_map, c(0,3))
+ggsave(to_output_folder("dec20_tensions_against_post_ref_vs_measured_zoomed.pdf"), force_matching_zoomed, width=90, height=30, limitsize=FALSE)
 
 
 })
-
-1
-2
-3
-4
-5
-6

@@ -66,7 +66,7 @@ task_multiplier_list <- seq(task_bounds[1], task_bounds[2], length.out = num_tas
 task_df <- t(task_direction_to_scale %*% t(task_multiplier_list))
 colnames(task_df) <- force_names_to_predict[1:3]
 sset_scaling <- multiple_tasks_to_sset(A_fit$AMatrix,task_df, thin=100, torque_max_deviation=0.05, num_samples_desired=num_samples_desired)
-sset_feasible_scaling <- filter_infeasible_tasks(sset_scaling, A_fit$AMatrix, max_allowable_residual_from_expected=1e-3, task_bounds=task_bounds)
+sset_feasible_scaling <- filter_infeasible_tasks(sset_scaling, A_fit$AMatrix, max_allowable_residual_from_expected=1e-3, task_bounds=task_bounds, range_tension=range_tension)
 
 dcrb(lapply(sset_feasible_scaling, function(samples){
   boxplot(samples)
@@ -122,7 +122,7 @@ expect_five_points_in_row_for_csv_maps(filename = "scaling_task_n100_per_outputv
   colnames(horizontal_line_tasks) <- force_names_to_predict[1:3]
   scaled_horizontal_line_tasks <- scale_factor_for_magnitude_of_all_horizontal_forces* horizontal_line_tasks
   sset_scaling_horizontal <- multiple_tasks_to_sset(A_fit$AMatrix,scaled_horizontal_line_tasks, thin=100, torque_max_deviation=0.1, num_samples_desired=num_samples_desired)
-  sset_feasible_horizontal <- filter_infeasible_tasks(sset_scaling_horizontal, A_fit$AMatrix, max_allowable_residual_from_expected=1e-3, task_bounds = c(scale_factor_for_magnitude_of_all_horizontal_forces, scale_factor_for_magnitude_of_all_horizontal_forces))
+  sset_feasible_horizontal <- filter_infeasible_tasks(sset_scaling_horizontal, A_fit$AMatrix, max_allowable_residual_from_expected=1e-3, task_bounds = c(scale_factor_for_magnitude_of_all_horizontal_forces, scale_factor_for_magnitude_of_all_horizontal_forces), range_tension=range_tension)
 
 #wait, which ones were feasible?
   dcrb(lapply(sset_feasible_horizontal, function(samples){

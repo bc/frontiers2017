@@ -220,7 +220,10 @@ euclidian_errors_against_test_set <- function(A_fit){
 mean_euclidian_error_against_test_set <- function(A_fit){
   mean(euclidian_errors_against_test_set(A_fit))
 }
+##' eval fit with respect to test data, no offset for lrm
+##' prints output, no returned data
 ##' @param A_fit must have the test_data element within the list
+##' @param test_data input output data used for testing.
 evaluate_fit_wrt_test_data_without_offset <- function(A_fit, test_data) {
   num_observation <- nrow(test_data)
   regressor_names <- rownames(A_fit$AMatrix)

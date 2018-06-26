@@ -7,6 +7,13 @@ hyphens_to_underscores <- function(str) {
   gsub("-", "_", str)
 }
 
+##' underscores to spaces
+##' @param str string or list of string to do replacement upon underscores
+##' @return str_prime string with spaces
+underscores_to_spaces <- function(str) {
+  gsub("_", " ", str)
+}
+
 ##' hyphens_to_dots
 ##' @param str string or list of strings to do replacement upon
 ##' @return str_prime string with dot
@@ -77,9 +84,11 @@ save_rds_to_Resilio <- function(object, filename) {
   saveRDS(object, filename)
 }
 
+##' fread df from resilio
 ##' Get a dataframe from a file in Resilio's data folder
 ##' @param filename string of the object of interest, i.e. 'realTimeData2017_08_16_13_23_42.txt'
 ##' @return df data.frame of the file of interest, via fread with data.table=FALSE
+##' @export
 fread_df_from_Resilio <- function(filename){
   fread(get_Resilio_filepath(filename), data.table=FALSE)
 }
@@ -134,6 +143,13 @@ shuffle_row_wise <- function(df) df[sample(nrow(df)), ]
 ##' @return df row-bound concatenated dataframe
 dcrb <- function(list_of_dataframes) {
   do.call("rbind", list_of_dataframes)
+}
+
+##' Do Call cbind on list of dataframes
+##' @param list of dataframes
+##' @return df column-bound concatenated dataframe
+dccb <- function(list_of_dataframes) {
+  do.call("cbind", list_of_dataframes)
 }
 
 ##' Prepend String

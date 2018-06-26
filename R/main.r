@@ -1,6 +1,7 @@
 #load all available material
 source("R/a_matrix.r")
 source("R/data_description.r")
+source("R/evaluation_of_tension_controllers.r")
 source("R/feasible_activation_set.r")
 source("R/feasible_force_set.r")
 source("R/force_vector_replicability.r")

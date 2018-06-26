@@ -1,5 +1,6 @@
 load_dynamic_matrix_csv <- function(filename){
-   dynamic_source_df <- read.csv(paste0('~/Resilio\ Sync/data/dynamicAnalysisResults_100bootstrap_analyses_via_kian/', filename))
+   filepath <- paste0('~/Resilio\ Sync/data/dynamicAnalysisResults_100bootstrap_analyses_via_kian/', filename)
+   dynamic_source_df <- read.csv(filepath)
    return(dynamic_source_df)
 }
 
@@ -249,6 +250,7 @@ df_of_hand_response_input_output <- function(noise_hand_responses, last_n_millis
 ##' @param sample_maps_data raw timeseries DF, with measured, command, and JR3_FX columns, etc.
 ##' @param ... passed parameters (e.g. include_forces)
 ##' @return grob that contains all six of the points. ready for ggsave.
+##' @export
 plot_measured_command_reference_over_time <- function(sample_maps_data,downsample_amount=100,...){
 plot_list <- list(
   plot_input_output_signals(head(sample_maps_data, 10000), ...),

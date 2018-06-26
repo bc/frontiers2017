@@ -56,6 +56,7 @@ plot_tendon_rise_time_curves <- function(time_series_of_forces, tendon_of_intere
 ##' in front of an input tendon of interest (e.g. M0, M1)
 ##' @param muscle_string e.g. 'M0'
 ##' @return composed_field_name e.g. 'measured_M0'
+##' @export
 measured <- function(muscle_string) {
   paste0("measured_", muscle_string)
 }
@@ -64,6 +65,7 @@ measured <- function(muscle_string) {
 ##' in front of an input tendon of interest (e.g. M0, M1)
 ##' @param muscle_string e.g. 'M0'
 ##' @return composed_field_name e.g. 'reference_M0'
+##' @export
 reference <- function(muscle_string) {
   paste0("reference_", muscle_string)
 }
@@ -72,6 +74,7 @@ reference <- function(muscle_string) {
 ##' in front of an input tendon of interest (e.g. M0, M1)
 ##' @param muscle_string e.g. 'M0'
 ##' @return composed_field_name e.g. 'command_M0'
+##' @export
 command <- function(muscle_string) {
   paste0("command_", muscle_string)
 }
@@ -81,6 +84,7 @@ command <- function(muscle_string) {
 ##' in front of an input tendon of interest (e.g. M0, M1)
 ##' @param muscle_number e.g. 0, or 1
 ##' @return composed_field_name e.g. 'angle_0'
+##' @export
 angle <- function(muscle_number) {
   paste0("angle_", as.character(muscle_number))
 }

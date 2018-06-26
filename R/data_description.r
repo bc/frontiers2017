@@ -274,6 +274,8 @@ plot_porcupine_of_endpoint_wrenches <- function(forces) {
     3), adj = c(0, 0.5))
 }
 
+
+
 ##' Create Color Gradient
 ##' @param x input numeric data
 ##' @param colors list of string colors that are desired in the gradient. c("blue", "yellow") by default

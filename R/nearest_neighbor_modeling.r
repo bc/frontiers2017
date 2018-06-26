@@ -4,6 +4,10 @@ map_neighbor_distances <- function(map_training_data, map_input){
     norm_vector_difference(realdata, map_input)
   }))
 }
+##' K-nearest neighbor interpolation where K=1
+##' Get the closest input neighbor via euclidian neighbor distances. euclidian is implemented with norm_vector_difference.
+##' @param training_data only the training data reference values
+##' @param vec the test_input reference values
 ##' @return map_row integer map row of the training set muscle activation that was closest to the map of interest
 get_map_row_of_training_with_smallest_distance_to_vec <- function(training_data, vec){
   which.min(map_neighbor_distances(training_data, vec))

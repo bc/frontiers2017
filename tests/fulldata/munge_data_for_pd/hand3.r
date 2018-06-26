@@ -49,6 +49,7 @@ indices_for_null <- 1000000:1100000
   response <-  extract_static_and_dynamic_data(noise_response_wo_null, group_indices, last_n_milliseconds)
   write_csv_of_timeseries_and_input_output(dcrb(response$dynamic_trials_list),response$static_df,'hand3_flex',last_n_milliseconds)
 })
+
 test_that("hand 3 extend", {
 
 filename_3C <- "noiseResponse_ST1BC_2017_12_20_20_16_25_3tap_all_good_extended_ish_posture.txt"

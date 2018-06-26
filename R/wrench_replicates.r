@@ -22,9 +22,6 @@ histogram_per_absolute_residual_from_vector_dimension <- function(residuals_per_
   melt(residuals_per_map)
   ggplot(residuals_per_map[1], aes(JR3_FX)) + geom_histogram(fill = "black") +
     theme_minimal()
-
-
-
   sapply(colnames(residuals_per_map[1:3]), function(force_dimension_of_interest) {
     hist(residuals_per_map[, force_dimension_of_interest], col = "black", main = force_dimension_of_interest,
       xlim = c(-force_max_abs_residual_from_mean, force_max_abs_residual_from_mean),
@@ -37,7 +34,8 @@ histogram_per_absolute_residual_from_vector_dimension <- function(residuals_per_
   })
 }
 
-
+##' Print latex table for replicate_maps
+##' useful for demonstrating how replicable the maps are
 ##' @param static_response input_output_data with columns like JR3_FX, and reference_M0
 print_latex_table_for_replicate_maps <- function(static_response) {
   responses_split_by_M0 <- split(static_response, static_response$reference_M0)
@@ -73,6 +71,8 @@ list_of_replicates_to_replicates_to_residuals_of_mean_magnitude <- function(list
   return(norm_vec_residuals_df)
 }
 
+##' create static response data table
+##' produced in order of increasing reference_M0.
 ##' @param dynamic_trials_list list, output from extract_static_and_dynamic_data
 ##' @param last_n_milliseconds integer, number of ms to sample from end of ForceTrial
 ##' @return data.frame of the stable data, where each row is a static reponse to one of the replicates.
@@ -113,8 +113,10 @@ print_how_many_samples_of_each_map_were_collected <- function(residual_sets_dt) 
   print(df)
 }
 
-
-##' @param melted_df where first col is the JR3 name of dimension, and the next is the value of interest.
+##' plot boxplot facete dby JR3
+##' computes plot where xlab is the muscle activation pattern, and y is the residual value. faceted by force dimension.'
+##' @return p ggplot2 object
+##' @param melted_df where first col is the JR3 name of dimension, and the next is the value of interest, called residual_from_mean.
 plot_boxplot_faceted_by_JR3 <- function(melted_df) {
   p0 <- ggplot(melted_df, aes(map, residual_from_mean))
   p0 <- p0 + geom_boxplot()
@@ -210,7 +212,8 @@ mse <- function(a, b) mean((a - b)^2)
 ##' @return rmse numeric value in same units as original
 rmse <- function(a, b) sqrt(mse(a, b))
 
-#3' euclidian_residuals_for_each_map
+##' euclidian_residuals_for_each_map
+##' useful for understanding how wide the variance is for a given for a given muscle activation pattern, and doing this for multiple maps.
 ##' @param list_of_replicate_results list of input_output_data data tables, each with the JR3 columns.
 ##' @return euclidian_residual_from_mean_per_map list of numeric vectors, each the set of distances from the mean wrench (where only Fxyz are incorporated, moments are ignored.)
 euclidian_residuals_for_each_map <- function(list_of_replicate_results) {
