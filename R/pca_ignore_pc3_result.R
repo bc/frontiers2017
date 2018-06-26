@@ -5,6 +5,7 @@
 dcrb <- function(list_of_dataframes) {
   do.call("rbind", list_of_dataframes)
 }
+
 library(reshape2)
 library(magrittr)
 source('pca_analysis.R')
@@ -89,3 +90,7 @@ p_z_score <- p_z_score + theme_classic() + xlab("Task intensity in distal direct
 
 G <- arrangeGrob(grobs=list(p_sd, p, p_z_score), ncol=1)
 ggsave('hi.png', G, height=10,width=7) 
+
+
+#TODO work on
+lapply(list_of_hitrun_dataframes_for_different_forces, cov)
