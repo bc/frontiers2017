@@ -22,11 +22,11 @@ Depends:
   pbmcapply,
   hitandrun,
   pbapply,
-  rgl,
   geometry,
   covr
 Suggests:
     lintr,
+    rgl,
     covr
 License: USC
 Encoding: UTF-8
